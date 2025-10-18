@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Alex Johnson",
+        "role": "Full Stack Developer",
+        "avatar": "/assets/images/avatars/alex.jpg",
+        "text": "This platform helped me transition from retail to a developer role in 6 months. The project-based approach was exactly what I needed.",
+        "rating": 5
+    },
+    {
+        "name": "Maria Garcia",
+        "role": "Frontend Developer",
+        "avatar": "/assets/images/avatars/maria.jpg",
+        "text": "The courses are well-structured and the instructors are amazing. I doubled my salary after completing the JavaScript course.",
+        "rating": 5
+    },
+    {
+        "name": "David Kim",
+        "role": "Backend Developer",
+        "avatar": "/assets/images/avatars/david.jpg",
+        "text": "As a complete beginner, I found the PHP course incredibly helpful. The community support made all the difference.",
+        "rating": 4
+    }
+]

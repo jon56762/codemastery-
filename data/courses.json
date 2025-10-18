@@ -1,0 +1,50 @@
+[
+    {
+        "id": 1,
+        "title": "PHP for Beginners",
+        "description": "Learn PHP from scratch and build dynamic web applications",
+        "image": "/assets/images/php-course.jpg",
+        "instructor": "John Doe",
+        "price": 0,
+        "rating": 4.5,
+        "lessons": 15,
+        "category": "Web Development",
+        "featured": true
+    },
+    {
+        "id": 2,
+        "title": "JavaScript Mastery",
+        "description": "Master modern JavaScript and build interactive websites",
+        "image": "/assets/images/js-course.jpg",
+        "instructor": "Sarah Wilson",
+        "price": 49,
+        "rating": 4.8,
+        "lessons": 22,
+        "category": "Web Development",
+        "featured": true
+    },
+    {
+        "id": 3,
+        "title": "HTML & CSS Fundamentals",
+        "description": "Build beautiful, responsive websites from scratch",
+        "image": "/assets/images/html-css-course.jpg",
+        "instructor": "Mike Johnson",
+        "price": 0,
+        "rating": 4.6,
+        "lessons": 18,
+        "category": "Web Development",
+        "featured": true
+    },
+    {
+        "id": 4,
+        "title": "Bootstrap 5 Crash Course",
+        "description": "Learn Bootstrap 5 and create professional layouts quickly",
+        "image": "/assets/images/bootstrap-course.jpg",
+        "instructor": "Emily Chen",
+        "price": 29,
+        "rating": 4.7,
+        "lessons": 12,
+        "category": "Web Development",
+        "featured": true
+    }
+]

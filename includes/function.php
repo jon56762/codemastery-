@@ -1,73 +1,109 @@
 <?php
-function getFeaturedCourses() {
-    $courses = json_decode(file_get_contents(DATA_PATH . 'courses.json'), true) ?? [];
-    $featured = array_filter($courses, function($course) {
-        return $course['featured'] ?? false;
-    });
-    return array_slice($featured, 0, 4);
+// File storage functions
+function saveToFile($filename, $data) {
+    $filePath = DATA_PATH . $filename;
+    return file_put_contents($filePath, json_encode($data, JSON_PRETTY_PRINT));
 }
 
-function getAllCourses() {
-    return json_decode(file_get_contents(DATA_PATH . 'courses.json'), true) ?? [];
-}
-
-function getCourseCategories() {
-    $courses = getAllCourses();
-    $categories = array_unique(array_column($courses, 'category'));
-    return $categories;
-}
-
-function getCourseById($id) {
-    $courses = getAllCourses();
-    foreach ($courses as $course) {
-        if ($course['id'] == $id) {
-            return $course;
-        }
+function getFromFile($filename) {
+    $filePath = DATA_PATH . $filename;
+    if (!file_exists($filePath)) {
+        return [];
     }
-    return null;
+    return json_decode(file_get_contents($filePath), true) ?? [];
 }
 
-function getTestimonials() {
-    return json_decode(file_get_contents(DATA_PATH . 'testimonials.json'), true) ?? [];
-}
-
+// Platform statistics
 function getPlatformStats() {
-    $stats = json_decode(file_get_contents(DATA_PATH . 'stats.json'), true);
-    if (!$stats) {
-        $stats = [
-            'students' => 12500,
-            'courses' => 150,
-            'rating' => 4.8,
-            'instructors' => 45,
-            'success_stories' => 2300
-        ];
-        file_put_contents(DATA_PATH . 'stats.json', json_encode($stats, JSON_PRETTY_PRINT));
-    }
-    return $stats;
-}
-
-function getKeyBenefits() {
     return [
-        [
-            'icon' => '<i class="fas fa-bullseye fa-3x text-primary"></i>',
-            'title' => 'Project-Based Learning',
-            'description' => 'Learn by building real-world projects that showcase your skills'
-        ],
-        [
-            'icon' => '<i class="fas fa-bolt fa-3x text-primary"></i>',
-            'title' => 'Self-Paced Learning',
-            'description' => 'Study at your own pace with lifetime access to all course materials'
-        ],
-        [
-            'icon' => '<i class="fas fa-chalkboard-teacher fa-3x text-primary"></i>',
-            'title' => 'Expert Instructors',
-            'description' => 'Learn from industry professionals with years of experience'
-        ],
-        [
-            'icon' => '<i class="fas fa-trophy fa-3x text-primary"></i>',
-            'title' => 'Career Support',
-            'description' => 'Get help with job preparation and portfolio building'
-        ]
+        'total_students' => 12500,
+        'total_courses' => 150,
+        'total_instructors' => 45,
+        'total_enrollments' => 28000,
+        'average_rating' => 4.8
     ];
 }
+
+// Newsletter subscription
+function handleNewsletterSignup($email) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    
+    $newsletter = getFromFile('newsletter.json');
+    
+    // Check if already subscribed
+    foreach ($newsletter as $subscriber) {
+        if ($subscriber['email'] === $email) {
+            return false;
+        }
+    }
+    
+    $subscriber = [
+        'email' => $email,
+        'subscribed_at' => date('Y-m-d H:i:s')
+    ];
+    
+    $newsletter[] = $subscriber;
+    $success = saveToFile('newsletter.json', $newsletter);
+    
+    if ($success) {
+        $_SESSION['success'] = "Thanks for subscribing! We'll keep you updated.";
+    }
+    
+    return $success;
+}
+
+// Initialize sample data
+function initializeSampleData() {
+    // Sample testimonials
+    if (empty(getFromFile('testimonials.json'))) {
+        $testimonials = [
+            [
+                'id' => 1,
+                'name' => 'Alex Johnson',
+                'role' => 'Full Stack Developer',
+                'avatar' => '/assets/images/avatars/1.jpg',
+                'text' => 'This platform helped me transition from retail to a developer role in 6 months. The project-based approach was exactly what I needed.',
+                'rating' => 5
+            ],
+            [
+                'id' => 2,
+                'name' => 'Maria Garcia',
+                'role' => 'Frontend Developer',
+                'avatar' => '/assets/images/avatars/2.jpg',
+                'text' => 'The courses are well-structured and the instructors are amazing. I doubled my salary after completing the JavaScript course.',
+                'rating' => 5
+            ],
+            [
+                'id' => 3,
+                'name' => 'David Kim',
+                'role' => 'Backend Developer',
+                'avatar' => '/assets/images/avatars/3.jpg',
+                'text' => 'As a complete beginner, I found the community support incredible. The instructors are always available to help.',
+                'rating' => 4
+            ]
+        ];
+        saveToFile('testimonials.json', $testimonials);
+    }
+    
+    // Sample admin user
+    if (empty(getFromFile('users.json'))) {
+        $users = [
+            [
+                'id' => 1,
+                'name' => 'Admin User',
+                'email' => 'admin@codemastery.com',
+                'password' => password_hash('admin123', PASSWORD_DEFAULT),
+                'role' => 'admin',
+                'status' => 'active',
+                'created_at' => date('Y-m-d H:i:s')
+            ]
+        ];
+        saveToFile('users.json', $users);
+    }
+}
+
+// Initialize data on first run
+initializeSampleData();
 ?>

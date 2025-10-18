@@ -16,11 +16,18 @@
 .badge.bg-warning { background-color: #ffc107 !important; color: #000; }
 .badge.bg-danger { background-color: #dc3545 !important; }
 
+.btn-outline-dark.active {
+    background-color: #000;
+    border-color: #000;
+    color: #fff;
+}
+
 .course-card .card-title a:hover {
     color: #000 !important;
     text-decoration: underline !important;
 }
 
-.hero-section {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+.form-select:focus, .form-control:focus {
+    border-color: #000;
+    box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.1);
 }

@@ -12,14 +12,24 @@ $url = parse_url($_SERVER['REQUEST_URI'])['path'];
 $routes = [
     '/' => 'controllers/index.php',
     '/courses' => 'controllers/courses.php',
+    '/course' => 'controllers/course-detail.php',
     '/about' => 'controllers/about.php',
     '/contact' => 'controllers/contact.php',
     '/pricing' => 'controllers/pricing.php',
     '/blog' => 'controllers/blog.php',
-    '/login' => 'controllers/auth.php',
-    '/signup' => 'controllers/auth.php',
-    '/logout' => 'controllers/auth.php'
+    '/login' => 'controllers/login.php',
+    '/signup' => 'controllers/signup.php',
+    '/logout' => 'controllers/logout.php',
+    '/process-login' => 'controllers/process-login.php',
+    '/process-signup' => 'controllers/process-signup.php',
+    '/dashboard' => 'controllers/dashboard.php'
 ];
+
+if (preg_match('#^/course/(\d+)$#', $url, $matches)) {
+    $_GET['id'] = $matches[1];
+    require 'controllers/course-detail.php';
+    exit;
+}
 
 function routesToControllers($url, $routes) {
     if (array_key_exists($url, $routes)) {
@@ -31,7 +41,7 @@ function routesToControllers($url, $routes) {
 
 function abort() {
     http_response_code(404);
-    require 'views/404.php';
+    require 'view/404.php';
     die();
 }
 

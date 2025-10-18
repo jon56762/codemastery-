@@ -9,7 +9,7 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: #ffffff;
     color: #000000;
-    padding-top: 76px;
+
 }
 
 /* Navbar Styles */
@@ -146,11 +146,11 @@ body {
     color: var(--primary-black);
 }
 
+
+
 /* Responsive */
 @media (max-width: 768px) {
-    body {
-        padding-top: 70px;
-    }
+    
 
     .hero-section {
         padding: 60px 0;

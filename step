@@ -1,0 +1,178 @@
+CodeMastery - Step-by-Step Page Creation Plan
+I'll break this down into logical phases to avoid confusion:
+
+🎯 PHASE 1: CORE FOUNDATION (Week 1)
+1. Main Router & Configuration ✅
+index.php (main router)
+
+config.php
+
+.htaccess
+
+File structure setup
+
+2. Authentication System ✅
+controllers/auth.php (login/signup/logout)
+
+includes/auth-functions.php
+
+views/pages/auth/login.php
+
+views/pages/auth/signup.php
+
+3. Public Pages ✅
+controllers/home.php (landing page)
+
+views/pages/home.php
+
+views/layouts/header.php
+
+views/layouts/footer.php
+
+4. Core Functions ✅
+includes/functions.php
+
+Data file structure (data/ directory)
+
+🎯 PHASE 2: COURSE DISCOVERY (Week 2)
+5. Courses Catalog
+controllers/courses.php
+
+views/pages/courses.php
+
+Course filtering/search functionality
+
+6. Course Details
+controllers/course-detail.php
+
+views/pages/course-detail.php
+
+Enrollment system
+
+7. Static Pages
+controllers/about.php
+
+controllers/contact.php
+
+controllers/pricing.php
+
+controllers/blog.php
+
+🎯 PHASE 3: STUDENT EXPERIENCE (Week 3)
+8. Student Dashboard
+controllers/dashboard.php
+
+views/pages/student/dashboard.php
+
+Progress tracking
+
+9. Course Player
+controllers/course-player.php
+
+views/pages/student/course-player.php
+
+Lesson navigation
+
+10. Student Profile
+controllers/student-profile.php
+
+views/pages/student/profile.php
+
+11. My Courses
+controllers/my-courses.php
+
+views/pages/student/my-courses.php
+
+🎯 PHASE 4: INSTRUCTOR PLATFORM (Week 4)
+12. Instructor Application
+controllers/become-instructor.php
+
+views/pages/become-instructor.php
+
+13. Instructor Dashboard
+controllers/instructor-dashboard.php
+
+views/layouts/instructor-header.php
+
+views/pages/instructor/dashboard.php
+
+14. Course Management
+controllers/instructor-courses.php
+
+views/pages/instructor/courses.php
+
+15. Course Builder
+controllers/course-builder.php
+
+views/pages/instructor/course-builder.php
+
+🎯 PHASE 5: INSTRUCTOR ADVANCED (Week 5)
+16. Instructor Analytics
+controllers/instructor-analytics.php
+
+views/pages/instructor/analytics.php
+
+17. Instructor Earnings
+controllers/instructor-earnings.php
+
+views/pages/instructor/earnings.php
+
+18. Instructor Profile
+controllers/instructor-profile.php
+
+views/pages/instructor/profile.php
+
+🎯 PHASE 6: ADMIN PLATFORM (Week 6)
+19. Admin Dashboard
+controllers/admin.php
+
+views/layouts/admin-header.php
+
+views/pages/admin/dashboard.php
+
+20. Course Moderation
+controllers/admin-courses.php
+
+views/pages/admin/courses.php
+
+21. User Management
+controllers/admin-users.php
+
+views/pages/admin/users.php
+
+🎯 PHASE 7: ADMIN ADVANCED (Week 7)
+22. Platform Analytics
+controllers/admin-analytics.php
+
+views/pages/admin/analytics.php
+
+23. Revenue Management
+controllers/admin-revenue.php
+
+views/pages/admin/revenue.php
+
+24. System Settings
+controllers/admin-settings.php
+
+views/pages/admin/settings.php
+
+🎯 PHASE 8: POLISH & ENHANCEMENTS (Week 8)
+25. Content Moderation
+controllers/admin-moderation.php
+
+views/pages/admin/moderation.php
+
+26. Student Billing
+controllers/billing.php
+
+views/pages/student/billing.php
+
+27. Certificates
+controllers/certificates.php
+
+views/pages/student/certificates.php
+
+28. Error Pages
+views/404.php
+
+views/500.php

@@ -1,0 +1,29 @@
+.course-price-card {
+    border: 2px solid #000;
+}
+
+.progress {
+    background-color: #e9ecef;
+}
+
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item.active {
+    color: #000;
+    font-weight: 600;
+}
+
+.list-group-item {
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.card-header {
+    border-bottom: 2px solid #000;
+}

@@ -1,0 +1,29 @@
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.btn-primary {
+    background-color: #000;
+    border-color: #000;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #333;
+    border-color: #333;
+    transform: translateY(-1px);
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+}
+
+.form-control:focus + .input-group-text {
+    border-color: #000;
+}

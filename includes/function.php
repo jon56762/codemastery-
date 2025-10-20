@@ -181,8 +181,11 @@ function updateCourse($courseId, $courseData) {
     return $updated ? saveToFile('courses.json', $courses) : false;
 }
 
-// ==================== ENROLLMENT FUNCTIONS ====================
 
+// ==================== ENROLLMENT FUNCTIONS ====================
+function generateEnrollmentId() {
+    return 'ENR' . date('YmdHis') . rand(1000, 9999);
+}
 function getAllEnrollments() {
     return getFromFile('enrollments.json');
 }
@@ -192,7 +195,7 @@ function enrollStudent($courseId, $studentId) {
     
     // Check if already enrolled
     foreach ($enrollments as $enrollment) {
-        if ($enrollment['course_id'] == $courseId && $enrollment['student_id'] == $studentId) {
+        if ($enrollment['course_id'] == $courseId && $enrollment['user_id'] == $studentId) { // Changed student_id to user_id
             return false;
         }
     }
@@ -200,7 +203,7 @@ function enrollStudent($courseId, $studentId) {
     $enrollment = [
         'id' => generateEnrollmentId(),
         'course_id' => $courseId,
-        'student_id' => $studentId,
+        'user_id' => $studentId, // Changed from student_id to user_id
         'enrolled_at' => date('Y-m-d H:i:s'),
         'progress' => 0,
         'completed_lessons' => [],
@@ -214,7 +217,7 @@ function enrollStudent($courseId, $studentId) {
 function getStudentEnrollments($studentId) {
     $enrollments = getAllEnrollments();
     return array_filter($enrollments, function($enrollment) use ($studentId) {
-        return $enrollment['student_id'] == $studentId;
+        return $enrollment['user_id'] == $studentId; // Changed student_id to user_id
     });
 }
 
@@ -225,9 +228,14 @@ function getCourseEnrollments($courseId) {
     });
 }
 
-
-function generateEnrollmentId() {
-    return 'ENR' . date('YmdHis') . rand(1000, 9999);
+function isUserEnrolled($userId, $courseId) {
+    $enrollments = getAllEnrollments();
+    foreach ($enrollments as $enrollment) {
+        if ($enrollment['user_id'] == $userId && $enrollment['course_id'] == $courseId) {
+            return $enrollment;
+        }
+    }
+    return false;
 }
 
 // ==================== INSTRUCTOR APPLICATION FUNCTIONS ====================
@@ -1056,4 +1064,174 @@ function initializeAnnouncements() {
 
 // Call this in your initializeEmptyData() function
 initializeAnnouncements();
+
+/**
+ * Check if user is instructor
+ */
+function requireInstructor() {
+    $user = getCurrentUser();
+    if (!$user || $user['role'] !== 'instructor') {
+        $_SESSION['error'] = "Instructor access required!";
+        header('Location: /become-instructor');
+        exit;
+    }
+    return true;
+}
+
+/**
+ * Get instructor student count
+ */
+function getInstructorStudentCount($instructorId) {
+    $courses = getCoursesByInstructor($instructorId);
+    $totalStudents = 0;
+    
+    foreach ($courses as $course) {
+        $enrollments = getCourseEnrollments($course['id']);
+        $totalStudents += count($enrollments);
+    }
+    
+    return $totalStudents;
+}
+
+/**
+ * Get instructor revenue
+ */
+function getInstructorRevenue($instructorId) {
+    $courses = getCoursesByInstructor($instructorId);
+    $totalRevenue = 0;
+    
+    foreach ($courses as $course) {
+        $enrollments = getCourseEnrollments($course['id']);
+        $totalRevenue += count($enrollments) * $course['price'];
+    }
+    
+    return $totalRevenue;
+}
+
+/**
+ * Get instructor rating
+ */
+function getInstructorRating($instructorId) {
+    $courses = getCoursesByInstructor($instructorId);
+    $totalRating = 0;
+    $ratedCourses = 0;
+    
+    foreach ($courses as $course) {
+        if (isset($course['rating']) && $course['rating'] > 0) {
+            $totalRating += $course['rating'];
+            $ratedCourses++;
+        }
+    }
+    
+    return $ratedCourses > 0 ? round($totalRating / $ratedCourses, 1) : 0;
+}
+
+/**
+ * Get recent enrollments for instructor
+ */
+function getRecentEnrollmentsForInstructor($instructorId, $limit = 5) {
+    $courses = getCoursesByInstructor($instructorId);
+    $allEnrollments = [];
+    
+    foreach ($courses as $course) {
+        $enrollments = getCourseEnrollments($course['id']);
+        foreach ($enrollments as $enrollment) {
+            $student = getUserById($enrollment['user_id']);
+            $allEnrollments[] = [
+                'student_name' => $student['name'] ?? 'Unknown Student',
+                'course_title' => $course['title'],
+                'enrolled_at' => $enrollment['enrolled_at'],
+                'revenue' => $course['price']
+            ];
+        }
+    }
+    
+    // Sort by enrollment date (newest first)
+    usort($allEnrollments, function($a, $b) {
+        return strtotime($b['enrolled_at']) <=> strtotime($a['enrolled_at']);
+    });
+    
+    return array_slice($allEnrollments, 0, $limit);
+}
+
+/**
+ * Get course performance metrics
+ */
+function getCoursePerformance($instructorId) {
+    $courses = getCoursesByInstructor($instructorId);
+    $performance = [];
+    
+    foreach ($courses as $course) {
+        $enrollments = getCourseEnrollments($course['id']);
+        $completionRate = 0;
+        
+        if (count($enrollments) > 0) {
+            $completed = array_filter($enrollments, function($e) {
+                return ($e['progress'] ?? 0) >= 100;
+            });
+            $completionRate = round((count($completed) / count($enrollments)) * 100);
+        }
+        
+        $performance[] = [
+            'title' => $course['title'],
+            'status' => $course['status'],
+            'enrollment_count' => count($enrollments),
+            'revenue' => count($enrollments) * $course['price'],
+            'rating' => $course['rating'] ?? 0,
+            'completion_rate' => $completionRate
+        ];
+    }
+    
+    return $performance;
+}
+
+/**
+ * Get status badge color
+ */
+function getStatusBadgeColor($status) {
+    $colors = [
+        'published' => 'success',
+        'draft' => 'warning',
+        'pending' => 'info',
+        'rejected' => 'danger'
+    ];
+    
+    return $colors[$status] ?? 'secondary';
+}
+
+function deleteCourse($courseId, $instructorId) {
+    $courses = getAllCourses();
+    $updatedCourses = [];
+    $deleted = false;
+    
+    foreach ($courses as $course) {
+        if ($course['id'] == $courseId && $course['instructor_id'] == $instructorId) {
+            $deleted = true;
+            continue; // Skip this course (delete it)
+        }
+        $updatedCourses[] = $course;
+    }
+    
+    if ($deleted) {
+        return saveToFile('courses.json', $updatedCourses);
+    }
+    
+    return false;
+}
+
+function updateCourseStatus($courseId, $instructorId, $status) {
+    $courses = getAllCourses();
+    $updated = false;
+    
+    foreach ($courses as &$course) {
+        if ($course['id'] == $courseId && $course['instructor_id'] == $instructorId) {
+            $course['status'] = $status;
+            $course['updated_at'] = date('Y-m-d H:i:s');
+            $updated = true;
+            break;
+        }
+    }
+    
+    return $updated ? saveToFile('courses.json', $courses) : false;
+}
 ?>

@@ -177,3 +177,5 @@
     <?php endif; ?>
 
     <div class="content-wrapper" style="padding-top: 80px;">
+
+    <script src="/assets/js/bootstrap.bundle.js"></script>

@@ -34,6 +34,11 @@ $routes = [
     '/dashboard' => 'controllers/dashboard.php'
 ];
 
+if (strpos($url, '/course-player') === 0) {
+    require 'controllers/course-player.php';
+    exit;
+}
+
 if (preg_match('#^/course/(\d+)$#', $url, $matches)) {
     $_GET['id'] = $matches[1];
     require 'controllers/course-detail.php';

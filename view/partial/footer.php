@@ -65,8 +65,6 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="<?= BASE_PATH ?>/assets/js/main.js"></script>
+    <script src="/assets/js/bootstrap.bundle.js"></script>
 </body>
 </html>

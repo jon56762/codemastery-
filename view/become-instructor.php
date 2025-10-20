@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/assets/css/become-instructor.css">
 <div class="container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -232,16 +233,3 @@
         </div>
     </div>
 </div>
-
-<style>
-.accordion-button:not(.collapsed) {
-    background-color: #f8f9fa;
-    color: #000;
-    box-shadow: none;
-}
-
-.accordion-button:focus {
-    box-shadow: none;
-    border-color: rgba(0,0,0,.125);
-}
-</style>

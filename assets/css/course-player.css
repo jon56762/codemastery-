@@ -1,0 +1,77 @@
+.course-player-container {
+    height: 100vh;
+    padding-top: 56px;
+    /* Account for fixed navbar */
+}
+
+.sidebar {
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.main-content {
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        width: 300px;
+        transform: translateX(-100%);
+        z-index: 1040;
+        background: white;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1039;
+        display: none;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+}
+
+.video-container {
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.lesson-content {
+    line-height: 1.7;
+}
+
+.notes-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.progress {
+    height: 6px;
+}
+
+/* Alert positioning for mobile */
+.alert-fixed {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    min-width: 300px;
+    max-width: 90%;
+}

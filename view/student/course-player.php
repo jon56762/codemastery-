@@ -6,73 +6,7 @@
     <title><?= $page_title ?></title>
     <link href="/assets/css/boostrap/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/font-awasome/css/all.css">
-    <style>
-        .course-player-container {
-            height: 100vh;
-            padding-top: 56px; /* Account for fixed navbar */
-        }
-        
-        .sidebar {
-            height: calc(100vh - 56px);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
-        
-        .main-content {
-            height: calc(100vh - 56px);
-            overflow-y: auto;
-        }
-        
-        @media (max-width: 991.98px) {
-            .sidebar {
-                position: fixed;
-                top: 56px;
-                left: 0;
-                width: 300px;
-                transform: translateX(-100%);
-                z-index: 1040;
-                background: white;
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .sidebar-overlay {
-                position: fixed;
-                top: 56px;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 1039;
-                display: none;
-            }
-            
-            .sidebar-overlay.show {
-                display: block;
-            }
-        }
-        
-        .video-container {
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .lesson-content {
-            line-height: 1.7;
-        }
-        
-        .notes-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .progress {
-            height: 6px;
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/course-player.css">
 </head>
 <body>
     <!-- Mobile Sidebar Toggle -->
@@ -84,6 +18,21 @@
             <span class="ms-2 fw-semibold"><?= htmlspecialchars($currentLesson['title']) ?></span>
         </div>
     </div>
+
+    <!-- Success/Error Messages -->
+    <?php if (isset($success_message) && $success_message): ?>
+        <div class="alert alert-success alert-dismissible fade show alert-fixed" role="alert">
+            <?= htmlspecialchars($success_message) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($error_message) && $error_message): ?>
+        <div class="alert alert-danger alert-dismissible fade show alert-fixed" role="alert">
+            <?= htmlspecialchars($error_message) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
 
     <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -171,16 +120,16 @@
                             </div>
                             <div class="d-flex gap-2 flex-wrap">
                                 <!-- Mark Complete Button -->
-                                <form method="POST" class="d-inline">
+                                <form method="POST" class="d-inline" id="markCompleteForm">
                                     <input type="hidden" name="lesson_id" value="<?= $currentLesson['id'] ?>">
                                     <?php if ($isLessonCompleted): ?>
                                         <button type="submit" name="mark_complete" value="incomplete" 
-                                                class="btn btn-success btn-sm">
+                                                class="btn btn-success btn-sm" id="completeBtn">
                                             <i class="fas fa-check-circle me-1"></i>Completed
                                         </button>
                                     <?php else: ?>
                                         <button type="submit" name="mark_complete" value="complete" 
-                                                class="btn btn-outline-dark btn-sm">
+                                                class="btn btn-outline-dark btn-sm" id="completeBtn">
                                             <i class="far fa-circle me-1"></i>Mark Complete
                                         </button>
                                     <?php endif; ?>
@@ -313,9 +262,9 @@
                                                         <div class="card-body p-3">
                                                             <div class="d-flex justify-content-between align-items-start mb-1">
                                                                 <small class="text-muted"><?= $note['timestamp'] ?></small>
-                                                                <form method="POST" class="d-inline" onsubmit="return confirm('Delete this note?')">
+                                                                <form method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this note?')">
                                                                     <input type="hidden" name="delete_note" value="<?= $note['id'] ?>">
-                                                                    <button type="submit" class="btn btn-sm btn-outline-danger p-1">
+                                                                    <button type="submit" class="btn btn-sm btn-outline-danger p-1" title="Delete note">
                                                                         <i class="fas fa-trash fa-xs"></i>
                                                                     </button>
                                                                 </form>
@@ -349,7 +298,7 @@
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/bootstrap.bundle.js"></script>
     <script>
         // Mobile sidebar toggle
         document.addEventListener('DOMContentLoaded', function() {
@@ -407,6 +356,45 @@
                     this.style.height = (this.scrollHeight) + 'px';
                 });
             });
+            
+            // Mark complete button animation
+            const completeBtn = document.getElementById('completeBtn');
+            const markCompleteForm = document.getElementById('markCompleteForm');
+            
+            if (completeBtn && markCompleteForm) {
+                completeBtn.addEventListener('click', function(e) {
+                    // Add loading state
+                    const originalText = completeBtn.innerHTML;
+                    completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+                    completeBtn.disabled = true;
+                    
+                    // The form will submit and page will reload
+                });
+            }
+            
+            // Auto-hide alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+            
+            // Auto-focus note textarea when clicking timestamp
+            if (timestampDisplay && noteTextarea) {
+                timestampDisplay.addEventListener('click', function() {
+                    noteTextarea.focus();
+                });
+            }
+            
+            // Enhanced progress animation
+            const progressBar = document.querySelector('.progress-bar');
+            if (progressBar) {
+                // Animate progress bar
+                const currentWidth = progressBar.style.width;
+                progressBar.style.transition = 'width 0.5s ease-in-out';
+            }
         });
     </script>
 </body>

@@ -118,3 +118,4 @@
     <?php endif; ?>
 
     <div class="content-wrapper instructor-content">
+ <script src="/assets/js/bootstrap.bundle.js"></script>       

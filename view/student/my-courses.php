@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/assets/css/my-courses.css">
 <div class="container-fluid py-4">
     <!-- Header -->
     <div class="row mb-4">
@@ -308,39 +309,6 @@
     </div>
 </div>
 
-<style>
-.course-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    border: 1px solid #e9ecef !important;
-}
-
-.course-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-}
-
-.list-group-item.active {
-    background-color: #000 !important;
-    border-color: #000 !important;
-}
-
-.card-img-top {
-    border-radius: 8px 8px 0 0;
-}
-
-.progress {
-    background-color: #f8f9fa;
-}
-
-.badge.bg-success { background-color: #28a745 !important; }
-.badge.bg-warning { background-color: #ffc107 !important; color: #000; }
-.badge.bg-danger { background-color: #dc3545 !important; }
-
-.course-card .card-title a:hover {
-    color: #000 !important;
-    text-decoration: underline !important;
-}
-</style>
 
 <script>
 // Add some interactivity

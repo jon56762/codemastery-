@@ -34,6 +34,27 @@
                             </div>
                         </div>
 
+                        <!-- Role Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">I want to join as:</label>
+                            <div class="d-grid gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="role" id="role_student" value="student" checked>
+                                    <label class="form-check-label" for="role_student">
+                                        <i class="fas fa-user-graduate me-2"></i>
+                                        <strong>Student</strong> - Learn from expert instructors
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="role" id="role_instructor" value="instructor">
+                                    <label class="form-check-label" for="role_instructor">
+                                        <i class="fas fa-chalkboard-teacher me-2"></i>
+                                        <strong>Instructor</strong> - Teach and earn money
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
@@ -82,6 +103,21 @@
                         <a href="/login" class="btn btn-outline-dark mt-2">
                             Sign In Instead
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Information -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="card-title">About Roles</h6>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-user-graduate me-2 text-primary"></i>Student</strong>
+                        <p class="small text-muted mb-2">Access courses, track progress, earn certificates, and join our learning community.</p>
+                    </div>
+                    <div class="mb-0">
+                        <strong><i class="fas fa-chalkboard-teacher me-2 text-success"></i>Instructor</strong>
+                        <p class="small text-muted mb-0">Create and sell courses, earn revenue, and share your expertise with students worldwide.</p>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/functions.php';
+require_once 'includes/function.php';
 require_once 'includes/auth-functions.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

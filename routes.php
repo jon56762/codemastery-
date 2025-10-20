@@ -13,21 +13,36 @@ $routes = [
     '/' => 'controllers/index.php',
     '/courses' => 'controllers/courses.php',
     '/course' => 'controllers/course-detail.php',
+    '/blog-creation' => 'controllers/blog-creation.php',
     '/about' => 'controllers/about.php',
     '/contact' => 'controllers/contact.php',
     '/pricing' => 'controllers/pricing.php',
     '/blog' => 'controllers/blog.php',
     '/login' => 'controllers/login.php',
     '/signup' => 'controllers/signup.php',
+    '/dashboard' => 'controllers/dashboard.php',
     '/logout' => 'controllers/logout.php',
+    '/become-instructor' => 'controllers/become-instructor.php',
+    '/instructor-dashboard' => 'controllers/instructor-dashboard.php',
+    '/instructor-courses' => 'controllers/instructor-courses.php',
+    '/course-builder' => 'controllers/course-builder.php',
+    '/profile' => 'controllers/student-profile.php',
+    '/my-courses' => 'controllers/my-courses.php',
     '/process-login' => 'controllers/process-login.php',
     '/process-signup' => 'controllers/process-signup.php',
+    '/course-player' => 'controllers/course-player.php',
     '/dashboard' => 'controllers/dashboard.php'
 ];
 
 if (preg_match('#^/course/(\d+)$#', $url, $matches)) {
     $_GET['id'] = $matches[1];
     require 'controllers/course-detail.php';
+    exit;
+}
+
+if (preg_match('#^/blog/(\d+)$#', $url, $matches)) {
+    $_GET['id'] = $matches[1];
+    require 'controllers/blog-readmore.php';
     exit;
 }
 

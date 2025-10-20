@@ -1,0 +1,38 @@
+.blog-content {
+    line-height: 1.7;
+    font-size: 1.1rem;
+}
+
+.blog-content p {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item.active {
+    color: #000;
+    font-weight: 600;
+}
+
+.card-img-top {
+    border-radius: 8px 8px 0 0;
+}
+
+.comment-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}

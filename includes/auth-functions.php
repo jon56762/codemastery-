@@ -53,7 +53,7 @@ function registerUser($userData) {
         'name' => trim($userData['name']),
         'email' => trim($userData['email']),
         'password' => password_hash($userData['password'], PASSWORD_DEFAULT),
-        'role' => 'student', // Default role
+        'role' => $userData['role'] ?? 'student', // Use provided role or default to student
         'status' => 'active',
         'created_at' => date('Y-m-d H:i:s'),
         'updated_at' => date('Y-m-d H:i:s')
@@ -70,7 +70,7 @@ function registerUser($userData) {
             'role' => $user['role']
         ];
         
-        $_SESSION['success'] = "Welcome to CodeMastery! Your account has been created successfully.";
+        $_SESSION['success'] = "Welcome to CodeMastery! Your {$user['role']} account has been created successfully.";
         return true;
     }
     

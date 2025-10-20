@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title ?? 'CodeMastery - Learn to Code'; ?></title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="/assets/css/boostrap/bootstrap.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -13,6 +14,7 @@
     <link href="/assets/css/nav.css" rel="stylesheet">
 
 </head>
+
 <body>
     <?php
     // Auto-detect current page if not set
@@ -22,18 +24,18 @@
         if (empty($current_page)) $current_page = 'home';
     }
     ?>
-    
+
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="/">
                 <i class="fas fa-graduation-cap me-2"></i>CodeMastery
             </a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
@@ -44,36 +46,42 @@
                 <div class="offcanvas-body">
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                         <li class="nav-item">
-                            <a class="nav-link <?= ($current_page === 'home' || $current_page === '') ? 'active' : '' ?>" 
-                               href="/">
-                               Home
+                            <a class="nav-link <?= ($current_page === 'home' || $current_page === '') ? 'active' : '' ?>"
+                                href="/">
+                                Home
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= ($current_page === 'courses') ? 'active' : '' ?>" 
-                               href="/courses">
-                               Courses
+                            <a class="nav-link <?= ($current_page === 'courses') ? 'active' : '' ?>"
+                                href="/courses">
+                                Courses
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= ($current_page === 'pricing') ? 'active' : '' ?>" 
-                               href="/pricing">
-                               Pricing
+                            <a class="nav-link <?= ($current_page === 'pricing') ? 'active' : '' ?>"
+                                href="/pricing">
+                                Pricing
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= ($current_page === 'about') ? 'active' : '' ?>" 
-                               href="/about">
-                               About
+                            <a class="nav-link <?= ($current_page === 'about') ? 'active' : '' ?>"
+                                href="/about">
+                                About
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= ($current_page === 'blog') ? 'active' : '' ?>" 
-                               href="/blog">
-                               Blog
+                            <a class="nav-link <?= ($current_page === 'contact') ? 'active' : '' ?>"
+                                href="/contact">
+                                Contact
                             </a>
                         </li>
-                        
+                        <li class="nav-item">
+                            <a class="nav-link <?= ($current_page === 'blog') ? 'active' : '' ?>"
+                                href="/blog">
+                                Blog
+                            </a>
+                        </li>
+
                         <?php if (isset($_SESSION['user'])): ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="offcanvasNavbarDropdown" role="button" data-bs-toggle="dropdown">
@@ -81,18 +89,41 @@
                                     <?= htmlspecialchars($_SESSION['user']['name']) ?>
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <?php if ($_SESSION['user']['role'] === 'student'): ?>
+                                        <li>
+                                            <a class="dropdown-item <?= ($current_page ?? '') === 'dashboard' ? 'active' : '' ?>"
+                                                href="/dashboard">
+                                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item <?= ($current_page ?? '') === 'my-courses' ? 'active' : '' ?>"
+                                                href="/my-courses">
+                                                <i class="fas fa-book me-2"></i>My Courses
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item <?= ($current_page ?? '') === 'profile' ? 'active' : '' ?>"
+                                                href="/profile">
+                                                <i class="fas fa-user me-2"></i>Profile
+                                            </a>
+                                        </li>
+                                    <?php elseif ($_SESSION['user']['role'] === 'instructor'): ?>
+                                        <li>
+                                            <a class="dropdown-item" href="/instructor-dashboard">
+                                                <i class="fas fa-tachometer-alt me-2"></i>Instructor Dashboard
+                                            </a>
+                                        </li>
+                                    <?php elseif ($_SESSION['user']['role'] === 'admin'): ?>
+                                        <li>
+                                            <a class="dropdown-item" href="/admin">
+                                                <i class="fas fa-cog me-2"></i>Admin Dashboard
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
                                     <li>
-                                        <a class="dropdown-item <?= ($current_page === 'dashboard') ? 'active' : '' ?>" 
-                                           href="/dashboard">
-                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                        </a>
+                                        <hr class="dropdown-divider">
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-user me-2"></i>Profile
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" href="/logout">
                                             <i class="fas fa-sign-out-alt me-2"></i>Logout
@@ -102,13 +133,21 @@
                             </li>
                         <?php else: ?>
                             <li class="nav-item">
-                                <a href="/login" class="nav-link <?= ($current_page === 'login') ? 'active' : '' ?>">
+                                <a href="/login" class="nav-link <?= ($current_page ?? '') === 'login' ? 'active' : '' ?>">
                                     <i class="fas fa-sign-in-alt me-1"></i>Login
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="/signup" class="btn btn-primary ms-2">
                                     Sign Up Free
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'instructor'): ?>
+                            <li class="nav-item">
+                                <a href="/instructor-dashboard" class="nav-link <?= ($current_page ?? '') === 'instructor-dashboard' ? 'active' : '' ?>">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i>Instructor
                                 </a>
                             </li>
                         <?php endif; ?>

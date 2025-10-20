@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/functions.php';
+require_once 'includes/function.php';
 require_once 'includes/auth-functions.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $role = $_POST['role'] ?? 'student'; // Default to student if not provided
     
     // Validation
     if (empty($name) || empty($email) || empty($password)) {
@@ -33,12 +34,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
+    // Validate role
+    $allowed_roles = ['student', 'instructor'];
+    if (!in_array($role, $allowed_roles)) {
+        $role = 'student'; // Default to student if invalid role
+    }
+    
     // Use the createUser function from functions.php
     $user = createUser([
         'name' => $name, 
         'email' => $email, 
         'password' => $password,
-        'role' => 'student'
+        'role' => $role
     ]);
     
     if ($user) {
@@ -50,8 +57,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'role' => $user['role']
         ];
         
-        $_SESSION['success'] = "Welcome to CodeMastery! Your account has been created successfully.";
-        header('Location: /dashboard');
+        $_SESSION['success'] = "Welcome to CodeMastery! Your {$role} account has been created successfully.";
+        
+        // Redirect based on role
+        switch ($role) {
+            case 'instructor':
+                // For instructors, redirect to instructor dashboard or application process
+                header('Location: /instructor-dashboard');
+                break;
+            case 'student':
+            default:
+                header('Location: /dashboard');
+                break;
+        }
         exit;
     } else {
         $_SESSION['error'] = "This email is already registered. Please use a different email or login.";

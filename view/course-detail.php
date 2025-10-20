@@ -24,7 +24,7 @@
                             </span>
                             <h1 class="fw-bold mb-3"><?= htmlspecialchars($course['title']) ?></h1>
                             <p class="lead mb-4"><?= htmlspecialchars($course['description']) ?></p>
-                            
+
                             <div class="d-flex flex-wrap gap-4 mb-3">
                                 <div class="d-flex align-items-center">
                                     <div class="text-warning me-2">
@@ -43,11 +43,11 @@
                                     <span><?= formatDuration($course['duration']) ?></span>
                                 </div>
                             </div>
-                            
+
                             <div class="d-flex align-items-center">
-                                <img src="<?= getInstructorAvatar($course['instructor_name'], 40) ?>" 
-                                     alt="<?= htmlspecialchars($course['instructor_name']) ?>" 
-                                     class="rounded-circle me-3" width="40" height="40">
+                                <img src="<?= getInstructorAvatar($course['instructor_name'], 40) ?>"
+                                    alt="<?= htmlspecialchars($course['instructor_name']) ?>"
+                                    class="rounded-circle me-3" width="40" height="40">
                                 <div>
                                     <div class="fw-semibold">Created by <?= htmlspecialchars($course['instructor_name']) ?></div>
                                     <small class="text-muted">Last updated <?= date('F Y', strtotime($course['updated_at'])) ?></small>
@@ -65,18 +65,19 @@
                                         <div class="text-muted">Lifetime access</div>
                                     <?php endif; ?>
                                 </div>
-                                
+
                                 <?php if ($isEnrolled): ?>
                                     <div class="alert alert-success mb-3">
                                         <i class="fas fa-check-circle me-2"></i>
                                         You are enrolled in this course
                                     </div>
-                                    <a href="/course/<?= $course['id'] ?>/learn" class="btn btn-dark w-100 mb-2">
+                                    
+                                    <a href="/course-player?course_id=<?= $course['id'] ?>&lesson_id=1" class="btn btn-dark w-100">
                                         <i class="fas fa-play-circle me-2"></i>Continue Learning
                                     </a>
                                     <div class="progress mb-2" style="height: 8px;">
-                                        <div class="progress-bar bg-success" 
-                                             style="width: <?= $enrollment['progress'] ?? 0 ?>%">
+                                        <div class="progress-bar bg-success"
+                                            style="width: <?= $enrollment['progress'] ?? 0 ?>%">
                                         </div>
                                     </div>
                                     <small class="text-muted"><?= $enrollment['progress'] ?? 0 ?>% complete</small>
@@ -95,7 +96,7 @@
                                         30-day money-back guarantee
                                     </small>
                                 <?php endif; ?>
-                                
+
                                 <div class="mt-3">
                                     <small class="text-muted d-block">
                                         <i class="fas fa-play-circle me-1"></i>
@@ -187,7 +188,7 @@
                 </div>
                 <div class="card-body">
                     <p><?= nl2br(htmlspecialchars($course['description'])) ?></p>
-                    
+
                     <h5 class="fw-bold mt-4">What You'll Learn</h5>
                     <div class="row">
                         <div class="col-md-6">
@@ -214,9 +215,9 @@
             <!-- Instructor Card -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body text-center p-4">
-                    <img src="<?= getInstructorAvatar($course['instructor_name'], 80) ?>" 
-                         alt="<?= htmlspecialchars($course['instructor_name']) ?>" 
-                         class="rounded-circle mb-3" width="80" height="80">
+                    <img src="<?= getInstructorAvatar($course['instructor_name'], 80) ?>"
+                        alt="<?= htmlspecialchars($course['instructor_name']) ?>"
+                        class="rounded-circle mb-3" width="80" height="80">
                     <h5 class="fw-bold"><?= htmlspecialchars($course['instructor_name']) ?></h5>
                     <p class="text-muted mb-3">Instructor</p>
                     <div class="d-flex justify-content-center gap-3 mb-3">
@@ -249,9 +250,9 @@
                         <?php foreach ($related_courses as $related): ?>
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex align-items-start">
-                                    <img src="<?= getCourseImage($related) ?>" 
-                                         alt="<?= htmlspecialchars($related['title']) ?>" 
-                                         class="rounded me-3" width="60" height="60" style="object-fit: cover;">
+                                    <img src="<?= getCourseImage($related) ?>"
+                                        alt="<?= htmlspecialchars($related['title']) ?>"
+                                        class="rounded me-3" width="60" height="60" style="object-fit: cover;">
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1 fw-semibold small">
                                             <a href="/course/<?= $related['id'] ?>" class="text-dark text-decoration-none">

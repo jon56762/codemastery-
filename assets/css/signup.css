@@ -27,3 +27,12 @@
 .form-control:focus + .input-group-text {
     border-color: #000;
 }
+
+.form-check-input:checked {
+    background-color: #000;
+    border-color: #000;
+}
+
+.form-check-label {
+    cursor: pointer;
+}

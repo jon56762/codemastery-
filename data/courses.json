@@ -115,27 +115,6 @@
         "updated_at": "2024-01-05 08:00:00"
     },
     {
-        "id": 7,
-        "title": "iouytre",
-        "description": "poiuyt",
-        "short_description": "ooyutr",
-        "instructor_id": 3,
-        "instructor_name": "success",
-        "price": 49.99,
-        "category": "Web Development",
-        "level": "beginner",
-        "duration": 0,
-        "lessons": 0,
-        "thumbnail": "https:\/\/www.google.com\/imgres?q=web%20design&imgurl=https%3A%2F%2Fcareertraining.ed2go.com%2Fcommon%2Fimages%2F1%2F16890%2Flearn-web-design.jpg&imgrefurl=https%3A%2F%2Fcareertraining.ed2go.com%2Fuwf%2Ftraining-programs%2Fweb-design-professional%2F&docid=WJBdxfU1Y2iSCM&tbnid=4ua4f8Sko6A8nM&vet=12ahUKEwi-ivup7a6QAxXySkEAHSV_Ev8QM3oECCIQAA..i&w=935&h=572&hcb=2&ved=2ahUKEwi-ivup7a6QAxXySkEAHSV_Ev8QM3oECCIQAA",
-        "promo_video": "",
-        "curriculum": [],
-        "resources": [],
-        "status": "published",
-        "featured": false,
-        "created_at": "2025-10-20 12:18:35",
-        "updated_at": "2025-10-20 12:18:42"
-    },
-    {
         "id": 8,
         "title": "oiuytre",
         "description": "p9o8765rre",
@@ -176,5 +155,59 @@
         "featured": false,
         "created_at": "2025-10-20 13:33:02",
         "updated_at": "2025-10-20 13:38:07"
+    },
+    {
+        "id": 10,
+        "title": "Introduction to HTML",
+        "description": "Watch the video above and then try creating a simple HTML page with:\r\n1. A main heading\r\n2. Two paragraphs\r\n3. One image\r\n4. One link to Google.com",
+        "short_description": "Description: Learn the fundamentals of HTML structure and basic tags",
+        "instructor_id": 3,
+        "instructor_name": "Mr Jonathan",
+        "price": 49.99,
+        "category": "Web Development",
+        "level": "beginner",
+        "duration": 0,
+        "lessons": 0,
+        "thumbnail": "https:\/\/www.youtube.com\/embed\/pQN-pnXPaVg",
+        "promo_video": "",
+        "curriculum": [],
+        "resources": [],
+        "status": "draft",
+        "featured": false,
+        "created_at": "2025-10-24 10:43:27",
+        "updated_at": "2025-10-24 10:43:27"
+    },
+    {
+        "id": 11,
+        "title": "Introduction to Web Development",
+        "description": "Watch the video above and then try creating a simple HTML page with:\r\n1. A main heading\r\n2. Two paragraphs\r\n3. One image\r\n4. One link to Google.com",
+        "short_description": "Description: Learn the fundamentals of HTML structure and basic tags",
+        "instructor_id": 3,
+        "instructor_name": "Mr Jonathan",
+        "price": 56,
+        "category": "Web Development",
+        "level": "beginner",
+        "duration": 0,
+        "lessons": 0,
+        "thumbnail": "https:\/\/www.google.com\/imgres?q=web%20design&imgurl=https%3A%2F%2Fimg.freepik.com%2Ffree-photo%2Fweb-design-technology-browsing-programming-concept_53876-163260.jpg%3Fsemt%3Dais_hybrid%26w%3D740%26q%3D80&imgrefurl=https%3A%2F%2Fwww.freepik.com%2Ffree-photos-vectors%2Fweb-design-services&docid=vizIlvV01DBW_M&tbnid=rjIemdubqIjCuM&vet=12ahUKEwjKmsSB57KQAxX2Q0EAHanaN4UQM3oECBsQAA..i&w=740&h=604&hcb=2&ved=2ahUKEwjKmsSB57KQAxX2Q0EAHanaN4UQM3oECBsQAA",
+        "promo_video": "",
+        "curriculum": [
+            {
+                "id": "68fb5e9f9b9d2",
+                "title": "Introduction to HTML",
+                "type": "video",
+                "duration": 15,
+                "content": "In this lesson, we'll cover:\r\n- HTML document structure\r\n- Basic tags: <html>, <head>, <body>\r\n- Headings and paragraphs\r\n- Creating links and images\r\n\r\nWatch the video above and then try creating a simple HTML page with:\r\n1. A main heading\r\n2. Two paragraphs\r\n3. One image\r\n4. One link to Google.com",
+                "description": "Description: Learn the fundamentals of HTML structure and basic tags",
+                "video_url": "https:\/\/www.youtube.com\/embed\/pQN-pnXPaVg",
+                "resources": [],
+                "order": 0
+            }
+        ],
+        "resources": [],
+        "status": "published",
+        "featured": false,
+        "created_at": "2025-10-24 11:08:27",
+        "updated_at": "2025-10-24 11:18:11"
     }
 ]

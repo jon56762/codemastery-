@@ -7,7 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-    $role = $_POST['role'] ?? 'student'; // Default to student if not provided
+    // Remove role selection - all new users are students
+    $role = 'student';
     
     // Validation
     if (empty($name) || empty($email) || empty($password)) {
@@ -34,18 +35,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    // Validate role
-    $allowed_roles = ['student', 'instructor'];
-    if (!in_array($role, $allowed_roles)) {
-        $role = 'student'; // Default to student if invalid role
+    // Handle profile picture upload
+    $avatar_path = '/assets/images/avatars/default.jpg';
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = 'uploads/avatars/';
+        
+        // Create directory if it doesn't exist
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $file_type = $_FILES['profile_picture']['type'];
+        $file_size = $_FILES['profile_picture']['size'];
+        
+        // Validate file type
+        if (!in_array($file_type, $allowed_types)) {
+            $_SESSION['error'] = "Only JPG, PNG, and GIF files are allowed.";
+            header('Location: /signup');
+            exit;
+        }
+        
+        // Validate file size (2MB max)
+        if ($file_size > 2 * 1024 * 1024) {
+            $_SESSION['error'] = "File size must be less than 2MB.";
+            header('Location: /signup');
+            exit;
+        }
+        
+        // Generate unique filename
+        $file_extension = pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION);
+        $filename = 'user_' . time() . '_' . uniqid() . '.' . $file_extension;
+        $filepath = $upload_dir . $filename;
+        
+        // Move uploaded file
+        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $filepath)) {
+            $avatar_path = '/' . $filepath;
+        } else {
+            $_SESSION['error'] = "Failed to upload profile picture. Using default avatar.";
+        }
     }
     
-    // Use the createUser function from functions.php
+    // Use the createUser function with avatar - role is always 'student'
     $user = createUser([
         'name' => $name, 
         'email' => $email, 
         'password' => $password,
-        'role' => $role
+        'role' => $role, // Always student
+        'avatar' => $avatar_path
     ]);
     
     if ($user) {
@@ -54,22 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id' => $user['id'],
             'name' => $user['name'],
             'email' => $user['email'],
-            'role' => $user['role']
+            'role' => $user['role'],
+            'avatar' => $user['avatar']
         ];
         
-        $_SESSION['success'] = "Welcome to CodeMastery! Your {$role} account has been created successfully.";
+        $_SESSION['success'] = "Welcome to CodeMastery! Your student account has been created successfully.";
         
-        // Redirect based on role
-        switch ($role) {
-            case 'instructor':
-                // For instructors, redirect to instructor dashboard or application process
-                header('Location: /instructor-dashboard');
-                break;
-            case 'student':
-            default:
-                header('Location: /dashboard');
-                break;
-        }
+        // Always redirect to student dashboard
+        header('Location: /dashboard');
         exit;
     } else {
         $_SESSION['error'] = "This email is already registered. Please use a different email or login.";
@@ -77,7 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 } else {
-    // If someone tries to access this page directly without POST
     header('Location: /signup');
     exit;
 }

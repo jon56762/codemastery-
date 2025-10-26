@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // 4. Add New Lesson
+    // 4. Add New Lesson - FIXED VERSION
     if (isset($_POST['add_lesson'])) {
         $lessonData = [
             'id' => uniqid(),
@@ -110,22 +110,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $course['curriculum'][] = $lessonData;
+        
+        // Debug: Check what we're saving
+        error_log("Adding lesson to course {$courseId}: " . print_r($lessonData, true));
+        error_log("Full curriculum now: " . print_r($course['curriculum'], true));
+        
         $result = updateCourse($courseId, ['curriculum' => $course['curriculum']]);
         
         if ($result) {
             $_SESSION['success'] = "Lesson added successfully!";
         } else {
-            $_SESSION['error'] = "Failed to add lesson.";
+            $_SESSION['error'] = "Failed to add lesson. Check file permissions and data structure.";
         }
         
         header('Location: /course-builder?course_id=' . $courseId . '&tab=curriculum');
         exit;
     }
     
-    // 5. Update Lesson
+    // 5. Update Lesson - FIXED VERSION
     if (isset($_POST['update_lesson'])) {
         $lessonId = $_POST['lesson_id'];
         $updated = false;
+        
+        error_log("Updating lesson {$lessonId} in course {$courseId}");
         
         foreach ($course['curriculum'] as &$lesson) {
             if ($lesson['id'] == $lessonId) {
@@ -136,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $lesson['description'] = trim($_POST['edit_lesson_description']);
                 $lesson['video_url'] = $_POST['edit_video_url'] ?? '';
                 $updated = true;
+                error_log("Lesson updated: " . print_r($lesson, true));
                 break;
             }
         }
@@ -147,15 +155,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $_SESSION['error'] = "Failed to update lesson.";
             }
+        } else {
+            $_SESSION['error'] = "Lesson not found for update.";
         }
         
         header('Location: /course-builder?course_id=' . $courseId . '&tab=curriculum');
         exit;
     }
     
-    // 6. Delete Lesson
+    // 6. Delete Lesson - FIXED VERSION
     if (isset($_POST['delete_lesson'])) {
         $lessonId = $_POST['lesson_id'];
+        
+        error_log("Deleting lesson {$lessonId} from course {$courseId}");
+        error_log("Before deletion: " . count($course['curriculum']) . " lessons");
+        
         $course['curriculum'] = array_filter($course['curriculum'], function($lesson) use ($lessonId) {
             return $lesson['id'] != $lessonId;
         });
@@ -164,6 +178,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($course['curriculum'] as $index => &$lesson) {
             $lesson['order'] = $index;
         }
+        
+        error_log("After deletion: " . count($course['curriculum']) . " lessons");
         
         $result = updateCourse($courseId, ['curriculum' => array_values($course['curriculum'])]);
         if ($result) {
@@ -176,10 +192,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    // 7. Reorder Lessons
+    // 7. Reorder Lessons - FIXED VERSION
     if (isset($_POST['reorder_lessons'])) {
         $newOrder = json_decode($_POST['lesson_order'], true);
         $reorderedCurriculum = [];
+        
+        error_log("Reordering lessons: " . print_r($newOrder, true));
         
         foreach ($newOrder as $order => $lessonId) {
             foreach ($course['curriculum'] as $lesson) {

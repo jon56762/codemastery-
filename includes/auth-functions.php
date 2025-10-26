@@ -123,4 +123,23 @@ function redirectIfLoggedIn() {
         exit;
     }
 }
+
+// Add to includes/auth-functions.php
+function requireAdmin() {
+    if (!isset($_SESSION['user'])) {
+        $_SESSION['error'] = "Please login to access this page.";
+        header('Location: /login');
+        exit;
+    }
+    
+    if ($_SESSION['user']['role'] !== 'admin') {
+        $_SESSION['error'] = "Admin access required!";
+        header('Location: /dashboard');
+        exit;
+    }
+}
+
+function isAdmin() {
+    return isset($_SESSION['user']) && $_SESSION['user']['role'] === 'admin';
+}
 ?>

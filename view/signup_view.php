@@ -6,10 +6,11 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <h2 class="fw-bold">Join CodeMastery</h2>
-                        <p class="text-muted">Create your free account and start learning</p>
+                        <p class="text-muted">Create your free student account and start learning</p>
                     </div>
 
-                    <form method="POST" action="/process-signup">
+                    <!-- Add enctype for file uploads -->
+                    <form method="POST" action="/process-signup" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="name" class="form-label">Full Name</label>
                             <div class="input-group">
@@ -34,25 +35,12 @@
                             </div>
                         </div>
 
-                        <!-- Role Selection -->
+                        <!-- Profile Picture Upload -->
                         <div class="mb-3">
-                            <label class="form-label">I want to join as:</label>
-                            <div class="d-grid gap-2">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="role" id="role_student" value="student" checked>
-                                    <label class="form-check-label" for="role_student">
-                                        <i class="fas fa-user-graduate me-2"></i>
-                                        <strong>Student</strong> - Learn from expert instructors
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="role" id="role_instructor" value="instructor">
-                                    <label class="form-check-label" for="role_instructor">
-                                        <i class="fas fa-chalkboard-teacher me-2"></i>
-                                        <strong>Instructor</strong> - Teach and earn money
-                                    </label>
-                                </div>
-                            </div>
+                            <label for="profile_picture" class="form-label">Profile Picture (Optional)</label>
+                            <input type="file" class="form-control" id="profile_picture" name="profile_picture" 
+                                   accept="image/*">
+                            <div class="form-text">Supported formats: JPG, PNG, GIF. Max size: 2MB</div>
                         </div>
 
                         <div class="mb-3">
@@ -86,7 +74,7 @@
                         </div>
 
                         <button type="submit" name="register" class="btn btn-primary w-100 py-2 mb-3">
-                            <i class="fas fa-user-plus me-2"></i>Create Account
+                            <i class="fas fa-user-plus me-2"></i>Create Student Account
                         </button>
 
                         <div class="text-center">
@@ -107,20 +95,40 @@
                 </div>
             </div>
 
-            <!-- Role Information -->
+            <!-- Instructor Application Info -->
             <div class="card mt-4">
                 <div class="card-body">
-                    <h6 class="card-title">About Roles</h6>
-                    <div class="mb-3">
-                        <strong><i class="fas fa-user-graduate me-2 text-primary"></i>Student</strong>
-                        <p class="small text-muted mb-2">Access courses, track progress, earn certificates, and join our learning community.</p>
-                    </div>
+                    <h6 class="card-title">Want to Teach?</h6>
                     <div class="mb-0">
-                        <strong><i class="fas fa-chalkboard-teacher me-2 text-success"></i>Instructor</strong>
-                        <p class="small text-muted mb-0">Create and sell courses, earn revenue, and share your expertise with students worldwide.</p>
+                        <p class="small text-muted mb-2">
+                            Interested in becoming an instructor? After creating your student account, 
+                            you can apply to become an instructor through our application process.
+                        </p>
+                        <a href="/become-instructor" class="btn btn-outline-success btn-sm">
+                            Learn About Instructor Opportunities
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Password confirmation validation
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords do not match");
+        } else {
+            confirmPassword.setCustomValidity("");
+        }
+    }
+    
+    password.addEventListener('input', validatePassword);
+    confirmPassword.addEventListener('input', validatePassword);
+});
+</script>

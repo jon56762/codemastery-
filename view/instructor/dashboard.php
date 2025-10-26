@@ -265,6 +265,8 @@
     </div>
 </div>
 
+<script src="/assets/js/bootstrap.bundle.js"></script>
+
 <style>
 .instructor-content {
     background-color: #f8f9fa;

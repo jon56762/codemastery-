@@ -28,7 +28,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <img src="<?= getInstructorAvatar($user['name'], 80) ?>" 
+                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" 
                              alt="<?= htmlspecialchars($user['name']) ?>" 
                              class="rounded-circle" width="80" height="80">
                     </div>

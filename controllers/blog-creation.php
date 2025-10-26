@@ -45,14 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
             'published_at' => date('Y-m-d H:i:s'),
             'status' => 'published',
             'views' => 0,
-            'likes' => 0
+            'likes' => []
         ];
         
         $blog_posts[] = $new_post;
         
         if (saveToFile('blog.json', $blog_posts)) {
             $_SESSION['success'] = "Blog post published successfully!";
-            header('Location: /blog');
+            header('Location: /blog/' . $newId); // Redirect to the new blog post
             exit;
         } else {
             $_SESSION['error'] = "Failed to publish blog post. Please try again.";

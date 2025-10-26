@@ -170,6 +170,8 @@
     </div>
 </div>
 
+<script src="/assets/js/bootstrap.bundle.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Add confirmation for status changes to published

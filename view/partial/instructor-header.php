@@ -51,13 +51,13 @@
                                 <i class="fas fa-plus-circle me-2"></i>Create Course
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
+                        <a class="nav-link <?= ($current_page ?? '') === 'instructor-analytics' ? 'active' : '' ?>" 
+                               href="/instructor-analytics">
                                 <i class="fas fa-chart-bar me-2"></i>Analytics
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
+                        <a class="nav-link <?= ($current_page ?? '') === 'instructor-earnings' ? 'active' : '' ?>" 
+                               href="/instructor-earnings">
                                 <i class="fas fa-dollar-sign me-2"></i>Earnings
                             </a>
                         </li>
@@ -81,7 +81,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item" href="/profile">
+                                    <a class="dropdown-item" href="/instructor-profile">
                                         <i class="fas fa-cog me-2"></i>Settings
                                     </a>
                                 </li>

@@ -1,11 +1,11 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
+<div class="d-flex justify-content-between align-items-center mb-4 row">
+    <div class="col-12">
         <h1 class="h3 fw-bold text-dark mb-1">Platform Analytics</h1>
         <p class="text-muted mb-0">Comprehensive insights into platform performance</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex col-12">
         <!-- Date Range Filter -->
-        <form method="GET" class="d-flex gap-2">
+        <!-- <form method="GET" class="d-flex gap-2">
             <input type="date" class="form-control" name="start_date" value="<?= $startDate ?>">
             <span class="align-self-center">to</span>
             <input type="date" class="form-control" name="end_date" value="<?= $endDate ?>">
@@ -17,7 +17,7 @@
             <button type="submit" class="btn btn-dark">
                 <i class="fas fa-filter me-2"></i>Apply
             </button>
-        </form>
+        </form> -->
     </div>
 </div>
 

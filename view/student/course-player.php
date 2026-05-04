@@ -27,7 +27,7 @@ require 'view/partial/nav.php';
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card-body p-0">
                     <?php if ($currentLesson): ?>
                         <?php if ($currentLesson['type'] === 'video' && !empty($currentLesson['video_url'])): ?>
@@ -37,7 +37,7 @@ require 'view/partial/nav.php';
                                 $videoUrl = $currentLesson['video_url'];
                                 $isYouTube = false;
                                 $youTubeId = '';
-                                
+
                                 // Check if it's a YouTube URL and extract ID
                                 if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $videoUrl, $matches)) {
                                     $isYouTube = true;
@@ -47,14 +47,14 @@ require 'view/partial/nav.php';
                                     $youTubeId = substr($videoUrl, strrpos($videoUrl, '/') + 1);
                                 }
                                 ?>
-                                
+
                                 <?php if ($isYouTube && $youTubeId): ?>
                                     <!-- YouTube Player -->
                                     <div class="ratio ratio-16x9">
-                                        <iframe 
-                                            src="https://www.youtube.com/embed/<?= $youTubeId ?>?rel=0&modestbranding=1" 
-                                            frameborder="0" 
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        <iframe
+                                            src="https://www.youtube.com/embed/<?= $youTubeId ?>?rel=0&modestbranding=1"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowfullscreen
                                             class="w-100 h-100">
                                         </iframe>
@@ -62,10 +62,10 @@ require 'view/partial/nav.php';
                                 <?php elseif (strpos($videoUrl, 'vimeo.com') !== false): ?>
                                     <!-- Vimeo Player -->
                                     <div class="ratio ratio-16x9">
-                                        <iframe 
-                                            src="<?= htmlspecialchars($videoUrl) ?>" 
-                                            frameborder="0" 
-                                            allow="autoplay; fullscreen; picture-in-picture" 
+                                        <iframe
+                                            src="<?= htmlspecialchars($videoUrl) ?>"
+                                            frameborder="0"
+                                            allow="autoplay; fullscreen; picture-in-picture"
                                             allowfullscreen
                                             class="w-100 h-100">
                                         </iframe>
@@ -73,8 +73,8 @@ require 'view/partial/nav.php';
                                 <?php else: ?>
                                     <!-- Direct Video File -->
                                     <div class="ratio ratio-16x9">
-                                        <video 
-                                            controls 
+                                        <video
+                                            controls
                                             class="w-100 h-100"
                                             poster="<?= htmlspecialchars($course['thumbnail'] ?? '') ?>">
                                             <source src="<?= htmlspecialchars($videoUrl) ?>" type="video/mp4">
@@ -107,7 +107,7 @@ require 'view/partial/nav.php';
                         </div>
                     <?php endif; ?>
                 </div>
-                
+
                 <!-- Lesson Description -->
                 <?php if ($currentLesson && !empty($currentLesson['description'])): ?>
                     <div class="card-footer bg-light border-0">
@@ -128,7 +128,7 @@ require 'view/partial/nav.php';
                     <div class="card-body">
                         <div class="list-group">
                             <?php foreach ($currentLesson['resources'] as $resource): ?>
-                                <a href="<?= htmlspecialchars($resource['url'] ?? '#') ?>" class="list-group-item list-group-item-action" target="_blank">
+                                <a href="<?= $resource['url'] ?>" download class="list-group-item list-group-item-action" target="_blank">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <i class="fas fa-file-<?= $resource['type'] ?? 'download' ?> me-2 text-primary"></i>
@@ -211,7 +211,7 @@ require 'view/partial/nav.php';
                     </div>
                     <small class="text-muted"><?= $enrollment['progress'] ?? 0 ?>% Complete</small>
                 </div>
-                
+
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         <?php if (empty($lessons)): ?>
@@ -221,8 +221,8 @@ require 'view/partial/nav.php';
                             </div>
                         <?php else: ?>
                             <?php foreach ($lessons as $index => $lesson): ?>
-                                <a href="/course-player?course_id=<?= $courseId ?>&lesson_id=<?= $lesson['id'] ?>" 
-                                   class="list-group-item list-group-item-action border-0 py-3 <?= $lesson['id'] == $lessonId ? 'active' : '' ?>">
+                                <a href="/course-player?course_id=<?= $courseId ?>&lesson_id=<?= $lesson['id'] ?>"
+                                    class="list-group-item list-group-item-action border-0 py-3 <?= $lesson['id'] == $lessonId ? 'active' : '' ?>">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="flex-grow-1">
                                             <div class="d-flex align-items-center mb-1">
@@ -255,7 +255,7 @@ require 'view/partial/nav.php';
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <!-- Navigation Buttons -->
                 <?php if ($currentLesson): ?>
                     <div class="card-footer bg-white border-0 py-3">
@@ -267,7 +267,7 @@ require 'view/partial/nav.php';
                             <?php else: ?>
                                 <span></span>
                             <?php endif; ?>
-                            
+
                             <?php if ($nextLesson): ?>
                                 <a href="/course-player?course_id=<?= $courseId ?>&lesson_id=<?= $nextLesson['id'] ?>" class="btn btn-primary">
                                     Next <i class="fas fa-arrow-right ms-2"></i>
@@ -286,44 +286,44 @@ require 'view/partial/nav.php';
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Add timestamp to notes when video is playing (for video lessons)
-    const video = document.querySelector('video');
-    if (video) {
-        video.addEventListener('timeupdate', function() {
-            const minutes = Math.floor(video.currentTime / 60);
-            const seconds = Math.floor(video.currentTime % 60);
-            const timestamp = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            document.getElementById('noteTimestamp').value = timestamp;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add timestamp to notes when video is playing (for video lessons)
+        const video = document.querySelector('video');
+        if (video) {
+            video.addEventListener('timeupdate', function() {
+                const minutes = Math.floor(video.currentTime / 60);
+                const seconds = Math.floor(video.currentTime % 60);
+                const timestamp = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('noteTimestamp').value = timestamp;
+            });
+        }
+
+        // Auto-resize textareas
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
         });
+
+        // Add confirmation for note deletion
+        const deleteForms = document.querySelectorAll('form[onsubmit]');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to delete this note?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+
+    // Helper function for file size formatting (if not in PHP)
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
-
-    // Auto-resize textareas
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(textarea => {
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-    });
-
-    // Add confirmation for note deletion
-    const deleteForms = document.querySelectorAll('form[onsubmit]');
-    deleteForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            if (!confirm('Are you sure you want to delete this note?')) {
-                e.preventDefault();
-            }
-        });
-    });
-});
-
-// Helper function for file size formatting (if not in PHP)
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
 </script>

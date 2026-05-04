@@ -1,6 +1,6 @@
 <?php
 require_once 'includes/auth-functions.php';
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 requireAdmin();
 
 $user = getCurrentUser();

@@ -1,9 +1,9 @@
 <?php
 require_once 'includes/auth-functions.php';
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 requireAdmin();
 
-$user = getCurrentUser();
+$user = getCurrentUser() ?? [];
 
 // Get date range for analytics
 $startDate = $_GET['start_date'] ?? date('Y-m-01'); // First day of current month

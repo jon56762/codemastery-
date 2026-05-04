@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 require_once 'includes/auth-functions.php';
 
 $page_title = "Create Blog Post - CodeMastery";

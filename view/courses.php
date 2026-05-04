@@ -119,16 +119,6 @@
                         <?php endif; ?>
                     </p>
                 </div>
-                <div class="d-none d-md-block">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-outline-dark active" onclick="setView('grid')">
-                            <i class="fas fa-th"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-dark" onclick="setView('list')">
-                            <i class="fas fa-list"></i>
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <!-- Courses Grid -->
@@ -217,40 +207,3 @@
         </div>
     </div>
 </div>
-
-<script>
-function setView(view) {
-    const grid = document.getElementById('courses-grid');
-    const buttons = document.querySelectorAll('.btn-group .btn');
-    
-    buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    if (view === 'list') {
-        grid.classList.remove('row-cols-1', 'row-cols-md-2', 'row-cols-lg-3');
-        grid.classList.add('row-cols-1');
-        document.querySelectorAll('.course-card').forEach(card => {
-            card.classList.add('flex-row');
-            card.querySelector('.card-img-top').style.width = '200px';
-            card.querySelector('.card-img-top').style.height = 'auto';
-        });
-    } else {
-        grid.classList.remove('row-cols-1');
-        grid.classList.add('row-cols-1', 'row-cols-md-2', 'row-cols-lg-3');
-        document.querySelectorAll('.course-card').forEach(card => {
-            card.classList.remove('flex-row');
-            card.querySelector('.card-img-top').style.width = '100%';
-            card.querySelector('.card-img-top').style.height = '200px';
-        });
-    }
-}
-
-// Auto-submit search when typing stops
-let searchTimeout;
-document.querySelector('input[name="search"]').addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        document.querySelector('form').submit();
-    }, 500);
-});
-</script>

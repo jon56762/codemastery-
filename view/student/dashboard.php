@@ -16,8 +16,8 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
                             <p class="mb-0 text-white-50">Continue your learning journey and track your progress.</p>
                         </div>
                         <div class="col-md-4 text-center">
-                            <div class="display-6 fw-bold text-warning">Day <?= rand(15, 365) ?></div>
-                            <small class="text-white-50">Learning streak</small>
+                            <!-- <div class="display-6 fw-bold text-warning">Day </div> -->
+                            <!-- <small class="text-white-50">Learning streak</small> -->
                         </div>
                     </div>
                 </div>

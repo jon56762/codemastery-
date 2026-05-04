@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 
 $page_title = "Contact Us - CodeMastery";
 $current_page = 'contact';

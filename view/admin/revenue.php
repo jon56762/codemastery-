@@ -1,5 +1,5 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
+<div class="d-flex justify-content-between align-items-center mb-4 row">
+    <div class="col-12">
         <h1 class="h3 fw-bold text-dark mb-1">Revenue Management</h1>
         <p class="text-muted mb-0">Manage platform revenue and instructor payouts</p>
     </div>

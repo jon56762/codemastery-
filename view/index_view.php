@@ -1,12 +1,12 @@
 <?php
-$platformStats = getPlatformStats();
-$testimonials = getFromFile('testimonials.json');
+$platformStats = getPlatformStats() ?? [];
+$testimonials = getFromFile('testimonials.json') ?? [];
 $current_page = 'home';
 
 // Get courses for the homepage - UPDATED
-$popular_courses = getPopularCourses(3); // Get 3 most popular courses
-$new_courses = getNewCourses(4); // Get 4 newest courses
-$featured_courses = getFeaturedCourses(3); // Keep some featured courses
+$popular_courses = getPopularCourses(3) ?? [];
+$new_courses = getNewCourses(4) ?? [];
+$featured_courses = getFeaturedCourses(3) ?? [];
 ?>
 
 <link rel="stylesheet" href="/assets/css/style.css">
@@ -17,10 +17,10 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Learn the Skills That Drive Your Career Forward</h1>
-                <p class="lead mb-4">Join <?= number_format($platformStats['total_students']) ?>+ students and <?= number_format($platformStats['total_instructors']) ?>+ instructors in our vibrant learning community. Master in-demand skills with project-based courses.</p>
+                <p class="lead mb-4">Join <?= number_format($platformStats['total_students'] ?? 0) ?>+ students and <?= number_format($platformStats['total_instructors'] ?? 0) ?>+ instructors in our vibrant learning community. Master in-demand skills with project-based courses.</p>
                 <div class="d-flex flex-wrap gap-3 mb-4">
                     <center>
-                        <a href="<?= BASE_PATH ?>/courses" class="btn btn-primary px-4 py-3 mb-2 fw-bold">
+                        <a href="<?= BASE_PATH ?? '' ?>/courses" class="btn btn-primary px-4 py-3 mb-2 fw-bold">
                             <i class="fas fa-search me-2"></i>Explore Courses
                         </a>
                         <a href="/become-instructor" class="btn btn-outline-dark px-4 mb-2 py-3">
@@ -31,11 +31,11 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
                 <div class="d-flex flex-wrap gap-4 text-muted">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-star text-warning me-2"></i>
-                        <span>Rated <?= $platformStats['average_rating'] ?>/5 by students</span>
+                        <span>Rated <?= $platformStats['average_rating'] ?? 0 ?>/5 by students</span>
                     </div>
                     <div class="d-flex align-items-center">
                         <i class="fas fa-play-circle me-2"></i>
-                        <span><?= number_format($platformStats['total_courses']) ?>+ Courses</span>
+                        <span><?= number_format($platformStats['total_courses'] ?? 0) ?>+ Courses</span>
                     </div>
                 </div>
             </div>
@@ -51,19 +51,19 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
     <div class="container">
         <div class="row text-center">
             <div class="col-md-3 col-6 mb-3">
-                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_students']) ?>+</div>
+                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_students'] ?? 0) ?>+</div>
                 <div class="text-muted">Students</div>
             </div>
             <div class="col-md-3 col-6 mb-3">
-                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_courses']) ?>+</div>
+                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_courses'] ?? 0) ?>+</div>
                 <div class="text-muted">Courses</div>
             </div>
             <div class="col-md-3 col-6 mb-3">
-                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_instructors']) ?>+</div>
+                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_instructors'] ?? 0) ?>+</div>
                 <div class="text-muted">Instructors</div>
             </div>
             <div class="col-md-3 col-6 mb-3">
-                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_enrollments']) ?>+</div>
+                <div class="h2 fw-bold text-dark"><?= number_format($platformStats['total_enrollments'] ?? 0) ?>+</div>
                 <div class="text-muted">Enrollments</div>
             </div>
         </div>
@@ -85,16 +85,16 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card course-card h-100 border-0 shadow-sm">
                         <div class="position-relative">
-                            <img src="<?= htmlspecialchars($course['thumbnail']) ?>" 
+                            <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>" 
                                  class="card-img-top" 
-                                 alt="<?= htmlspecialchars($course['title']) ?>"
+                                 alt="<?= htmlspecialchars($course['title'] ?? 'Course') ?>"
                                  style="height: 200px; object-fit: cover;">
                             <span class="position-absolute top-0 start-0 m-2 badge bg-danger">
                                 <i class="fas fa-fire me-1"></i>Popular
                             </span>
                             <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-<?= getCourseLevelBadge($course['level']) ?>">
-                                    <?= ucfirst($course['level']) ?>
+                                <span class="badge bg-<?= getCourseLevelBadge($course['level'] ?? 'beginner') ?>">
+                                    <?= ucfirst($course['level'] ?? 'beginner') ?>
                                 </span>
                             </div>
                         </div>
@@ -102,24 +102,24 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
                         <div class="card-body d-flex flex-column">
                             <div class="mb-2">
                                 <span class="badge bg-light text-dark border">
-                                    <?= htmlspecialchars($course['category']) ?>
+                                    <?= htmlspecialchars($course['category'] ?? 'Uncategorized') ?>
                                 </span>
                             </div>
                             
                             <h5 class="card-title fw-bold">
-                                <a href="/course/<?= $course['id'] ?>" class="text-dark text-decoration-none">
-                                    <?= htmlspecialchars($course['title']) ?>
+                                <a href="/course/<?= $course['id'] ?? 0 ?>" class="text-dark text-decoration-none">
+                                    <?= htmlspecialchars($course['title'] ?? 'Untitled') ?>
                                 </a>
                             </h5>
                             
                             <p class="card-text text-muted small flex-grow-1">
-                                <?= htmlspecialchars($course['short_description'] ?? substr($course['description'], 0, 100) . '...') ?>
+                                <?= htmlspecialchars($course['short_description'] ?? substr($course['description'] ?? '', 0, 100) . '...') ?>
                             </p>
                             
                             <div class="d-flex align-items-center mb-2">
                                 <div class="text-warning small">
                                     <?= str_repeat('<i class="fas fa-star"></i>', floor($course['rating'] ?? 4)) ?>
-                                    <?= ($course['rating'] ?? 4) - floor($course['rating'] ?? 4) >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : '' ?>
+                                    <?= (($course['rating'] ?? 4) - floor($course['rating'] ?? 4) >= 0.5) ? '<i class="fas fa-star-half-alt"></i>' : '' ?>
                                     <span class="text-muted ms-1">(<?= $course['rating'] ?? '4.0' ?>)</span>
                                 </div>
                                 <span class="text-muted small ms-2">• <?= $course['enrollment_count'] ?? 0 ?> students</span>
@@ -128,24 +128,25 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
                             <div class="d-flex justify-content-between align-items-center mt-auto">
                                 <div class="d-flex align-items-center">
                                     <?php
-                                    $instructor = getUserById($course['instructor_id']);
+                                    $instructor_id = $course['instructor_id'] ?? 0;
+                                    $instructor = getUserById($instructor_id) ?? [];
                                     $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.jpg';
                                     ?>
                                     <img src="<?= htmlspecialchars($instructor_avatar) ?>" 
-                                         alt="<?= htmlspecialchars($course['instructor_name']) ?>" 
+                                         alt="<?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?>" 
                                          class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
-                                    <small class="text-muted"><?= htmlspecialchars($course['instructor_name']) ?></small>
+                                    <small class="text-muted"><?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?></small>
                                 </div>
                                 <div class="text-end">
                                     <div class="fw-bold text-dark h5 mb-0">
-                                        <?= $course['price'] > 0 ? '$' . $course['price'] : 'Free' ?>
+                                        <?= ($course['price'] ?? 0) > 0 ? '$' . ($course['price'] ?? 0) : 'Free' ?>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="card-footer bg-transparent border-0 pt-0">
-                            <a href="/course/<?= $course['id'] ?>" class="btn btn-outline-dark w-100">
+                            <a href="/course/<?= $course['id'] ?? 0 ?>" class="btn btn-outline-dark w-100">
                                 <i class="fas fa-eye me-2"></i>View Course
                             </a>
                         </div>
@@ -172,39 +173,40 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
                 <div class="col-lg-3 col-md-6 mb-4">
                     <div class="card border-0 shadow-sm h-100 course-card">
                         <div class="position-relative">
-                            <img src="<?= htmlspecialchars($course['thumbnail']) ?>" 
+                            <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>" 
                                  class="card-img-top" 
-                                 alt="<?= htmlspecialchars($course['title']) ?>"
+                                 alt="<?= htmlspecialchars($course['title'] ?? 'Course') ?>"
                                  style="height: 160px; object-fit: cover;">
                             <span class="position-absolute top-0 start-0 m-2 badge bg-success">New</span>
                         </div>
                         <div class="card-body">
                             <h6 class="card-title fw-bold">
-                                <a href="/course/<?= $course['id'] ?>" class="text-dark text-decoration-none">
-                                    <?= htmlspecialchars($course['title']) ?>
+                                <a href="/course/<?= $course['id'] ?? 0 ?>" class="text-dark text-decoration-none">
+                                    <?= htmlspecialchars($course['title'] ?? 'Untitled') ?>
                                 </a>
                             </h6>
                             <p class="card-text text-muted small">
-                                <?= htmlspecialchars(substr($course['short_description'] ?? $course['description'], 0, 80) . '...') ?>
+                                <?= htmlspecialchars(substr($course['short_description'] ?? $course['description'] ?? '', 0, 80) . '...') ?>
                             </p>
                             <div class="d-flex justify-content-between align-items-center mt-auto">
                                 <?php
-                                $instructor = getUserById($course['instructor_id']);
+                                $instructor_id = $course['instructor_id'] ?? 0;
+                                $instructor = getUserById($instructor_id) ?? [];
                                 $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.jpg';
                                 ?>
                                 <div class="d-flex align-items-center">
                                     <img src="<?= htmlspecialchars($instructor_avatar) ?>" 
-                                         alt="<?= htmlspecialchars($course['instructor_name']) ?>" 
+                                         alt="<?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?>" 
                                          class="rounded-circle me-2" width="25" height="25" style="object-fit: cover;">
-                                    <small class="text-muted"><?= htmlspecialchars($course['instructor_name']) ?></small>
+                                    <small class="text-muted"><?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?></small>
                                 </div>
                                 <span class="fw-bold text-dark">
-                                    <?= $course['price'] > 0 ? '$' . $course['price'] : 'Free' ?>
+                                    <?= ($course['price'] ?? 0) > 0 ? '$' . ($course['price'] ?? 0) : 'Free' ?>
                                 </span>
                             </div>
                         </div>
                         <div class="card-footer bg-transparent">
-                            <a href="/course/<?= $course['id'] ?>" class="btn btn-sm btn-outline-dark w-100">
+                            <a href="/course/<?= $course['id'] ?? 0 ?>" class="btn btn-sm btn-outline-dark w-100">
                                 Explore
                             </a>
                         </div>
@@ -273,7 +275,7 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
         </div>
         <div class="row">
             <?php 
-            $categories = getCourseCategories();
+            $categories = getCourseCategories() ?? [];
             $category_icons = [
                 'Web Development' => 'fas fa-code',
                 'Data Science' => 'fas fa-chart-bar',
@@ -283,8 +285,9 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
             ];
             
             foreach (array_slice($categories, 0, 6) as $category): 
-                $category_courses = array_filter(getAllCourses(), function($course) use ($category) {
-                    return $course['category'] === $category && $course['status'] === 'published';
+                $all_courses = getAllCourses() ?? [];
+                $category_courses = array_filter($all_courses, function($course) use ($category) {
+                    return ($course['category'] ?? '') === $category && ($course['status'] ?? '') === 'published';
                 });
             ?>
                 <div class="col-lg-4 col-md-6 mb-4">
@@ -341,9 +344,9 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
         </div>
         <div class="row">
             <?php 
-            $testimonials = getFromFile('testimonials.json');
+            $testimonials = getFromFile('testimonials.json') ?? [];
             $approved_testimonials = array_filter($testimonials, function($testimonial) {
-                return $testimonial['status'] === 'approved';
+                return ($testimonial['status'] ?? '') === 'approved';
             });
             $display_testimonials = array_slice($approved_testimonials, 0, 3);
             ?>
@@ -358,19 +361,19 @@ $featured_courses = getFeaturedCourses(3); // Keep some featured courses
                         <div class="card h-100 border-0 shadow-sm testimonial-card">
                             <div class="card-body">
                                 <div class="text-warning mb-3">
-                                    <?= str_repeat('<i class="fas fa-star"></i>', $testimonial['rating']) ?>
-                                    <?= str_repeat('<i class="far fa-star"></i>', 5 - $testimonial['rating']) ?>
+                                    <?= str_repeat('<i class="fas fa-star"></i>', $testimonial['rating'] ?? 5) ?>
+                                    <?= str_repeat('<i class="far fa-star"></i>', 5 - ($testimonial['rating'] ?? 5)) ?>
                                 </div>
-                                <p class="card-text fst-italic">"<?= htmlspecialchars($testimonial['text']) ?>"</p>
+                                <p class="card-text fst-italic">"<?= htmlspecialchars($testimonial['text'] ?? '') ?>"</p>
                             </div>
                             <div class="card-footer bg-transparent">
                                 <div class="d-flex align-items-center">
-                                    <img src="<?= htmlspecialchars($testimonial['avatar']) ?>"
-                                        alt="<?= htmlspecialchars($testimonial['name']) ?>"
+                                    <img src="<?= htmlspecialchars($testimonial['avatar'] ?? '/assets/images/avatars/default.jpg') ?>"
+                                        alt="<?= htmlspecialchars($testimonial['name'] ?? 'Anonymous') ?>"
                                         class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
                                     <div>
-                                        <h6 class="mb-0 fw-bold"><?= htmlspecialchars($testimonial['name']) ?></h6>
-                                        <small class="text-muted"><?= htmlspecialchars($testimonial['role']) ?></small>
+                                        <h6 class="mb-0 fw-bold"><?= htmlspecialchars($testimonial['name'] ?? 'Anonymous') ?></h6>
+                                        <small class="text-muted"><?= htmlspecialchars($testimonial['role'] ?? 'Student') ?></small>
                                     </div>
                                 </div>
                             </div>

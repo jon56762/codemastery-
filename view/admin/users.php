@@ -1,12 +1,12 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
+<div class="d-flex justify-content-between align-items-center mb-4 row">
+    <div class="col-12">
         <h1 class="h3 fw-bold text-dark mb-1">User Management</h1>
         <p class="text-muted mb-0">Manage all users on the platform</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex mt-2">
         <!-- Search Form -->
         <form method="GET" class="d-flex">
-            <div class="input-group">
+            <div class="input-group me-2">
                 <input type="text" class="form-control" name="search" placeholder="Search users..." 
                        value="<?= htmlspecialchars($search) ?>">
                 <button class="btn btn-outline-dark" type="submit">
@@ -15,7 +15,7 @@
             </div>
         </form>
         
-        <div class="dropdown">
+        <!-- <div class="dropdown">
             <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
                 <i class="fas fa-filter me-2"></i>Filter
             </button>
@@ -26,7 +26,7 @@
                 <li><a class="dropdown-item" href="?role=admin">Admins</a></li>
                 <li><a class="dropdown-item" href="?status=suspended">Suspended</a></li>
             </ul>
-        </div>
+        </div> -->
     </div>
 </div>
 

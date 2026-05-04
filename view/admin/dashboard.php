@@ -1,11 +1,11 @@
 <!-- Dashboard Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
+<div class="d-flex justify-content-between align-items-center mb-4 row">
+    <div class="col-12">
         <h1 class="h3 fw-bold text-dark mb-1">Admin Dashboard</h1>
         <p class="text-muted mb-0">Welcome back, <?= htmlspecialchars($user['name']) ?>! Here's what's happening today.</p>
     </div>
-    <div class="d-flex gap-2">
-        <button class="btn btn-outline-dark">
+    <div class="d-flex col-12">
+        <button class="btn btn-outline-dark me-2">
             <i class="fas fa-sync-alt me-2"></i>Refresh
         </button>
         <button class="btn btn-dark" onclick="exportReport()">

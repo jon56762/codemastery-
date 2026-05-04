@@ -367,16 +367,38 @@ require 'view/partial/instructor-header.php';
                                                                             </h6>
                                                                             <p class="text-muted small mb-1"><?= htmlspecialchars($lesson['description'] ?? 'No description') ?></p>
                                                                             <div class="d-flex flex-wrap gap-2">
-                                                                                <span class="badge bg-<?= $lesson['type'] === 'video' ? 'primary' : 'secondary' ?>">
-                                                                                    <i class="fas fa-<?= $lesson['type'] === 'video' ? 'play-circle' : 'file-text' ?> me-1"></i>
+                                                                                <!-- ENHANCED BADGE WITH ALL LESSON TYPES -->
+                                                                                <span class="badge bg-<?=
+                                                                                                        $lesson['type'] === 'video' ? 'primary' : ($lesson['type'] === 'reading' ? 'info' : ($lesson['type'] === 'quiz' ? 'warning' : 'success'))
+                                                                                                        ?>">
+                                                                                    <i class="fas fa-<?=
+                                                                                                        $lesson['type'] === 'video' ? 'play-circle' : ($lesson['type'] === 'reading' ? 'file-alt' : ($lesson['type'] === 'quiz' ? 'question-circle' : 'code'))
+                                                                                                        ?> me-1"></i>
                                                                                     <?= ucfirst($lesson['type']) ?>
                                                                                 </span>
+
                                                                                 <span class="text-muted small">
                                                                                     <i class="fas fa-clock me-1"></i><?= formatDuration($lesson['duration'] ?? 0) ?>
                                                                                 </span>
+
+                                                                                <!-- Video-specific badge -->
                                                                                 <?php if ($lesson['type'] === 'video' && !empty($lesson['video_url'])): ?>
                                                                                     <span class="badge bg-success">
                                                                                         <i class="fas fa-link me-1"></i>Video Ready
+                                                                                    </span>
+                                                                                <?php endif; ?>
+
+                                                                                <!-- Reading-specific badge -->
+                                                                                <?php if ($lesson['type'] === 'reading' && !empty($lesson['reading_time'])): ?>
+                                                                                    <span class="badge bg-secondary">
+                                                                                        <i class="fas fa-clock me-1"></i><?= $lesson['reading_time'] ?>
+                                                                                    </span>
+                                                                                <?php endif; ?>
+
+                                                                                <!-- Quiz-specific badge -->
+                                                                                <?php if ($lesson['type'] === 'quiz' && isset($lesson['questions'])): ?>
+                                                                                    <span class="badge bg-dark">
+                                                                                        <i class="fas fa-list-ol me-1"></i><?= count($lesson['questions']) ?> questions
                                                                                     </span>
                                                                                 <?php endif; ?>
                                                                             </div>
@@ -505,13 +527,127 @@ require 'view/partial/instructor-header.php';
 <div class="modal fade" id="addLessonModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header gradient-bg text-white rounded-top-3">
                 <h5 class="modal-title fw-bold">
                     <i class="fas fa-plus-circle me-2"></i>Add New Lesson
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" id="addLessonForm">
+            <form method="POST" id="addLessonForm" enctype="multipart/form-data" onsubmit="showLoading('Adding lesson...')">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="lesson_title" class="form-label fw-semibold">Lesson Title *</label>
+                            <input type="text" class="form-control" id="lesson_title" name="lesson_title" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="lesson_duration" class="form-label fw-semibold">Duration (minutes) *</label>
+                            <input type="number" class="form-control" id="lesson_duration" name="lesson_duration" min="1" value="10" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="lesson_description" class="form-label fw-semibold">Short Description *</label>
+                        <textarea class="form-control" id="lesson_description" name="lesson_description" rows="2"
+                            placeholder="Brief description of what students will learn in this lesson..." required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="lesson_type" class="form-label fw-semibold">Lesson Type *</label>
+                        <select class="form-select" id="lesson_type" name="lesson_type" required onchange="showLessonFields(this.value, 'add')">
+                            <option value="">Select Lesson Type</option>
+                            <option value="video">Video Lecture</option>
+                            <option value="reading">Reading Material</option>
+                            <option value="quiz">Quiz/Assessment</option>
+                            <option value="exercise">Hands-On Exercise</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic Lesson Type Fields -->
+                    <div id="lesson-type-fields">
+                        <!-- Fields will be populated by JavaScript based on lesson type -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" name="add_lesson" class="btn btn-primary" id="addLessonBtn">
+                        <i class="fas fa-plus me-2"></i>Add Lesson
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Lesson Modal -->
+<div class="modal fade" id="editLessonModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header gradient-bg text-white rounded-top-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-edit me-2"></i>Edit Lesson
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="editLessonForm" enctype="multipart/form-data" onsubmit="showLoading('Updating lesson...')">
+                <input type="hidden" name="lesson_id" id="edit_lesson_id">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="edit_lesson_title" class="form-label fw-semibold">Lesson Title *</label>
+                            <input type="text" class="form-control" id="edit_lesson_title" name="edit_lesson_title" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="edit_lesson_duration" class="form-label fw-semibold">Duration (minutes) *</label>
+                            <input type="number" class="form-control" id="edit_lesson_duration" name="edit_lesson_duration" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit_lesson_description" class="form-label fw-semibold">Short Description *</label>
+                        <textarea class="form-control" id="edit_lesson_description" name="edit_lesson_description" rows="2" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit_lesson_type" class="form-label fw-semibold">Lesson Type *</label>
+                        <select class="form-select" id="edit_lesson_type" name="edit_lesson_type" required onchange="showLessonFields(this.value, 'edit')">
+                            <option value="video">Video Lecture</option>
+                            <option value="reading">Reading Material</option>
+                            <option value="quiz">Quiz/Assessment</option>
+                            <option value="exercise">Hands-On Exercise</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic Edit Lesson Type Fields -->
+                    <div id="edit-lesson-type-fields">
+                        <!-- Fields will be populated by JavaScript based on lesson type -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" name="update_lesson" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Update Lesson
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addLessonModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header gradient-bg text-white rounded-top-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Lesson
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="addLessonForm" onsubmit="showLoading('Adding lesson...')">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-8 mb-3">
@@ -551,6 +687,40 @@ require 'view/partial/instructor-header.php';
                         </div>
                     </div>
 
+                    <!-- Video Upload Section -->
+                    <div class="mb-3 video-upload-field" style="display: none;">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-upload me-2"></i>Upload Video File
+                        </label>
+                        <div class="upload-area" id="videoUploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h5>Drop your video file here</h5>
+                            <p class="text-muted">or click to browse</p>
+                            <input type="file" class="d-none" id="video_upload" name="video_upload" accept="video/*">
+                            <button type="button" class="btn btn-outline-primary mt-2" onclick="document.getElementById('video_upload').click()">
+                                <i class="fas fa-folder-open me-2"></i>Browse Files
+                            </button>
+                        </div>
+                        <div class="file-preview" id="videoPreview">
+                            <div class="file-info">
+                                <i class="fas fa-file-video file-icon"></i>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold" id="videoFileName">No file selected</div>
+                                    <div class="text-muted small" id="videoFileSize">-</div>
+                                </div>
+                            </div>
+                            <div class="upload-progress" id="videoProgress" style="display: none;">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="text-center mt-1">
+                                    <span class="spinner"></span>
+                                    <small class="text-muted">Uploading...</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="lesson_content" class="form-label fw-semibold">Lesson Content *</label>
                         <textarea class="form-control" id="lesson_content" name="lesson_content" rows="6"
@@ -561,7 +731,7 @@ require 'view/partial/instructor-header.php';
                     <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Cancel
                     </button>
-                    <button type="submit" name="add_lesson" class="btn btn-primary">
+                    <button type="submit" name="add_lesson" class="btn btn-primary" id="addLessonBtn">
                         <i class="fas fa-plus me-2"></i>Add Lesson
                     </button>
                 </div>
@@ -574,13 +744,13 @@ require 'view/partial/instructor-header.php';
 <div class="modal fade" id="editLessonModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header gradient-bg text-white rounded-top-3">
                 <h5 class="modal-title fw-bold">
                     <i class="fas fa-edit me-2"></i>Edit Lesson
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST">
+            <form method="POST" id="editLessonForm" onsubmit="showLoading('Updating lesson...')">
                 <input type="hidden" name="lesson_id" id="edit_lesson_id">
                 <div class="modal-body">
                     <div class="row">
@@ -637,423 +807,255 @@ require 'view/partial/instructor-header.php';
     </div>
 </div>
 
-<div class="modal fade" id="addLessonModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header gradient-bg text-white rounded-top-3">
-                    <h5 class="modal-title fw-bold">
-                        <i class="fas fa-plus-circle me-2"></i>Add New Lesson
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form method="POST" id="addLessonForm" onsubmit="showLoading('Adding lesson...')">
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-8 mb-3">
-                                <label for="lesson_title" class="form-label fw-semibold">Lesson Title *</label>
-                                <input type="text" class="form-control" id="lesson_title" name="lesson_title" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="lesson_duration" class="form-label fw-semibold">Duration (minutes) *</label>
-                                <input type="number" class="form-control" id="lesson_duration" name="lesson_duration" min="1" value="10" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="lesson_description" class="form-label fw-semibold">Short Description *</label>
-                            <textarea class="form-control" id="lesson_description" name="lesson_description" rows="2"
-                                placeholder="Brief description of what students will learn in this lesson..." required></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="lesson_type" class="form-label fw-semibold">Lesson Type *</label>
-                            <select class="form-select" id="lesson_type" name="lesson_type" required>
-                                <option value="video">Video Lesson</option>
-                                <option value="text">Text Lesson</option>
-                                <option value="quiz">Quiz</option>
-                                <option value="assignment">Assignment</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3 video-url-field">
-                            <label for="video_url" class="form-label fw-semibold">
-                                <i class="fas fa-link me-2"></i>Video URL
-                            </label>
-                            <input type="url" class="form-control" id="video_url" name="video_url"
-                                placeholder="https://youtube.com/embed/... or https://vimeo.com/...">
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>Paste YouTube or Vimeo embed URL
-                            </div>
-                        </div>
-
-                        <!-- Video Upload Section -->
-                        <div class="mb-3 video-upload-field" style="display: none;">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-upload me-2"></i>Upload Video File
-                            </label>
-                            <div class="upload-area" id="videoUploadArea">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-                                <h5>Drop your video file here</h5>
-                                <p class="text-muted">or click to browse</p>
-                                <input type="file" class="d-none" id="video_upload" name="video_upload" accept="video/*">
-                                <button type="button" class="btn btn-outline-primary mt-2" onclick="document.getElementById('video_upload').click()">
-                                    <i class="fas fa-folder-open me-2"></i>Browse Files
-                                </button>
-                            </div>
-                            <div class="file-preview" id="videoPreview">
-                                <div class="file-info">
-                                    <i class="fas fa-file-video file-icon"></i>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-semibold" id="videoFileName">No file selected</div>
-                                        <div class="text-muted small" id="videoFileSize">-</div>
-                                    </div>
-                                </div>
-                                <div class="upload-progress" id="videoProgress" style="display: none;">
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
-                                    </div>
-                                    <div class="text-center mt-1">
-                                        <span class="spinner"></span>
-                                        <small class="text-muted">Uploading...</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="lesson_content" class="form-label fw-semibold">Lesson Content *</label>
-                            <textarea class="form-control" id="lesson_content" name="lesson_content" rows="6"
-                                placeholder="Detailed lesson content, instructions, or embed code..." required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancel
-                        </button>
-                        <button type="submit" name="add_lesson" class="btn btn-primary" id="addLessonBtn">
-                            <i class="fas fa-plus me-2"></i>Add Lesson
-                        </button>
-                    </div>
-                </form>
+<!-- Add Announcement Modal -->
+<div class="modal fade" id="addAnnouncementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header gradient-bg text-white rounded-top-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-bullhorn me-2"></i>New Announcement
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+            <form method="POST" onsubmit="showLoading('Publishing announcement...')">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="announcement_title" class="form-label fw-semibold">Title *</label>
+                        <input type="text" class="form-control" id="announcement_title" name="announcement_title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="announcement_content" class="form-label fw-semibold">Message *</label>
+                        <textarea class="form-control" id="announcement_content" name="announcement_content" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" name="add_announcement" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Publish Announcement
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- Edit Lesson Modal -->
-    <div class="modal fade" id="editLessonModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header gradient-bg text-white rounded-top-3">
-                    <h5 class="modal-title fw-bold">
-                        <i class="fas fa-edit me-2"></i>Edit Lesson
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form method="POST" id="editLessonForm" onsubmit="showLoading('Updating lesson...')">
-                    <input type="hidden" name="lesson_id" id="edit_lesson_id">
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-8 mb-3">
-                                <label for="edit_lesson_title" class="form-label fw-semibold">Lesson Title *</label>
-                                <input type="text" class="form-control" id="edit_lesson_title" name="edit_lesson_title" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="edit_lesson_duration" class="form-label fw-semibold">Duration (minutes) *</label>
-                                <input type="number" class="form-control" id="edit_lesson_duration" name="edit_lesson_duration" min="1" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit_lesson_description" class="form-label fw-semibold">Short Description *</label>
-                            <textarea class="form-control" id="edit_lesson_description" name="edit_lesson_description" rows="2" required></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit_lesson_type" class="form-label fw-semibold">Lesson Type *</label>
-                            <select class="form-select" id="edit_lesson_type" name="edit_lesson_type" required>
-                                <option value="video">Video Lesson</option>
-                                <option value="text">Text Lesson</option>
-                                <option value="quiz">Quiz</option>
-                                <option value="assignment">Assignment</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3 edit-video-url-field">
-                            <label for="edit_video_url" class="form-label fw-semibold">
-                                <i class="fas fa-link me-2"></i>Video URL
-                            </label>
-                            <input type="url" class="form-control" id="edit_video_url" name="edit_video_url">
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>Paste YouTube or Vimeo embed URL
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit_lesson_content" class="form-label fw-semibold">Lesson Content *</label>
-                            <textarea class="form-control" id="edit_lesson_content" name="edit_lesson_content" rows="6" required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancel
-                        </button>
-                        <button type="submit" name="update_lesson" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Update Lesson
-                        </button>
-                    </div>
-                </form>
+<!-- Publish Confirmation Modal -->
+<div class="modal fade" id="publishModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header gradient-bg text-white rounded-top-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-rocket me-2"></i>Publish Course
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-        </div>
-    </div>
-
-    <!-- Add Announcement Modal -->
-    <div class="modal fade" id="addAnnouncementModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header gradient-bg text-white rounded-top-3">
-                    <h5 class="modal-title fw-bold">
-                        <i class="fas fa-bullhorn me-2"></i>New Announcement
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <form method="POST" onsubmit="showLoading('Publishing course...')">
+                <div class="modal-body">
+                    <p>Are you sure you want to publish "<strong><?= htmlspecialchars($course['title'] ?? '') ?></strong>"?</p>
+                    <p class="text-muted small">Once published, your course will be available to all students on CodeMastery.</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmPublish" required>
+                        <label class="form-check-label" for="confirmPublish">
+                            <i class="fas fa-check-circle me-1 text-success"></i>
+                            I confirm that this course meets CodeMastery's quality standards
+                        </label>
+                    </div>
                 </div>
-                <form method="POST" onsubmit="showLoading('Publishing announcement...')">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="announcement_title" class="form-label fw-semibold">Title *</label>
-                            <input type="text" class="form-control" id="announcement_title" name="announcement_title" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="announcement_content" class="form-label fw-semibold">Message *</label>
-                            <textarea class="form-control" id="announcement_content" name="announcement_content" rows="4" required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancel
-                        </button>
-                        <button type="submit" name="add_announcement" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-2"></i>Publish Announcement
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Publish Confirmation Modal -->
-    <div class="modal fade" id="publishModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header gradient-bg text-white rounded-top-3">
-                    <h5 class="modal-title fw-bold">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <input type="hidden" name="status" value="published">
+                    <button type="submit" name="update_status" class="btn btn-success" id="publishBtn" disabled>
                         <i class="fas fa-rocket me-2"></i>Publish Course
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </button>
                 </div>
-                <form method="POST" onsubmit="showLoading('Publishing course...')">
-                    <div class="modal-body">
-                        <p>Are you sure you want to publish "<strong><?= htmlspecialchars($course['title'] ?? '') ?></strong>"?</p>
-                        <p class="text-muted small">Once published, your course will be available to all students on CodeMastery.</p>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="confirmPublish" required>
-                            <label class="form-check-label" for="confirmPublish">
-                                <i class="fas fa-check-circle me-1 text-success"></i>
-                                I confirm that this course meets CodeMastery's quality standards
-                            </label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancel
-                        </button>
-                        <input type="hidden" name="status" value="published">
-                        <button type="submit" name="update_status" class="btn btn-success" id="publishBtn" disabled>
-                            <i class="fas fa-rocket me-2"></i>Publish Course
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white rounded-top-3">
-                    <h5 class="modal-title fw-bold">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Delete Course
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form method="POST" onsubmit="showLoading('Deleting course...')">
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete "<strong><?= htmlspecialchars($course['title'] ?? '') ?></strong>"?</p>
-                        <p class="text-danger small">
-                            <i class="fas fa-exclamation-circle me-1"></i>
-                            This action cannot be undone. All course data, including student progress, will be permanently deleted.
-                        </p>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="confirmDelete" required>
-                            <label class="form-check-label" for="confirmDelete">
-                                <i class="fas fa-check-circle me-1 text-danger"></i>
-                                I understand this action is permanent and cannot be undone
-                            </label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancel
-                        </button>
-                        <button type="submit" name="delete_course" class="btn btn-danger" id="deleteBtn" disabled>
-                            <i class="fas fa-trash me-2"></i>Delete Course
-                        </button>
-                    </div>
-                </form>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white rounded-top-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Course
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+            <form method="POST" onsubmit="showLoading('Deleting course...')">
+                <div class="modal-body">
+                    <p>Are you sure you want to delete "<strong><?= htmlspecialchars($course['title'] ?? '') ?></strong>"?</p>
+                    <p class="text-danger small">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        This action cannot be undone. All course data, including student progress, will be permanently deleted.
+                    </p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                        <label class="form-check-label" for="confirmDelete">
+                            <i class="fas fa-check-circle me-1 text-danger"></i>
+                            I understand this action is permanent and cannot be undone
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" name="delete_course" class="btn btn-danger" id="deleteBtn" disabled>
+                        <i class="fas fa-trash me-2"></i>Delete Course
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
+<script src="/assets/js/course-builder.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Mobile tab navigation
-    const mobileTabSelector = document.getElementById('mobileTabSelector');
-    if (mobileTabSelector) {
-        mobileTabSelector.addEventListener('change', function() {
-            const tab = this.value;
-            window.location.href = `?course_id=<?= $courseId ?>&tab=${tab}`;
-        });
-    }
-
-    // Desktop tab navigation
-    const desktopTabs = document.querySelectorAll('button[data-tab]');
-    desktopTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabName = this.getAttribute('data-tab');
-            window.location.href = `?course_id=<?= $courseId ?>&tab=${tabName}`;
-        });
-    });
-
-    // Character counter for short description
-    const shortDesc = document.getElementById('short_description');
-    const shortDescCount = document.getElementById('shortDescCount');
-    if (shortDesc && shortDescCount) {
-        shortDesc.addEventListener('input', function() {
-            shortDescCount.textContent = this.value.length;
-        });
-    }
-
-    // Lesson type toggle for add lesson modal
-    const lessonType = document.getElementById('lesson_type');
-    const videoUrlField = document.querySelector('.video-url-field');
-
-    if (lessonType && videoUrlField) {
-        function toggleVideoField() {
-            videoUrlField.style.display = lessonType.value === 'video' ? 'block' : 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile tab navigation
+        const mobileTabSelector = document.getElementById('mobileTabSelector');
+        if (mobileTabSelector) {
+            mobileTabSelector.addEventListener('change', function() {
+                const tab = this.value;
+                window.location.href = `?course_id=<?= $courseId ?>&tab=${tab}`;
+            });
         }
 
-        lessonType.addEventListener('change', toggleVideoField);
-        toggleVideoField(); // Initial call
-    }
+        // Desktop tab navigation
+        const desktopTabs = document.querySelectorAll('button[data-tab]');
+        desktopTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                window.location.href = `?course_id=<?= $courseId ?>&tab=${tabName}`;
+            });
+        });
 
-    // Lesson type toggle for edit lesson modal  
-    const editLessonType = document.getElementById('edit_lesson_type');
-    const editVideoUrlField = document.querySelector('.edit-video-url-field');
-
-    if (editLessonType && editVideoUrlField) {
-        function toggleEditVideoField() {
-            editVideoUrlField.style.display = editLessonType.value === 'video' ? 'block' : 'none';
+        // Character counter for short description
+        const shortDesc = document.getElementById('short_description');
+        const shortDescCount = document.getElementById('shortDescCount');
+        if (shortDesc && shortDescCount) {
+            shortDesc.addEventListener('input', function() {
+                shortDescCount.textContent = this.value.length;
+            });
         }
 
-        editLessonType.addEventListener('change', toggleEditVideoField);
-        toggleEditVideoField(); // Initial call
-    }
+        // Lesson type toggle for add lesson modal
+        const lessonType = document.getElementById('lesson_type');
+        const videoUrlField = document.querySelector('.video-url-field');
 
-    // Drag and drop for curriculum
-    const curriculumList = document.getElementById('curriculumList');
-    const saveOrderBtn = document.getElementById('saveOrderBtn');
-
-    if (curriculumList && typeof Sortable !== 'undefined') {
-        new Sortable(curriculumList, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function() {
-                saveOrderBtn.style.display = 'block';
-
-                // Update lesson order hidden field
-                const lessonOrder = Array.from(document.querySelectorAll('.curriculum-item')).map(item => {
-                    return item.getAttribute('data-lesson-id');
-                });
-                document.getElementById('lessonOrder').value = JSON.stringify(lessonOrder);
-            }
-        });
-    }
-
-    // Edit lesson functionality
-    const editButtons = document.querySelectorAll('.edit-lesson');
-    editButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const lessonData = JSON.parse(this.getAttribute('data-lesson'));
-
-            // Populate edit form
-            document.getElementById('edit_lesson_id').value = lessonData.id;
-            document.getElementById('edit_lesson_title').value = lessonData.title;
-            document.getElementById('edit_lesson_duration').value = lessonData.duration;
-            document.getElementById('edit_lesson_description').value = lessonData.description || '';
-            document.getElementById('edit_lesson_type').value = lessonData.type;
-            document.getElementById('edit_video_url').value = lessonData.video_url || '';
-            document.getElementById('edit_lesson_content').value = lessonData.content || '';
-
-            // Toggle video field based on type
-            if (editLessonType && editVideoUrlField) {
-                editVideoUrlField.style.display = lessonData.type === 'video' ? 'block' : 'none';
+        if (lessonType && videoUrlField) {
+            function toggleVideoField() {
+                videoUrlField.style.display = lessonType.value === 'video' ? 'block' : 'none';
             }
 
-            // Show edit modal
-            new bootstrap.Modal(document.getElementById('editLessonModal')).show();
-        });
-    });
-
-    // Enable/disable publish button based on confirmation
-    const confirmPublish = document.getElementById('confirmPublish');
-    const publishBtn = document.getElementById('publishBtn');
-
-    if (confirmPublish && publishBtn) {
-        confirmPublish.addEventListener('change', function() {
-            publishBtn.disabled = !this.checked;
-        });
-    }
-
-    // Enable/disable delete button based on confirmation
-    const confirmDelete = document.getElementById('confirmDelete');
-    const deleteBtn = document.getElementById('deleteBtn');
-
-    if (confirmDelete && deleteBtn) {
-        confirmDelete.addEventListener('change', function() {
-            deleteBtn.disabled = !this.checked;
-        });
-    }
-
-    // Auto-resize textareas
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(textarea => {
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-        // Trigger initial resize
-        textarea.style.height = 'auto';
-        textarea.style.height = (textarea.scrollHeight) + 'px';
-    });
-
-    // Debug: Show debug info on shift+ctrl+d
-    document.addEventListener('keydown', function(e) {
-        if (e.shiftKey && e.ctrlKey && e.key === 'D') {
-            document.getElementById('debugInfo').classList.toggle('d-none');
+            lessonType.addEventListener('change', toggleVideoField);
+            toggleVideoField(); // Initial call
         }
+
+        // Lesson type toggle for edit lesson modal  
+        const editLessonType = document.getElementById('edit_lesson_type');
+        const editVideoUrlField = document.querySelector('.edit-video-url-field');
+
+        if (editLessonType && editVideoUrlField) {
+            function toggleEditVideoField() {
+                editVideoUrlField.style.display = editLessonType.value === 'video' ? 'block' : 'none';
+            }
+
+            editLessonType.addEventListener('change', toggleEditVideoField);
+            toggleEditVideoField(); // Initial call
+        }
+
+        // Drag and drop for curriculum
+        const curriculumList = document.getElementById('curriculumList');
+        const saveOrderBtn = document.getElementById('saveOrderBtn');
+
+        if (curriculumList && typeof Sortable !== 'undefined') {
+            new Sortable(curriculumList, {
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: function() {
+                    saveOrderBtn.style.display = 'block';
+
+                    // Update lesson order hidden field
+                    const lessonOrder = Array.from(document.querySelectorAll('.curriculum-item')).map(item => {
+                        return item.getAttribute('data-lesson-id');
+                    });
+                    document.getElementById('lessonOrder').value = JSON.stringify(lessonOrder);
+                }
+            });
+        }
+
+        // Edit lesson functionality
+        const editButtons = document.querySelectorAll('.edit-lesson');
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const lessonData = JSON.parse(this.getAttribute('data-lesson'));
+
+                // Populate edit form
+                document.getElementById('edit_lesson_id').value = lessonData.id;
+                document.getElementById('edit_lesson_title').value = lessonData.title;
+                document.getElementById('edit_lesson_duration').value = lessonData.duration;
+                document.getElementById('edit_lesson_description').value = lessonData.description || '';
+                document.getElementById('edit_lesson_type').value = lessonData.type;
+                document.getElementById('edit_video_url').value = lessonData.video_url || '';
+                document.getElementById('edit_lesson_content').value = lessonData.content || '';
+
+                // Toggle video field based on type
+                if (editLessonType && editVideoUrlField) {
+                    editVideoUrlField.style.display = lessonData.type === 'video' ? 'block' : 'none';
+                }
+
+                // Show edit modal
+                new bootstrap.Modal(document.getElementById('editLessonModal')).show();
+            });
+        });
+
+        // Enable/disable publish button based on confirmation
+        const confirmPublish = document.getElementById('confirmPublish');
+        const publishBtn = document.getElementById('publishBtn');
+
+        if (confirmPublish && publishBtn) {
+            confirmPublish.addEventListener('change', function() {
+                publishBtn.disabled = !this.checked;
+            });
+        }
+
+        // Enable/disable delete button based on confirmation
+        const confirmDelete = document.getElementById('confirmDelete');
+        const deleteBtn = document.getElementById('deleteBtn');
+
+        if (confirmDelete && deleteBtn) {
+            confirmDelete.addEventListener('change', function() {
+                deleteBtn.disabled = !this.checked;
+            });
+        }
+
+        // Auto-resize textareas
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            // Trigger initial resize
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        });
+
+        // Debug: Show debug info on shift+ctrl+d
+        document.addEventListener('keydown', function(e) {
+            if (e.shiftKey && e.ctrlKey && e.key === 'D') {
+                document.getElementById('debugInfo').classList.toggle('d-none');
+            }
+        });
     });
-});
 </script>
 
 <?php require 'view/partial/footer.php'; ?>

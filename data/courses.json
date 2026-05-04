@@ -209,5 +209,46 @@
         "featured": false,
         "created_at": "2025-10-24 11:08:27",
         "updated_at": "2025-10-24 11:18:11"
+    },
+    {
+        "id": 12,
+        "title": "html",
+        "description": "Share your knowledge, inspire learners, and earn money teaching what you love.\r\n\r\nWhy Teach on CodeMastery?\r\nEarn Money\r\nEarn 70% commission on every course sale. Get paid monthly.\r\n\r\nReach Thousands\r\nTeach students from around the world on our growing platform.\r\n\r\nPowerful Tools\r\nUse our easy course builder, analytics, and marketing tools.\r\n\r\nGrow Your Brand\r\nBuild your reputation as an expert in your field.\r\n\r\nFull Support\r\nGet help from our instructor support team whenever you need it.\r\n\r\nInstructor Application\r\nTell us about your experience and expertise\r\n\r\nTeaching Experience *",
+        "short_description": "Share your knowledge, inspire learners, and earn money teaching what you love.\r\n\r\nWhy Teach on CodeMastery?\r\nEarn Money\r\nEarn 70% commission on every course sale. Get paid monthly.\r\n\r\nReach Thousands\r\nTeach",
+        "instructor_id": 4,
+        "instructor_name": "victory Jonathan ",
+        "price": 49.99,
+        "category": "Web Development",
+        "level": "beginner",
+        "duration": 0,
+        "lessons": 0,
+        "thumbnail": "https:\/\/www.google.com\/imgres?q=web%20design&imgurl=https%3A%2F%2Fcareertraining.ed2go.com%2Fcommon%2Fimages%2F1%2F16890%2Flearn-web-design.jpg&imgrefurl=https%3A%2F%2Fcareertraining.ed2go.com%2Fuwf%2Ftraining-programs%2Fweb-design-professional%2F&docid=WJBdxfU1Y2iSCM&tbnid=4ua4f8Sko6A8nM&vet=12ahUKEwi-ivup7a6QAxXySkEAHSV_Ev8QM3oECCIQAA..i&w=935&h=572&hcb=2&ved=2ahUKEwi-ivup7a6QAxXySkEAHSV_Ev8QM3oECCIQAA",
+        "promo_video": "",
+        "curriculum": [
+            {
+                "id": "69f48dfc24d2c",
+                "title": "Introduction to HTML",
+                "type": "exercise",
+                "duration": 10,
+                "description": "Share your knowledge, inspire learners, and earn money teaching what you love.\r\n\r\nWhy Teach on CodeMastery?\r\nEarn Money\r\nEarn 70% commission on every course sale. Get paid monthly.\r\n\r\nReach Thousands\r\nTeach students from around the world on our growing platform.\r\n\r\nPowerful Tools\r\nUse our easy course builder, analytics, and marketing tools.\r\n\r\nGrow Your Brand\r\nBuild your reputation as an expert in your field.\r\n\r\nFull Support\r\nGet help from our instructor support team whenever you need it.\r\n\r\nInstructor Application\r\nTell us about your experience and expertise\r\n\r\nTeaching Experience *",
+                "order": 0,
+                "instructions": "",
+                "starter_code": "",
+                "solution_code": "",
+                "hints": [],
+                "resources": [
+                    {
+                        "name": "background.jpg",
+                        "url": "\/uploads\/courses\/12\/resources\/resource_1777634812_69f48dfc24dec_background.jpg",
+                        "type": "jpg"
+                    }
+                ]
+            }
+        ],
+        "resources": [],
+        "status": "published",
+        "featured": false,
+        "created_at": "2026-05-01 11:25:45",
+        "updated_at": "2026-05-01 11:27:13"
     }
 ]

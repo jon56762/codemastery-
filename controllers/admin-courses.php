@@ -1,21 +1,21 @@
 <?php
 require_once 'includes/auth-functions.php';
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 requireAdmin();
 
-$user = getCurrentUser();
+$user = getCurrentUser() ?? [];
 
 // Handle course actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['approve_course'])) {
-        $courseId = $_POST['course_id'];
+        $courseId = $_POST['course_id'] ?? 0;
         if (updateCourseStatusAdmin($courseId, 'published')) {
             $_SESSION['success'] = "Course approved and published successfully!";
         } else {
             $_SESSION['error'] = "Failed to approve course.";
         }
     } elseif (isset($_POST['reject_course'])) {
-        $courseId = $_POST['course_id'];
+        $courseId = $_POST['course_id'] ?? 0;
         $reason = $_POST['rejection_reason'] ?? '';
         if (updateCourseStatusAdmin($courseId, 'rejected')) {
             $_SESSION['success'] = "Course rejected successfully!";
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['error'] = "Failed to reject course.";
         }
     } elseif (isset($_POST['delete_course'])) {
-        $courseId = $_POST['course_id'];
+        $courseId = $_POST['course_id'] ?? 0;
         if (deleteCourseAdmin($courseId)) {
             $_SESSION['success'] = "Course deleted successfully!";
         } else {
@@ -38,15 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get all courses for moderation
-$courses = getAllCourses();
+$courses = getAllCourses() ?? [];
 $pending_courses = array_filter($courses, function($course) {
-    return $course['status'] === 'pending';
+    return ($course['status'] ?? '') === 'pending';
 });
 $published_courses = array_filter($courses, function($course) {
-    return $course['status'] === 'published';
+    return ($course['status'] ?? '') === 'published';
 });
 $draft_courses = array_filter($courses, function($course) {
-    return $course['status'] === 'draft';
+    return ($course['status'] ?? '') === 'draft';
 });
 
 $page_title = "Course Moderation - Admin Panel";

@@ -1,13 +1,15 @@
 <?php
 
-// If you downloaded PHPMailer from GitHub and placed it in a 'PHPMailer' folder
-require_once 'PHPMailer/src/Exception.php';
-require_once 'PHPMailer/src/PHPMailer.php';
-require_once 'PHPMailer/src/SMTP.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Manually include PHPMailer from local folder
+require_once __DIR__ . '/../PHPMailer/src/Exception.php';
+require_once __DIR__ . '/../PHPMailer/src/PHPMailer.php';
+require_once __DIR__ . '/../PHPMailer/src/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+
 
 function sendEmailNotification($to, $subject, $message, $isHTML = true) {
     $mail = new PHPMailer(true);
@@ -16,10 +18,10 @@ function sendEmailNotification($to, $subject, $message, $isHTML = true) {
     try {
         // Server settings
         $mail->isSMTP();
-        $mail->Host = $settings['smtp_host'] ?? 'smtp.gmail.com';
+        $mail->Host = $settings['smtp_host'] ?? 'smtp-codemastery.alwaysdata.net';
         $mail->SMTPAuth = true;
-        $mail->Username = $settings['smtp_username'] ?? '';
-        $mail->Password = $settings['smtp_password'] ?? '';
+        $mail->Username = $settings['smtp_username'] ?? 'codemastery';
+        $mail->Password = $settings['smtp_password'] ?? 'succ00$$';
         $mail->SMTPSecure = $settings['smtp_encryption'] ?? PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = $settings['smtp_port'] ?? 587;
 
@@ -125,6 +127,50 @@ function sendInstructorApplicationApprovalEmail($userEmail, $userName) {
     ";
     
     return sendEmailNotification($userEmail, $subject, $message);
+}
+
+function sendNewUserRegistrationNotification($userEmail, $userName, $role = 'student') {
+    $settings = getPlatformSettings();
+    $adminEmail = $settings['contact_email'] ?? 'admin@codemastery.com';
+    
+    $subject = "New User Registration - CodeMastery";
+    $message = "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #17a2b8; color: #fff; padding: 20px; text-align: center; }
+            .content { background: #f9f9f9; padding: 20px; }
+            .user-info { background: #fff; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>📈 New User Registration</h1>
+            </div>
+            <div class='content'>
+                <p>A new user has registered on CodeMastery:</p>
+                
+                <div class='user-info'>
+                    <strong>Name:</strong> {$userName}<br>
+                    <strong>Email:</strong> {$userEmail}<br>
+                    <strong>Role:</strong> {$role}<br>
+                    <strong>Registration Date:</strong> " . date('Y-m-d H:i:s') . "
+                </div>
+                
+                <p>You can view user details in the admin panel.</p>
+                
+                <p><a href='/admin/users' style='background: #17a2b8; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View in Admin Panel</a></p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+    
+    return sendEmailNotification($adminEmail, $subject, $message);
 }
 
 function sendInstructorApplicationRejectionEmail($userEmail, $userName, $reason = '') {

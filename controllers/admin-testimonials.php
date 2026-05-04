@@ -1,28 +1,28 @@
 <?php
 require_once 'includes/auth-functions.php';
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 requireAdmin();
 
-$user = getCurrentUser();
+$user = getCurrentUser() ?? [];
 
 // Handle testimonial actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['approve_testimonial'])) {
-        $testimonialId = $_POST['testimonial_id'];
+        $testimonialId = $_POST['testimonial_id'] ?? 0;
         if (approveTestimonial($testimonialId)) {
             $_SESSION['success'] = "Testimonial approved successfully!";
         } else {
             $_SESSION['error'] = "Failed to approve testimonial.";
         }
     } elseif (isset($_POST['reject_testimonial'])) {
-        $testimonialId = $_POST['testimonial_id'];
+        $testimonialId = $_POST['testimonial_id'] ?? 0;
         if (rejectTestimonial($testimonialId)) {
             $_SESSION['success'] = "Testimonial rejected successfully!";
         } else {
             $_SESSION['error'] = "Failed to reject testimonial.";
         }
     } elseif (isset($_POST['delete_testimonial'])) {
-        $testimonialId = $_POST['testimonial_id'];
+        $testimonialId = $_POST['testimonial_id'] ?? 0;
         if (deleteTestimonial($testimonialId)) {
             $_SESSION['success'] = "Testimonial deleted successfully!";
         } else {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get all testimonials
-$testimonials = getTestimonials();
+$testimonials = getTestimonials() ?? [];
 $pending_testimonials = array_filter($testimonials, function($testimonial) {
     return ($testimonial['status'] ?? 'pending') === 'pending';
 });

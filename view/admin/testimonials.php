@@ -3,7 +3,7 @@
         <h1 class="h3 fw-bold text-dark mb-1">Testimonials Moderation</h1>
         <p class="text-muted mb-0">Manage and approve student testimonials</p>
     </div>
-    <div class="d-flex gap-2">
+    <!-- <div class="d-flex gap-2">
         <div class="dropdown">
             <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
                 <i class="fas fa-filter me-2"></i>Filter
@@ -15,7 +15,7 @@
                 <li><a class="dropdown-item" href="?status=rejected">Rejected</a></li>
             </ul>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <!-- Success/Error Messages -->

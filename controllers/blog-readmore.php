@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 
 $page_title = "Blog Post - CodeMastery";
 $current_page = 'blog';

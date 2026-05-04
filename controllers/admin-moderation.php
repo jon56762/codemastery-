@@ -1,23 +1,23 @@
 <?php
 require_once 'includes/auth-functions.php';
-require_once 'includes/function.php';
+require_once 'includes/init.php';
 requireAdmin();
 
-$user = getCurrentUser();
+$user = getCurrentUser() ?? [];
 
 // Handle moderation actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['approve_content'])) {
-        $contentId = $_POST['content_id'];
-        $contentType = $_POST['content_type'];
+        $contentId = $_POST['content_id'] ?? 0;
+        $contentType = $_POST['content_type'] ?? '';
         if (approveContent($contentId, $contentType)) {
             $_SESSION['success'] = "Content approved successfully!";
         } else {
             $_SESSION['error'] = "Failed to approve content.";
         }
     } elseif (isset($_POST['reject_content'])) {
-        $contentId = $_POST['content_id'];
-        $contentType = $_POST['content_type'];
+        $contentId = $_POST['content_id'] ?? 0;
+        $contentType = $_POST['content_type'] ?? '';
         $reason = $_POST['rejection_reason'] ?? '';
         if (rejectContent($contentId, $contentType, $reason)) {
             $_SESSION['success'] = "Content rejected successfully!";
@@ -25,15 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['error'] = "Failed to reject content.";
         }
     } elseif (isset($_POST['delete_content'])) {
-        $contentId = $_POST['content_id'];
-        $contentType = $_POST['content_type'];
+        $contentId = $_POST['content_id'] ?? 0;
+        $contentType = $_POST['content_type'] ?? '';
         if (deleteContent($contentId, $contentType)) {
             $_SESSION['success'] = "Content deleted successfully!";
         } else {
             $_SESSION['error'] = "Failed to delete content.";
         }
     } elseif (isset($_POST['ban_user'])) {
-        $userId = $_POST['user_id'];
+        $userId = $_POST['user_id'] ?? 0;
         $reason = $_POST['ban_reason'] ?? '';
         if (banUser($userId, $reason)) {
             $_SESSION['success'] = "User banned successfully!";
@@ -47,9 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get all content for moderation
-$reportedContent = getReportedContent();
-$pendingReviews = getPendingReviews();
-$flaggedComments = getFlaggedComments();
+$reportedContent = getReportedContent() ?? [];
+$pendingReviews = getPendingReviews() ?? [];
+$flaggedComments = getFlaggedComments() ?? [];
 
 $page_title = "Content Moderation - Admin Panel";
 $current_page = 'admin-moderation';

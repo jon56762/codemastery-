@@ -26,8 +26,8 @@ if (!$adminExists) {
     $adminUser = [
         'id' => count($users) + 1,
         'name' => 'Platform Administrator',
-        'email' => 'admin@codemastery.com',
-        'password' => password_hash('admin123', PASSWORD_DEFAULT),
+        'email' => 'successjonathan567@gmail.com',
+        'password' => password_hash('succ00$$', PASSWORD_DEFAULT),
         'role' => 'admin',
         'status' => 'active',
         'avatar' => '/assets/images/avatars/default.jpg',

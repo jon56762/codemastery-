@@ -1,10 +1,10 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
+<div class="d-flex justify-content-between align-items-center mb-4 row">
+    <div class="col-12">
         <h1 class="h3 fw-bold text-dark mb-1">System Settings</h1>
         <p class="text-muted mb-0">Configure platform settings and preferences</p>
     </div>
-    <div class="d-flex gap-2">
-        <button class="btn btn-outline-dark" onclick="backupSystem()">
+    <div class="d-flex col-12 mt-4">
+        <button class="btn btn-outline-dark me-2" onclick="backupSystem()">
             <i class="fas fa-download me-2"></i>Backup
         </button>
         <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#maintenanceModal">

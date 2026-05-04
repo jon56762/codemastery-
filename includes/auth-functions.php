@@ -2,28 +2,27 @@
 // Authentication functions
 
 function loginUser($email, $password) {
-    $users = getFromFile('users.json');
-    
-    foreach ($users as $user) {
-        if ($user['email'] === $email && password_verify($password, $user['password'])) {
-            if ($user['status'] === 'active') {
-                $_SESSION['user'] = [
-                    'id' => $user['id'],
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'role' => $user['role']
-                ];
-                return true;
-            } else {
-                $_SESSION['error'] = "Your account has been suspended. Please contact support.";
-                return false;
-            }
+    // Use the new User class
+    $user = User::findByEmail($email);
+
+    if ($user) {
+        // Check if account is active
+        if ($user->status !== 'active') {
+            $_SESSION['error'] = "Your account has been suspended. Please contact support.";
+            return false;
+        }
+
+        // Check password
+        if ($user->verifyPassword($password)) {
+            $_SESSION['user'] = $user->toArray(); // store full user data
+            return true;
         }
     }
-    
+
     $_SESSION['error'] = "Invalid email or password.";
     return false;
 }
+
 
 function logoutUser() {
     unset($_SESSION['user']);

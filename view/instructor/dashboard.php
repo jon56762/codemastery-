@@ -2,12 +2,12 @@
     <!-- Welcome Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
+            <div class="d-flex justify-content-between align-items-center row">
+                <div class="col-12">
                     <h1 class="h3 fw-bold mb-1">Welcome back, <?= htmlspecialchars($user['name']) ?>! 👋</h1>
                     <p class="text-muted mb-0">Here's what's happening with your courses today.</p>
                 </div>
-                <a href="/course-builder" class="btn btn-primary">
+                <a href="/course-builder" class="btn btn-primary col-12">
                     <i class="fas fa-plus-circle me-2"></i>Create New Course
                 </a>
             </div>
@@ -111,21 +111,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach (array_reverse($recentEnrollments) as $enrollment): 
-                                        $course = getCourseById($enrollment['course_id']);
-                                        $revenue = $course['price'] * 0.7;
-                                    ?>
+                                    <?php foreach ($recentEnrollments as $enrollment): ?>
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <img src="<?= getInstructorAvatar('Student', 30) ?>" 
+                                                    <img src="<?= getInstructorAvatar($enrollment['student_name'], 30) ?>" 
                                                          class="rounded-circle me-2" alt="Student">
-                                                    <span>Student #<?= $enrollment['student_id'] ?></span>
+                                                    <span><?= htmlspecialchars($enrollment['student_name']) ?></span>
                                                 </div>
                                             </td>
-                                            <td><?= htmlspecialchars($course['title']) ?></td>
+                                            <td><?= htmlspecialchars($enrollment['course_title']) ?></td>
                                             <td><?= date('M j, Y', strtotime($enrollment['enrolled_at'])) ?></td>
-                                            <td class="text-success fw-semibold">$<?= number_format($revenue, 2) ?></td>
+                                            <td class="text-success fw-semibold">$<?= number_format($enrollment['revenue'], 2) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

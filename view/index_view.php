@@ -130,7 +130,7 @@ $featured_courses = getFeaturedCourses(3) ?? [];
                                     <?php
                                     $instructor_id = $course['instructor_id'] ?? 0;
                                     $instructor = getUserById($instructor_id) ?? [];
-                                    $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.jpg';
+                                    $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.png';
                                     ?>
                                     <img src="<?= htmlspecialchars($instructor_avatar) ?>" 
                                          alt="<?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?>" 
@@ -192,7 +192,7 @@ $featured_courses = getFeaturedCourses(3) ?? [];
                                 <?php
                                 $instructor_id = $course['instructor_id'] ?? 0;
                                 $instructor = getUserById($instructor_id) ?? [];
-                                $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.jpg';
+                                $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.png';
                                 ?>
                                 <div class="d-flex align-items-center">
                                     <img src="<?= htmlspecialchars($instructor_avatar) ?>" 
@@ -368,7 +368,7 @@ $featured_courses = getFeaturedCourses(3) ?? [];
                             </div>
                             <div class="card-footer bg-transparent">
                                 <div class="d-flex align-items-center">
-                                    <img src="<?= htmlspecialchars($testimonial['avatar'] ?? '/assets/images/avatars/default.jpg') ?>"
+                                    <img src="<?= htmlspecialchars($testimonial['avatar'] ?? '/assets/images/avatars/default.png') ?>"
                                         alt="<?= htmlspecialchars($testimonial['name'] ?? 'Anonymous') ?>"
                                         class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
                                     <div>

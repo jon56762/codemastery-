@@ -11,12 +11,12 @@
                         <a href="#learning-goals" class="list-group-item list-group-item-action border-0">
                             <i class="fas fa-bullseye me-2"></i>Learning Goals
                         </a>
-                        <a href="#notifications" class="list-group-item list-group-item-action border-0">
+                        <!-- <a href="#notifications" class="list-group-item list-group-item-action border-0">
                             <i class="fas fa-bell me-2"></i>Notifications
                         </a>
                         <a href="#privacy" class="list-group-item list-group-item-action border-0">
                             <i class="fas fa-shield-alt me-2"></i>Privacy & Security
-                        </a>
+                        </a> -->
                         <a href="#achievements" class="list-group-item list-group-item-action border-0">
                             <i class="fas fa-trophy me-2"></i>Achievements
                         </a>
@@ -28,7 +28,7 @@
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" 
+                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.png')?>" 
                              alt="<?= htmlspecialchars($u['name']) ?>" 
                              class="rounded-circle" width="80" height="80">
                     </div>
@@ -170,7 +170,7 @@
             </div>
 
             <!-- Notification Preferences -->
-            <div class="card border-0 shadow-sm mb-4" id="notifications">
+            <!-- <div class="card border-0 shadow-sm mb-4" id="notifications">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="fw-bold mb-0">
                         <i class="fas fa-bell me-2"></i>Notification Preferences
@@ -212,10 +212,10 @@
                         </button>
                     </form>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Privacy & Security -->
-            <div class="card border-0 shadow-sm mb-4" id="privacy">
+            <!-- <div class="card border-0 shadow-sm mb-4" id="privacy">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="fw-bold mb-0">
                         <i class="fas fa-shield-alt me-2"></i>Privacy & Security
@@ -257,7 +257,7 @@
                         </button>
                     </form>
 
-                    <!-- Security Actions -->
+                    Security Actions 
                     <div class="mt-4 pt-3 border-top">
                         <h6 class="fw-semibold mb-3">Security</h6>
                         <div class="d-flex gap-2">
@@ -273,7 +273,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Achievements -->
             <div class="card border-0 shadow-sm" id="achievements">
@@ -341,67 +341,3 @@
 }
 </style>
 
-<script>
-// Smooth scrolling for navigation
-document.addEventListener('DOMContentLoaded', function() {
-    const navLinks = document.querySelectorAll('.list-group-item[href^="#"]');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active class from all links
-            navLinks.forEach(l => l.classList.remove('active'));
-            
-            // Add active class to clicked link
-            this.classList.add('active');
-            
-            // Scroll to target
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-
-    // Update active link on scroll
-    window.addEventListener('scroll', function() {
-        const sections = document.querySelectorAll('.card[id]');
-        const navLinks = document.querySelectorAll('.list-group-item[href^="#"]');
-        
-        let currentSection = '';
-        
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100;
-            if (window.scrollY >= sectionTop) {
-                currentSection = '#' + section.getAttribute('id');
-            }
-        });
-        
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === currentSection) {
-                link.classList.add('active');
-            }
-        });
-    });
-
-    // Auto-resize textareas
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(textarea => {
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-        
-        // Trigger initial resize
-        textarea.style.height = 'auto';
-        textarea.style.height = (textarea.scrollHeight) + 'px';
-    });
-});
-</script>

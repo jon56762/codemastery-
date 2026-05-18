@@ -1,8 +1,9 @@
 <?php
 // Base configuration
 define('SITE_NAME', 'CodeMastery');
-define('SITE_EMAIL', 'hello@codemastery.com');
+define('SITE_EMAIL', 'somchiaanong68gmail.com');
 define('UPLOAD_PATH', __DIR__ . '/uploads/');
+define('DATA_PATH', __DIR__ . '/data/');
 
 // Initialize data directory
 if (!is_dir(DATA_PATH)) {

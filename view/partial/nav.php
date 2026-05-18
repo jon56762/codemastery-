@@ -31,10 +31,32 @@
             <a class="navbar-brand fw-bold" href="/">
                 <i class="fas fa-graduation-cap me-2"></i>CodeMastery
             </a>
+            <div class="d-flex align-items-center gap-2 ms-auto order-lg-last">
+                <?php if (isset($_SESSION['user'])): ?>
+                    <a href="/notifications" class="text-decoration-none text-dark position-relative me-2">
+                        <i class="fas fa-bell fs-5"></i>
+                        <?php
+                        // Count unread notifications for the logged-in user
+                        $unreadCount = 0;
+                        if (isset($_SESSION['user'])) {
+                            $notifications = getFromFile('notifications.json');
+                            $unreadCount = count(array_filter($notifications, function ($n) {
+                                return isset($n['user_id']) && $n['user_id'] == $_SESSION['user']['id'] && empty($n['read']);
+                            }));
+                        }
+                        if ($unreadCount > 0): ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.65rem;">
+                                <?= $unreadCount ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
+                <?php endif; ?>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
 
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -80,9 +102,9 @@
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.jpg') ?>" 
-                                     alt="<?= htmlspecialchars($_SESSION['user']['name']) ?>" 
-                                     class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
+                                <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.png') ?>"
+                                    alt="<?= htmlspecialchars($_SESSION['user']['name']) ?>"
+                                    class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
                                 <span><?= htmlspecialchars($_SESSION['user']['name']) ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -93,7 +115,9 @@
                                             <i class="fas fa-crown me-2"></i>Admin Panel
                                         </a>
                                     </li>
-                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                 <?php endif; ?>
 
                                 <!-- Instructor Access -->
@@ -103,7 +127,9 @@
                                             <i class="fas fa-chalkboard-teacher me-2"></i>Instructor Dashboard
                                         </a>
                                     </li>
-                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                 <?php endif; ?>
 
                                 <!-- Common User Links -->
@@ -142,7 +168,9 @@
                                     </li>
                                 <?php endif; ?>
 
-                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li>
                                     <a class="dropdown-item text-danger" href="/logout">
                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
@@ -180,6 +208,18 @@
         </div>
         <div class="offcanvas-body">
             <ul class="navbar-nav justify-content-end flex-grow-1">
+                <?php if (isset($_SESSION['user'])): ?>
+                    <!-- User Info at Top -->
+                    <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.png') ?>"
+                            alt="<?= htmlspecialchars($_SESSION['user']['name']) ?>"
+                            class="rounded-circle me-3" width="48" height="48" style="object-fit: cover;">
+                        <div>
+                            <h6 class="fw-bold mb-0"><?= htmlspecialchars($_SESSION['user']['name']) ?></h6>
+                            <small class="text-muted"><?= ucfirst($_SESSION['user']['role']) ?></small>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link <?= ($current_page === 'home' || $current_page === '') ? 'active' : '' ?>" href="/">
                         <i class="fas fa-home me-2"></i>Home
@@ -219,15 +259,6 @@
                 <?php if (isset($_SESSION['user'])): ?>
                     <!-- User Section in Offcanvas -->
                     <li class="nav-item mt-4 pt-3 border-top">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.jpg') ?>" 
-                                 alt="<?= htmlspecialchars($_SESSION['user']['name']) ?>" 
-                                 class="rounded-circle me-3" width="48" height="48" style="object-fit: cover;">
-                            <div>
-                                <h6 class="fw-bold mb-0"><?= htmlspecialchars($_SESSION['user']['name']) ?></h6>
-                                <small class="text-muted"><?= ucfirst($_SESSION['user']['role']) ?></small>
-                            </div>
-                        </div>
 
                         <!-- Admin Access -->
                         <?php if ($_SESSION['user']['role'] === 'admin'): ?>
@@ -309,32 +340,32 @@
 
     <div class="content-wrapper" style="padding-top: 80px;">
 
-    <script>
-    // Auto-dismiss alerts after 5 seconds
-    document.addEventListener('DOMContentLoaded', function() {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                if (alert.classList.contains('show')) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }
-            }, 5000);
-        });
-    });
-
-    // Close offcanvas when clicking on links
-    document.addEventListener('DOMContentLoaded', function() {
-        const offcanvas = document.getElementById('offcanvasNavbar');
-        const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvas);
-        const links = offcanvas.querySelectorAll('a.nav-link, a.btn');
-        
-        links.forEach(link => {
-            link.addEventListener('click', function() {
-                if (offcanvasInstance) {
-                    offcanvasInstance.hide();
-                }
+        <script>
+            // Auto-dismiss alerts after 5 seconds
+            document.addEventListener('DOMContentLoaded', function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    setTimeout(() => {
+                        if (alert.classList.contains('show')) {
+                            const bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        }
+                    }, 5000);
+                });
             });
-        });
-    });
-    </script>
+
+            // Close offcanvas when clicking on links
+            document.addEventListener('DOMContentLoaded', function() {
+                const offcanvas = document.getElementById('offcanvasNavbar');
+                const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvas);
+                const links = offcanvas.querySelectorAll('a.nav-link, a.btn');
+
+                links.forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (offcanvasInstance) {
+                            offcanvasInstance.hide();
+                        }
+                    });
+                });
+            });
+        </script>

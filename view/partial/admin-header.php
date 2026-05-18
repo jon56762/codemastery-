@@ -108,7 +108,7 @@
 
             <div class="sidebar-footer p-3 border-top border-secondary">
                 <div class="d-flex align-items-center mb-3">
-                    <img src="<?= $_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.jpg' ?>"
+                    <img src="<?= $_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.png' ?>"
                         class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;">
                     <div class="flex-grow-1">
                         <div class="fw-semibold"><?= htmlspecialchars($_SESSION['user']['name']) ?></div>

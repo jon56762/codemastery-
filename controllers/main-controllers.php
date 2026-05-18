@@ -57,6 +57,10 @@ class MainController {
         view('instructor-dashboard');
     }
 
+    public function notifications() {
+        view('notifications');
+    }
+
     public function instructorCourses() {
         view('instructor-courses');
     }

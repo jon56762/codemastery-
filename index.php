@@ -34,6 +34,8 @@ route('/become-instructor', MainController::class, 'becomeInstructor');
 
 route('/instructor-dashboard', MainController::class,'instructorDashboard');
 
+route('/notifications', MainController::class, 'notifications');
+
 route('/instructor-courses', MainController::class,'instructorCourses');
 
 route('/course-builder', MainController::class,'courseBuilder');

@@ -7,21 +7,43 @@ class FileStorage
     public function __construct($filename)
     {
         $this->filename = $filename;
+        // Make sure the data directory exists
+        if (!file_exists(DATA_PATH)) {
+            mkdir(DATA_PATH, 0777, true);
+        }
     }
 
-    // Read all records
+    // ---- Replace getFromFile ----
+    private function getFileContents()
+    {
+        $filePath = DATA_PATH . $this->filename;
+        if (!file_exists($filePath)) {
+            // Create empty file
+            file_put_contents($filePath, json_encode([]));
+            return [];
+        }
+        $content = file_get_contents($filePath);
+        return json_decode($content, true) ?? [];
+    }
+
+    // ---- Replace saveToFile ----
+    private function putFileContents($data)
+    {
+        $filePath = DATA_PATH . $this->filename;
+        return file_put_contents($filePath, json_encode($data, JSON_PRETTY_PRINT));
+    }
+
+    // Now update your public methods to use these
     public function readAll()
     {
-        return getFromFile($this->filename);
+        return $this->getFileContents();
     }
 
-    // Write all records (overwrites the file)
     public function writeAll($data)
     {
-        return saveToFile($this->filename, $data);
+        return $this->putFileContents($data);
     }
 
-    // Find first record where $key == $value
     public function find($key, $value)
     {
         $all = $this->readAll();
@@ -33,7 +55,6 @@ class FileStorage
         return null;
     }
 
-    // Find all records matching a custom filter function
     public function where($callback)
     {
         $all = $this->readAll();

@@ -6,6 +6,8 @@ require 'routes.php';
 
 require 'controllers/main-controllers.php';
 
+//require_once __DIR__ . '/../database/db.php';   
+
 route('/', MainController::class,'index');
 
 route('/courses', MainController::class, 'courses');

@@ -1,189 +1,221 @@
 <?php
+require_once __DIR__ . '/../database/db.php';
 
 class User
 {
     public $id;
     public $name;
     public $email;
-    public $password;   // hashed
+    public $password;
     public $role;
     public $status;
     public $avatar;
     public $skills;
     public $bio;
-
     public $learningGoals;
     public $notificationPreferences;
     public $privacySettings;
-
     public $createdAt;
     public $updatedAt;
 
-    private static $storage;
-
-    // Get our FileStorage object (only create it once)
-    private static function getStorage()
+    public function __construct($id = null)
     {
-        if (!self::$storage) {
-            self::$storage = new FileStorage('users.json');
+        if ($id !== null) {
+            $this->load($id);
         }
-        return self::$storage;
     }
 
-    public function __construct($id, $name, $email, $password, $role = 'student', $status = 'active', $avatar = '/assets/images/avatars/default.png', $skills = [], $bio = '', 
-    $learningGoals = '', $notificationPreferences = [], $privacySettings = [], $createdAt = null, $updatedAt = null,)
+    private function load($id)
     {
-        $this->id         = $id;
-        $this->name       = $name;
-        $this->email      = $email;
-        $this->password   = $password;
-        $this->role       = $role;
-        $this->status     = $status;
-        $this->avatar     = $avatar;
-        $this->skills     = $skills;
-        $this->bio        = $bio;
-
-        $this->learningGoals = $learningGoals;
-        $this->notificationPreferences = $notificationPreferences;
-        $this->privacySettings = $privacySettings;
-
-        $this->createdAt  = $createdAt ?? date('Y-m-d H:i:s');
-        $this->updatedAt  = $updatedAt ?? date('Y-m-d H:i:s');
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $this->hydrate($row);
+            return true;
+        }
+        return false;
     }
 
-    // Convert object back to array (for JSON saving or sessions)
+    private function hydrate(array $data)
+    {
+        $this->id                   = $data['id'] ?? null;
+        $this->name                 = $data['name'] ?? '';
+        $this->email                = $data['email'] ?? '';
+        $this->password             = $data['password'] ?? '';
+        $this->role                 = $data['role'] ?? 'student';
+        $this->status               = $data['status'] ?? 'active';
+        $this->avatar               = $data['avatar'] ?? '/assets/images/avatars/default.png';
+        $this->skills               = json_decode($data['skills'] ?? '[]', true);
+        $this->bio                  = $data['bio'] ?? '';
+        $this->learningGoals        = $data['learning_goals'] ?? '';
+        $this->notificationPreferences = json_decode($data['notification_preferences'] ?? '{}', true);
+        $this->privacySettings      = json_decode($data['privacy_settings'] ?? '{}', true);
+        $this->createdAt            = $data['created_at'] ?? date('Y-m-d H:i:s');
+        $this->updatedAt            = $data['updated_at'] ?? date('Y-m-d H:i:s');
+    }
+
     public function toArray()
     {
         return [
-            'id'         => $this->id,
-            'name'       => $this->name,
-            'email'      => $this->email,
-            'password'   => $this->password,
-            'role'       => $this->role,
-            'status'     => $this->status,
-            'avatar'     => $this->avatar,
-            'skills'     => $this->skills,
-            'bio'        => $this->bio,
-
-            'learning_goals'        => $this->learningGoals,
-            'notification_preferences' => $this->notificationPreferences,
-            'privacy_settings'      => $this->privacySettings,
-
-            'created_at' => $this->createdAt,
-            'updated_at' => $this->updatedAt,
+            'id'                      => $this->id,
+            'name'                    => $this->name,
+            'email'                   => $this->email,
+            'password'                => $this->password,
+            'role'                    => $this->role,
+            'status'                  => $this->status,
+            'avatar'                  => $this->avatar,
+            'skills'                  => $this->skills,
+            'bio'                     => $this->bio,
+            'learning_goals'          => $this->learningGoals,
+            'notification_preferences'=> $this->notificationPreferences,
+            'privacy_settings'        => $this->privacySettings,
+            'created_at'              => $this->createdAt,
+            'updated_at'              => $this->updatedAt,
         ];
     }
 
-    // Save this user back to the file (update if exists, insert if new)
     public function save()
     {
-        $users = self::getStorage()->readAll();
-        $found = false;
-        foreach ($users as &$u) {
-            if ($u['id'] == $this->id) {
-                $u = $this->toArray();
-                $found = true;
-                break;
-            }
+        $db = Database::getConnection();
+        $skillsJson = json_encode($this->skills);
+        $notifJson  = json_encode($this->notificationPreferences);
+        $privJson   = json_encode($this->privacySettings);
+
+        if ($this->id) {
+            $stmt = $db->prepare("UPDATE users SET 
+                name = ?, email = ?, password = ?, role = ?, status = ?, avatar = ?,
+                skills = ?, bio = ?, learning_goals = ?, notification_preferences = ?,
+                privacy_settings = ?, updated_at = NOW()
+                WHERE id = ?");
+            $stmt->bind_param(
+                "sssssssssssi",
+                $this->name,
+                $this->email,
+                $this->password,
+                $this->role,
+                $this->status,
+                $this->avatar,
+                $skillsJson,
+                $this->bio,
+                $this->learningGoals,
+                $notifJson,
+                $privJson,
+                $this->id
+            );
+        } else {
+            $stmt = $db->prepare("INSERT INTO users 
+                (name, email, password, role, status, avatar, skills, bio, learning_goals, notification_preferences, privacy_settings, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt->bind_param(
+                "sssssssssss",
+                $this->name,
+                $this->email,
+                $this->password,
+                $this->role,
+                $this->status,
+                $this->avatar,
+                $skillsJson,
+                $this->bio,
+                $this->learningGoals,
+                $notifJson,
+                $privJson
+            );
         }
-        if (!$found) {
-            $users[] = $this->toArray();
+        $stmt->execute();
+        if (!$this->id) {
+            $this->id = $db->insert_id;
         }
-        return self::getStorage()->writeAll($users);
+        return true;
     }
 
-    // Check password
     public function verifyPassword($plainPassword)
     {
         return password_verify($plainPassword, $this->password);
     }
 
-    // Change password
     public function changePassword($newPlainPassword)
     {
         $this->password = password_hash($newPlainPassword, PASSWORD_DEFAULT);
     }
 
-    // ----- Static finders (same as your old functions) -----
+    // Static finders
     public static function findById($id)
     {
-        $data = self::getStorage()->find('id', $id);
-        if ($data) {
-            return self::fromArray($data);
+        $user = new self();
+        if ($user->load($id)) {
+            return $user;
         }
         return null;
     }
 
     public static function findByEmail($email)
     {
-        $data = self::getStorage()->find('email', $email);
-        if ($data) {
-            return self::fromArray($data);
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $user = new self();
+            $user->hydrate($row);
+            return $user;
         }
         return null;
     }
 
     public static function getAll()
     {
-        $all = self::getStorage()->readAll();
+        $db = Database::getConnection();
+        $result = $db->query("SELECT * FROM users ORDER BY created_at DESC");
         $users = [];
-        foreach ($all as $data) {
-            $users[] = self::fromArray($data);
+        while ($row = $result->fetch_assoc()) {
+            $user = new self();
+            $user->hydrate($row);
+            $users[] = $user;
         }
         return $users;
     }
 
     public static function findByRole($role)
     {
-        $filtered = self::getStorage()->where(function ($u) use ($role) {
-            return $u['role'] === $role;
-        });
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM users WHERE role = ?");
+        $stmt->bind_param("s", $role);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $users = [];
-        foreach ($filtered as $data) {
-            $users[] = self::fromArray($data);
+        while ($row = $result->fetch_assoc()) {
+            $user = new self();
+            $user->hydrate($row);
+            $users[] = $user;
         }
         return $users;
     }
 
-    // Create a new user and save it
     public static function create($data)
     {
-        $storage = self::getStorage();
-        $id = $storage->nextId('id');
-        $user = new self(
-            $id,
-            $data['name'],
-            $data['email'],
-            password_hash($data['password'], PASSWORD_DEFAULT),
-            $data['role'] ?? 'student',
-            'active',
-            $data['avatar'] ?? '/assets/images/avatars/default.png',
-            $data['skills'] ?? [],
-            $data['bio'] ?? ''
-        );
-        $user->save();
+        $user = new self();
+        $user->name     = $data['name'];
+        $user->email    = $data['email'];
+        $user->password = password_hash($data['password'], PASSWORD_DEFAULT);
+        $user->role     = $data['role'] ?? 'student';
+        $user->status   = 'active';
+        $user->avatar   = $data['avatar'] ?? '/assets/images/avatars/default.png';
+        $user->skills   = $data['skills'] ?? [];
+        $user->bio      = $data['bio'] ?? '';
+        $user->save();  // sets $user->id after insert
         return $user;
     }
 
-    // Helper to create a User object from an array (used internally)
-    private static function fromArray($data)
+    public function delete()
     {
-        return new self(
-            $data['id'],
-            $data['name'],
-            $data['email'],
-            $data['password'],
-            $data['role'],
-            $data['status'],
-            $data['avatar'],
-            $data['skills'] ?? [],
-            $data['bio'] ?? '',
-
-            $data['learning_goals'] ?? '',         
-            $data['notification_preferences'] ?? [],
-            $data['privacy_settings'] ?? [],
-            $data['created_at'],
-            $data['updated_at']
-        );
+        if (!$this->id) return false;
+        $db = Database::getConnection();
+        $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->bind_param("i", $this->id);
+        return $stmt->execute();
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../database/db.php';
+
 class InstructorApplication
 {
     public $id;
@@ -16,31 +18,42 @@ class InstructorApplication
     public $reviewedBy;
     public $notes;
 
-    private static $storage;
-
-    private static function getStorage()
+    public function __construct($id = null)
     {
-        if (!self::$storage) {
-            self::$storage = new FileStorage('instructor-applications.json');
+        if ($id !== null) {
+            $this->load($id);
         }
-        return self::$storage;
     }
 
-    public function __construct($id, $userId, $name, $email, $experience, $specialization, $portfolio, $linkedin, $status = 'pending', $submittedAt = null, $reviewedAt = null, $reviewedBy = null, $notes = '')
+    private function load($id)
     {
-        $this->id             = $id;
-        $this->userId         = $userId;
-        $this->name           = $name;
-        $this->email          = $email;
-        $this->experience     = $experience;
-        $this->specialization = $specialization;
-        $this->portfolio      = $portfolio;
-        $this->linkedin       = $linkedin;
-        $this->status         = $status;
-        $this->submittedAt    = $submittedAt ?? date('Y-m-d H:i:s');
-        $this->reviewedAt     = $reviewedAt;
-        $this->reviewedBy     = $reviewedBy;
-        $this->notes          = $notes;
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM instructor_applications WHERE application_id = ?");
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $this->hydrate($row);
+            return true;
+        }
+        return false;
+    }
+
+    private function hydrate(array $data)
+    {
+        $this->id             = $data['application_id'] ?? null;
+        $this->userId         = $data['user_id'] ?? 0;
+        $this->name           = $data['name'] ?? '';
+        $this->email          = $data['email'] ?? '';
+        $this->experience     = $data['experience'] ?? '';
+        $this->specialization = $data['specialization'] ?? '';
+        $this->portfolio      = $data['portfolio'] ?? '';
+        $this->linkedin       = $data['linkedin'] ?? '';
+        $this->status         = $data['status'] ?? 'pending';
+        $this->submittedAt    = $data['submitted_at'] ?? date('Y-m-d H:i:s');
+        $this->reviewedAt     = $data['reviewed_at'] ?? null;
+        $this->reviewedBy     = $data['reviewed_by'] ?? null;
+        $this->notes          = $data['notes'] ?? '';
     }
 
     public function toArray()
@@ -64,53 +77,66 @@ class InstructorApplication
 
     public function save()
     {
-        $all = self::getStorage()->readAll();
-        $found = false;
-        foreach ($all as &$a) {
-            if ($a['id'] == $this->id) {
-                $a = $this->toArray();
-                $found = true;
-                break;
+        $db = Database::getConnection();
+        if ($this->id) {
+            $stmt = $db->prepare("UPDATE instructor_applications SET 
+                user_id = ?, name = ?, email = ?, experience = ?, specialization = ?,
+                portfolio = ?, linkedin = ?, status = ?, submitted_at = ?, reviewed_at = ?,
+                reviewed_by = ?, notes = ? WHERE application_id = ?");
+            $stmt->bind_param("isssssssssiss", 
+                $this->userId, $this->name, $this->email, $this->experience, $this->specialization,
+                $this->portfolio, $this->linkedin, $this->status, $this->submittedAt, $this->reviewedAt,
+                $this->reviewedBy, $this->notes, $this->id
+            );
+        } else {
+            if (!$this->id) {
+                $this->id = 'APP' . date('YmdHis') . rand(1000,9999);
             }
+            $stmt = $db->prepare("INSERT INTO instructor_applications 
+                (application_id, user_id, name, email, experience, specialization, portfolio, linkedin, status, submitted_at, reviewed_at, reviewed_by, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sisssssssssis", 
+                $this->id, $this->userId, $this->name, $this->email, $this->experience, $this->specialization,
+                $this->portfolio, $this->linkedin, $this->status, $this->submittedAt, $this->reviewedAt,
+                $this->reviewedBy, $this->notes
+            );
         }
-        if (!$found) {
-            $all[] = $this->toArray();
-        }
-        return self::getStorage()->writeAll($all);
+        return $stmt->execute();
     }
 
     public static function submit($data)
     {
-        $storage = self::getStorage();
-        $id = 'APP' . date('YmdHis') . rand(1000,9999);
-        $app = new self(
-            $id,
-            $data['user_id'] ?? 0,
-            $data['name'],
-            $data['email'],
-            $data['experience'],
-            $data['specialization'],
-            $data['portfolio'] ?? '',
-            $data['linkedin'] ?? ''
-        );
+        $app = new self();
+        $app->userId         = $data['user_id'] ?? 0;
+        $app->name           = $data['name'];
+        $app->email          = $data['email'];
+        $app->experience     = $data['experience'] ?? '';
+        $app->specialization = $data['specialization'] ?? '';
+        $app->portfolio      = $data['portfolio'] ?? '';
+        $app->linkedin       = $data['linkedin'] ?? '';
+        $app->status         = 'pending';
+        $app->submittedAt    = date('Y-m-d H:i:s');
         $app->save();
         return $app;
     }
 
     public static function getAll()
     {
-        $all = self::getStorage()->readAll();
+        $db = Database::getConnection();
+        $result = $db->query("SELECT * FROM instructor_applications ORDER BY submitted_at DESC");
         $apps = [];
-        foreach ($all as $data) {
-            $apps[] = self::fromArray($data);
+        while ($row = $result->fetch_assoc()) {
+            $a = new self();
+            $a->hydrate($row);
+            $apps[] = $a;
         }
         return $apps;
     }
 
     public static function findById($id)
     {
-        $data = self::getStorage()->find('id', $id);
-        return $data ? self::fromArray($data) : null;
+        $app = new self();
+        return $app->load($id) ? $app : null;
     }
 
     public static function approve($id, $reviewerId)
@@ -122,30 +148,22 @@ class InstructorApplication
             $app->reviewedBy = $reviewerId;
             $app->notes = 'Approved';
             $app->save();
-            // Promote user role (example – you can call a User method)
             return true;
         }
         return false;
     }
 
-    // Reject, etc.
-
-    private static function fromArray($data)
+    public static function reject($id, $reviewerId, $reason = '')
     {
-        return new self(
-            $data['id'],
-            $data['user_id'],
-            $data['name'],
-            $data['email'],
-            $data['experience'],
-            $data['specialization'],
-            $data['portfolio'] ?? '',
-            $data['linkedin'] ?? '',
-            $data['status'],
-            $data['submitted_at'],
-            $data['reviewed_at'],
-            $data['reviewed_by'],
-            $data['notes']
-        );
+        $app = self::findById($id);
+        if ($app) {
+            $app->status = 'rejected';
+            $app->reviewedAt = date('Y-m-d H:i:s');
+            $app->reviewedBy = $reviewerId;
+            $app->notes = $reason ?: 'Rejected';
+            $app->save();
+            return true;
+        }
+        return false;
     }
 }

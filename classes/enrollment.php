@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../database/db.php';
+
 class Enrollment
 {
     public $id;
@@ -7,28 +9,39 @@ class Enrollment
     public $userId;
     public $enrolledAt;
     public $progress;
-    public $completedLessons;
+    public $completedLessons = [];
     public $status;
 
-    private static $storage;
-
-    private static function getStorage()
+    public function __construct($id = null)
     {
-        if (!self::$storage) {
-            self::$storage = new FileStorage('enrollments.json');
+        if ($id !== null) {
+            $this->load($id);
         }
-        return self::$storage;
     }
 
-    public function __construct($id, $courseId, $userId, $enrolledAt, $progress = 0, $completedLessons = [], $status = 'active')
+    private function load($id)
     {
-        $this->id               = $id;
-        $this->courseId         = $courseId;
-        $this->userId           = $userId;
-        $this->enrolledAt       = $enrolledAt;
-        $this->progress         = $progress;
-        $this->completedLessons = $completedLessons;
-        $this->status           = $status;
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM enrollments WHERE enrollment_id = ?");
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $this->hydrate($row);
+            return true;
+        }
+        return false;
+    }
+
+    private function hydrate(array $data)
+    {
+        $this->id               = $data['enrollment_id'] ?? null;
+        $this->courseId         = $data['course_id'] ?? 0;
+        $this->userId           = $data['user_id'] ?? 0;
+        $this->enrolledAt       = $data['enrolled_at'] ?? date('Y-m-d H:i:s');
+        $this->progress         = (int)($data['progress'] ?? 0);
+        $this->completedLessons = json_decode($data['completed_lessons'] ?? '[]', true);
+        $this->status           = $data['status'] ?? 'active';
     }
 
     public function toArray()
@@ -46,77 +59,102 @@ class Enrollment
 
     public function save()
     {
-        $all = self::getStorage()->readAll();
-        $found = false;
-        foreach ($all as &$e) {
-            if ($e['id'] == $this->id) {
-                $e = $this->toArray();
-                $found = true;
-                break;
+        $db = Database::getConnection();
+        $json = json_encode($this->completedLessons);
+
+        if ($this->id) {
+            $stmt = $db->prepare("UPDATE enrollments SET 
+                course_id = ?, user_id = ?, progress = ?, completed_lessons = ?, status = ?
+                WHERE enrollment_id = ?");
+            $stmt->bind_param("iiisss", $this->courseId, $this->userId, $this->progress, $json, $this->status, $this->id);
+        } else {
+            if (!$this->id) {
+                $this->id = 'ENR' . date('YmdHis') . rand(1000,9999);
             }
+            $stmt = $db->prepare("INSERT INTO enrollments 
+                (enrollment_id, course_id, user_id, enrolled_at, progress, completed_lessons, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("siisiss", $this->id, $this->courseId, $this->userId, $this->enrolledAt, $this->progress, $json, $this->status);
         }
-        if (!$found) {
-            $all[] = $this->toArray();
-        }
-        return self::getStorage()->writeAll($all);
+        return $stmt->execute();
     }
 
     public static function enroll($userId, $courseId)
     {
-        // Check duplicate
-        $existing = self::getStorage()->where(function ($e) use ($userId, $courseId) {
-            return $e['user_id'] == $userId && $e['course_id'] == $courseId;
-        });
-        if (!empty($existing)) return false;
+        $existing = self::findByUserAndCourse($userId, $courseId);
+        if ($existing) return false;
 
-        $id = 'ENR' . date('YmdHis') . rand(1000, 9999);
-        $enrollment = new self($id, $courseId, $userId, date('Y-m-d H:i:s'));
+        $enrollment = new self();
+        $enrollment->userId = $userId;
+        $enrollment->courseId = $courseId;
+        $enrollment->enrolledAt = date('Y-m-d H:i:s');
+        $enrollment->progress = 0;
+        $enrollment->completedLessons = [];
+        $enrollment->status = 'active';
         $enrollment->save();
         return $enrollment;
     }
 
+    public static function findByUserAndCourse($userId, $courseId)
+    {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM enrollments WHERE user_id = ? AND course_id = ?");
+        $stmt->bind_param("ii", $userId, $courseId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $e = new self();
+            $e->hydrate($row);
+            return $e;
+        }
+        return null;
+    }
+
     public static function findByUser($userId)
     {
-        $filtered = self::getStorage()->where(function ($e) use ($userId) {
-            return $e['user_id'] == $userId;
-        });
-        $list = [];
-        foreach ($filtered as $data) {
-            $list[] = self::fromArray($data);
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM enrollments WHERE user_id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $enrollments = [];
+        while ($row = $result->fetch_assoc()) {
+            $e = new self();
+            $e->hydrate($row);
+            $enrollments[] = $e;
         }
-        return $list;
+        return $enrollments;
     }
 
     public static function findByCourse($courseId)
     {
-        $filtered = self::getStorage()->where(function ($e) use ($courseId) {
-            return $e['course_id'] == $courseId;
-        });
-        $list = [];
-        foreach ($filtered as $data) {
-            $list[] = self::fromArray($data);
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM enrollments WHERE course_id = ?");
+        $stmt->bind_param("i", $courseId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $enrollments = [];
+        while ($row = $result->fetch_assoc()) {
+            $e = new self();
+            $e->hydrate($row);
+            $enrollments[] = $e;
         }
-        return $list;
+        return $enrollments;
     }
 
-    public static function isEnrolled($userId, $courseId)
+    public function toggleLesson($lessonId, $completed = true)
     {
-        $res = self::getStorage()->where(function ($e) use ($userId, $courseId) {
-            return $e['user_id'] == $userId && $e['course_id'] == $courseId;
-        });
-        return !empty($res) ? self::fromArray(reset($res)) : false;
-    }
+        if ($completed && !in_array($lessonId, $this->completedLessons)) {
+            $this->completedLessons[] = $lessonId;
+        } elseif (!$completed) {
+            $this->completedLessons = array_diff($this->completedLessons, [$lessonId]);
+        }
 
-    private static function fromArray($data)
-    {
-        return new self(
-            $data['id'],
-            $data['course_id'],
-            $data['user_id'],
-            $data['enrolled_at'],
-            $data['progress'] ?? 0,
-            $data['completed_lessons'] ?? [],
-            $data['status'] ?? 'active'
-        );
+        $course = Course::findById($this->courseId);
+        if ($course) {
+            $total = count($course->curriculum);
+            $this->progress = $total > 0 ? round(count($this->completedLessons) / $total * 100) : 0;
+        }
+        return $this->save();
     }
 }

@@ -1,55 +1,36 @@
 <?php
-require_once 'includes/auth-functions.php';
 require_once 'includes/init.php';
+require_once 'includes/auth-functions.php';
 requireAdmin();
 
-$user = getCurrentUser() ?? [];
-
-// Handle testimonial actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = $_POST['testimonial_id'] ?? 0;
     if (isset($_POST['approve_testimonial'])) {
-        $testimonialId = $_POST['testimonial_id'] ?? 0;
-        if (approveTestimonial($testimonialId)) {
-            $_SESSION['success'] = "Testimonial approved successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to approve testimonial.";
-        }
+        Testimonial::approve($id);
+        $_SESSION['success'] = "Testimonial approved.";
     } elseif (isset($_POST['reject_testimonial'])) {
-        $testimonialId = $_POST['testimonial_id'] ?? 0;
-        if (rejectTestimonial($testimonialId)) {
-            $_SESSION['success'] = "Testimonial rejected successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to reject testimonial.";
-        }
+        Testimonial::reject($id);
+        $_SESSION['success'] = "Testimonial rejected.";
     } elseif (isset($_POST['delete_testimonial'])) {
-        $testimonialId = $_POST['testimonial_id'] ?? 0;
-        if (deleteTestimonial($testimonialId)) {
-            $_SESSION['success'] = "Testimonial deleted successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to delete testimonial.";
+        $t = Testimonial::findById($id);
+        if ($t) {
+            $t->delete();
+            $_SESSION['success'] = "Testimonial deleted.";
         }
     }
-    
     header('Location: /admin-testimonials');
     exit;
 }
 
-// Get all testimonials
-$testimonials = getTestimonials() ?? [];
-$pending_testimonials = array_filter($testimonials, function($testimonial) {
-    return ($testimonial['status'] ?? 'pending') === 'pending';
-});
-$approved_testimonials = array_filter($testimonials, function($testimonial) {
-    return ($testimonial['status'] ?? 'approved') === 'approved';
-});
-$rejected_testimonials = array_filter($testimonials, function($testimonial) {
-    return ($testimonial['status'] ?? 'approved') === 'rejected';
-});
+$testimonials = Testimonial::getAll();
+$testimonialsArray = array_map(fn($t) => $t->toArray(), $testimonials);
+
+$pending_testimonials   = array_filter($testimonialsArray, fn($t) => $t['status'] === 'pending');
+$approved_testimonials  = array_filter($testimonialsArray, fn($t) => $t['status'] === 'approved');
+$rejected_testimonials  = array_filter($testimonialsArray, fn($t) => $t['status'] === 'rejected');
 
 $page_title = "Testimonials Moderation - Admin Panel";
 $current_page = 'admin-testimonials';
-
 require 'view/partial/admin-header.php';
 require 'view/admin/testimonials.php';
 require 'view/partial/admin-footer.php';
-?>

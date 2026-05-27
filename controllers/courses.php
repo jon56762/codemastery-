@@ -1,70 +1,75 @@
 <?php
-require_once 'includes/init.php';
+require_once 'includes/init.php'; 
 
 $page_title = "Courses - CodeMastery";
 $current_page = 'courses';
 
-// Get all courses and filter data
-$all_courses = getAllCourses();
-$categories = getCourseCategories();
-$levels = ['beginner', 'intermediate', 'advanced'];
 
-// Filter and search handling
-$search = $_GET['search'] ?? '';
+$search   = $_GET['search']   ?? '';
 $category = $_GET['category'] ?? '';
-$level = $_GET['level'] ?? '';
-$price = $_GET['price'] ?? '';
-$sort = $_GET['sort'] ?? 'newest';
+$level    = $_GET['level']    ?? '';
+$price    = $_GET['price']    ?? '';
+$sort     = $_GET['sort']     ?? 'newest';
 
-// Filter courses based on criteria
-$filtered_courses = array_filter($all_courses, function($course) use ($search, $category, $level, $price) {
-    // Search filter
-    if ($search && stripos($course['title'], $search) === false && stripos($course['description'], $search) === false) {
+$courses = Course::getPublished();
+
+$filtered_courses = array_filter($courses, function($course) use ($search, $category, $level, $price) {
+    // Search filter (check title and description)
+    if ($search && stripos($course->title, $search) === false && stripos($course->description, $search) === false) {
         return false;
     }
-    
     // Category filter
-    if ($category && $course['category'] !== $category) {
+    if ($category && $course->category !== $category) {
         return false;
     }
-    
     // Level filter
-    if ($level && $course['level'] !== $level) {
+    if ($level && $course->level !== $level) {
         return false;
     }
-    
     // Price filter
-    if ($price === 'free' && $course['price'] > 0) {
+    if ($price === 'free' && $course->price > 0) {
         return false;
     }
-    if ($price === 'paid' && $course['price'] <= 0) {
+    if ($price === 'paid' && $course->price <= 0) {
         return false;
     }
-    
-    // Only show published courses
-    return $course['status'] === 'published';
+    return true;
 });
 
-// Sort courses
 usort($filtered_courses, function($a, $b) use ($sort) {
     switch ($sort) {
         case 'price_low':
-            return $a['price'] <=> $b['price'];
+            return $a->price <=> $b->price;
         case 'price_high':
-            return $b['price'] <=> $a['price'];
+            return $b->price <=> $a->price;
         case 'rating':
-            return ($b['rating'] ?? 0) <=> ($a['rating'] ?? 0);
+            return ($b->rating ?? 0) <=> ($a->rating ?? 0);
         case 'popular':
-            return ($b['enrollment_count'] ?? 0) <=> ($a['enrollment_count'] ?? 0);
-        default: // newest
-            return strtotime($b['created_at']) <=> strtotime($a['created_at']);
+            return ($b->enrollmentCount ?? 0) <=> ($a->enrollmentCount ?? 0);
+        default: 
+            return strtotime($b->createdAt) <=> strtotime($a->createdAt);
     }
 });
 
-// Get featured courses for sidebar
-$featured_courses = getFeaturedCourses(3);
+$all_published = Course::getPublished();
+$categories = [];
+foreach ($all_published as $c) {
+    if (!empty($c->category)) {
+        $categories[] = $c->category;
+    }
+}
+$categories = array_unique($categories);
+sort($categories);
+
+// Get featured courses for the sidebar (using the same Course method)
+$featured_courses = Course::getFeatured(3);
+
+// Convert course objects to arrays for the view (the view still expects arrays)
+$filtered_courses = array_map(fn($c) => $c->toArray(), $filtered_courses);
+$featured_courses = array_map(fn($c) => $c->toArray(), $featured_courses);
+
+$levels = ['beginner', 'intermediate', 'advanced'];
 
 require 'view/partial/nav.php';
 require 'view/courses.php';
 require 'view/partial/footer.php';
-?>

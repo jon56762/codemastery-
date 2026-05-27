@@ -1,12 +1,6 @@
 <?php
 $platformStats = getPlatformStats() ?? [];
-$testimonials = getFromFile('testimonials.json') ?? [];
 $current_page = 'home';
-
-// Get courses for the homepage - UPDATED
-$popular_courses = getPopularCourses(3) ?? [];
-$new_courses = getNewCourses(4) ?? [];
-$featured_courses = getFeaturedCourses(3) ?? [];
 ?>
 
 <link rel="stylesheet" href="/assets/css/style.css">
@@ -72,155 +66,146 @@ $featured_courses = getFeaturedCourses(3) ?? [];
 
 <!-- Popular Courses (3 Most Popular) -->
 <?php if (!empty($popular_courses)): ?>
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col-12 text-center">
-                <h2 class="fw-bold">Most Popular Courses</h2>
-                <p class="lead text-muted">Top 3 courses loved by our students</p>
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h2 class="fw-bold">Most Popular Courses</h2>
+                    <p class="lead text-muted">Top 3 courses loved by our students</p>
+                </div>
             </div>
-        </div>
-        <div class="row justify-content-center">
-            <?php foreach ($popular_courses as $course): ?>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card course-card h-100 border-0 shadow-sm">
-                        <div class="position-relative">
-                            <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>" 
-                                 class="card-img-top" 
-                                 alt="<?= htmlspecialchars($course['title'] ?? 'Course') ?>"
-                                 style="height: 200px; object-fit: cover;">
-                            <span class="position-absolute top-0 start-0 m-2 badge bg-danger">
-                                <i class="fas fa-fire me-1"></i>Popular
-                            </span>
-                            <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-<?= getCourseLevelBadge($course['level'] ?? 'beginner') ?>">
-                                    <?= ucfirst($course['level'] ?? 'beginner') ?>
+            <div class="row justify-content-center">
+                <?php foreach ($popular_courses as $course): ?>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card course-card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>"
+                                    class="card-img-top"
+                                    alt="<?= htmlspecialchars($course['title'] ?? 'Course') ?>"
+                                    style="height: 200px; object-fit: cover;">
+                                <span class="position-absolute top-0 start-0 m-2 badge bg-danger">
+                                    <i class="fas fa-fire me-1"></i>Popular
                                 </span>
-                            </div>
-                        </div>
-                        
-                        <div class="card-body d-flex flex-column">
-                            <div class="mb-2">
-                                <span class="badge bg-light text-dark border">
-                                    <?= htmlspecialchars($course['category'] ?? 'Uncategorized') ?>
-                                </span>
-                            </div>
-                            
-                            <h5 class="card-title fw-bold">
-                                <a href="/course/<?= $course['id'] ?? 0 ?>" class="text-dark text-decoration-none">
-                                    <?= htmlspecialchars($course['title'] ?? 'Untitled') ?>
-                                </a>
-                            </h5>
-                            
-                            <p class="card-text text-muted small flex-grow-1">
-                                <?= htmlspecialchars($course['short_description'] ?? substr($course['description'] ?? '', 0, 100) . '...') ?>
-                            </p>
-                            
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="text-warning small">
-                                    <?= str_repeat('<i class="fas fa-star"></i>', floor($course['rating'] ?? 4)) ?>
-                                    <?= (($course['rating'] ?? 4) - floor($course['rating'] ?? 4) >= 0.5) ? '<i class="fas fa-star-half-alt"></i>' : '' ?>
-                                    <span class="text-muted ms-1">(<?= $course['rating'] ?? '4.0' ?>)</span>
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-<?= getCourseLevelBadge($course['level'] ?? 'beginner') ?>">
+                                        <?= ucfirst($course['level'] ?? 'beginner') ?>
+                                    </span>
                                 </div>
-                                <span class="text-muted small ms-2">• <?= $course['enrollment_count'] ?? 0 ?> students</span>
                             </div>
-                            
-                            <div class="d-flex justify-content-between align-items-center mt-auto">
-                                <div class="d-flex align-items-center">
-                                    <?php
-                                    $instructor_id = $course['instructor_id'] ?? 0;
-                                    $instructor = getUserById($instructor_id) ?? [];
-                                    $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.png';
-                                    ?>
-                                    <img src="<?= htmlspecialchars($instructor_avatar) ?>" 
-                                         alt="<?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?>" 
-                                         class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
-                                    <small class="text-muted"><?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?></small>
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    <span class="badge bg-light text-dark border">
+                                        <?= htmlspecialchars($course['category'] ?? 'Uncategorized') ?>
+                                    </span>
                                 </div>
-                                <div class="text-end">
-                                    <div class="fw-bold text-dark h5 mb-0">
-                                        <?= ($course['price'] ?? 0) > 0 ? '$' . ($course['price'] ?? 0) : 'Free' ?>
+
+                                <h5 class="card-title fw-bold">
+                                    <a href="/course/<?= $course['id'] ?? 0 ?>" class="text-dark text-decoration-none">
+                                        <?= htmlspecialchars($course['title'] ?? 'Untitled') ?>
+                                    </a>
+                                </h5>
+
+                                <p class="card-text text-muted small flex-grow-1">
+                                    <?= htmlspecialchars($course['short_description'] ?? substr($course['description'] ?? '', 0, 100) . '...') ?>
+                                </p>
+
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="text-warning small">
+                                        <?= str_repeat('<i class="fas fa-star"></i>', floor($course['rating'] ?? 4)) ?>
+                                        <?= (($course['rating'] ?? 4) - floor($course['rating'] ?? 4) >= 0.5) ? '<i class="fas fa-star-half-alt"></i>' : '' ?>
+                                        <span class="text-muted ms-1">(<?= $course['rating'] ?? '4.0' ?>)</span>
+                                    </div>
+                                    <span class="text-muted small ms-2">• <?= $course['enrollment_count'] ?? 0 ?> students</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Instructor avatar: use default placeholder, controller can pre-fetch later -->
+                                        <img src="/assets/images/avatars/default.png"
+                                            alt="<?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?>"
+                                            class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
+                                        <small class="text-muted"><?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?></small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-dark h5 mb-0">
+                                            <?= ($course['price'] ?? 0) > 0 ? '$' . ($course['price'] ?? 0) : 'Free' ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="card-footer bg-transparent border-0 pt-0">
-                            <a href="/course/<?= $course['id'] ?? 0 ?>" class="btn btn-outline-dark w-100">
-                                <i class="fas fa-eye me-2"></i>View Course
-                            </a>
+
+                            <div class="card-footer bg-transparent border-0 pt-0">
+                                <a href="/course/<?= $course['id'] ?? 0 ?>" class="btn btn-outline-dark w-100">
+                                    <i class="fas fa-eye me-2"></i>View Course
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 <?php endif; ?>
 
 <!-- New Courses (4 Newest) -->
 <?php if (!empty($new_courses)): ?>
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col-12 text-center">
-                <h2 class="fw-bold">New & Noteworthy</h2>
-                <p class="lead text-muted">Recently added courses to expand your skills</p>
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h2 class="fw-bold">New & Noteworthy</h2>
+                    <p class="lead text-muted">Recently added courses to expand your skills</p>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <?php foreach ($new_courses as $course): ?>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm h-100 course-card">
-                        <div class="position-relative">
-                            <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>" 
-                                 class="card-img-top" 
-                                 alt="<?= htmlspecialchars($course['title'] ?? 'Course') ?>"
-                                 style="height: 160px; object-fit: cover;">
-                            <span class="position-absolute top-0 start-0 m-2 badge bg-success">New</span>
-                        </div>
-                        <div class="card-body">
-                            <h6 class="card-title fw-bold">
-                                <a href="/course/<?= $course['id'] ?? 0 ?>" class="text-dark text-decoration-none">
-                                    <?= htmlspecialchars($course['title'] ?? 'Untitled') ?>
-                                </a>
-                            </h6>
-                            <p class="card-text text-muted small">
-                                <?= htmlspecialchars(substr($course['short_description'] ?? $course['description'] ?? '', 0, 80) . '...') ?>
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center mt-auto">
-                                <?php
-                                $instructor_id = $course['instructor_id'] ?? 0;
-                                $instructor = getUserById($instructor_id) ?? [];
-                                $instructor_avatar = $instructor['avatar'] ?? '/assets/images/avatars/default.png';
-                                ?>
-                                <div class="d-flex align-items-center">
-                                    <img src="<?= htmlspecialchars($instructor_avatar) ?>" 
-                                         alt="<?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?>" 
-                                         class="rounded-circle me-2" width="25" height="25" style="object-fit: cover;">
-                                    <small class="text-muted"><?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?></small>
+            <div class="row">
+                <?php foreach ($new_courses as $course): ?>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100 course-card">
+                            <div class="position-relative">
+                                <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>"
+                                    class="card-img-top"
+                                    alt="<?= htmlspecialchars($course['title'] ?? 'Course') ?>"
+                                    style="height: 160px; object-fit: cover;">
+                                <span class="position-absolute top-0 start-0 m-2 badge bg-success">New</span>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold">
+                                    <a href="/course/<?= $course['id'] ?? 0 ?>" class="text-dark text-decoration-none">
+                                        <?= htmlspecialchars($course['title'] ?? 'Untitled') ?>
+                                    </a>
+                                </h6>
+                                <p class="card-text text-muted small">
+                                    <?= htmlspecialchars(substr($course['short_description'] ?? $course['description'] ?? '', 0, 80) . '...') ?>
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                    <div class="d-flex align-items-center">
+                                        <img src="/assets/images/avatars/default.png"
+                                            alt="<?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?>"
+                                            class="rounded-circle me-2" width="25" height="25" style="object-fit: cover;">
+                                        <small class="text-muted"><?= htmlspecialchars($course['instructor_name'] ?? 'Instructor') ?></small>
+                                    </div>
+                                    <span class="fw-bold text-dark">
+                                        <?= ($course['price'] ?? 0) > 0 ? '$' . ($course['price'] ?? 0) : 'Free' ?>
+                                    </span>
                                 </div>
-                                <span class="fw-bold text-dark">
-                                    <?= ($course['price'] ?? 0) > 0 ? '$' . ($course['price'] ?? 0) : 'Free' ?>
-                                </span>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="/course/<?= $course['id'] ?? 0 ?>" class="btn btn-sm btn-outline-dark w-100">
+                                    Explore
+                                </a>
                             </div>
                         </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="/course/<?= $course['id'] ?? 0 ?>" class="btn btn-sm btn-outline-dark w-100">
-                                Explore
-                            </a>
-                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/courses" class="btn btn-dark btn-lg">
+                    View All Courses <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
         </div>
-        <div class="text-center mt-4">
-            <a href="/courses" class="btn btn-dark btn-lg">
-                View All Courses <i class="fas fa-arrow-right ms-2"></i>
-            </a>
-        </div>
-    </div>
-</section>
+    </section>
 <?php endif; ?>
 
 <!-- Why Choose CodeMastery -->
@@ -264,51 +249,6 @@ $featured_courses = getFeaturedCourses(3) ?? [];
     </div>
 </section>
 
-<!-- Popular Categories -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col-12 text-center">
-                <h2 class="fw-bold">Popular Categories</h2>
-                <p class="lead text-muted">Explore courses by category</p>
-            </div>
-        </div>
-        <div class="row">
-            <?php 
-            $categories = getCourseCategories() ?? [];
-            $category_icons = [
-                'Web Development' => 'fas fa-code',
-                'Data Science' => 'fas fa-chart-bar',
-                'Mobile Development' => 'fas fa-mobile-alt',
-                'Machine Learning' => 'fas fa-robot',
-                'Programming' => 'fas fa-laptop-code'
-            ];
-            
-            foreach (array_slice($categories, 0, 6) as $category): 
-                $all_courses = getAllCourses() ?? [];
-                $category_courses = array_filter($all_courses, function($course) use ($category) {
-                    return ($course['category'] ?? '') === $category && ($course['status'] ?? '') === 'published';
-                });
-            ?>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-3">
-                                <i class="<?= $category_icons[$category] ?? 'fas fa-book' ?> fa-2x text-dark"></i>
-                            </div>
-                            <h5 class="fw-bold"><?= htmlspecialchars($category) ?></h5>
-                            <p class="text-muted mb-3"><?= count($category_courses) ?> courses available</p>
-                            <a href="/courses?category=<?= urlencode($category) ?>" class="btn btn-outline-dark">
-                                Explore <?= htmlspecialchars($category) ?>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-
 <!-- Become Instructor CTA -->
 <section class="py-5 bg-dark text-white">
     <div class="container">
@@ -332,7 +272,7 @@ $featured_courses = getFeaturedCourses(3) ?? [];
     </div>
 </section>
 
-<!-- Testimonials -->
+<!-- Testimonials (now uses the $testimonials array from the controller) -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row mb-5">
@@ -343,20 +283,15 @@ $featured_courses = getFeaturedCourses(3) ?? [];
             </div>
         </div>
         <div class="row">
-            <?php 
-            $testimonials = getFromFile('testimonials.json') ?? [];
-            $approved_testimonials = array_filter($testimonials, function($testimonial) {
-                return ($testimonial['status'] ?? '') === 'approved';
-            });
-            $display_testimonials = array_slice($approved_testimonials, 0, 3);
-            ?>
-            
-            <?php if (empty($display_testimonials)): ?>
+            <?php
+            $display_testimonials = array_slice($testimonials, 0, 3);
+            if (empty($display_testimonials)): ?>
                 <div class="col-12 text-center">
                     <p class="text-muted">No testimonials yet. <a href="/testimonial-submit">Be the first to share!</a></p>
                 </div>
             <?php else: ?>
                 <?php foreach ($display_testimonials as $testimonial): ?>
+                    <!-- testimonial card -->
                     <div class="col-lg-4 mb-4">
                         <div class="card h-100 border-0 shadow-sm testimonial-card">
                             <div class="card-body">

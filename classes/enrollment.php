@@ -69,7 +69,7 @@ class Enrollment
             $stmt->bind_param("iiisss", $this->courseId, $this->userId, $this->progress, $json, $this->status, $this->id);
         } else {
             if (!$this->id) {
-                $this->id = 'ENR' . date('YmdHis') . rand(1000,9999);
+                $this->id = 'ENR' . date('YmdHis') . rand(1000, 9999);
             }
             $stmt = $db->prepare("INSERT INTO enrollments 
                 (enrollment_id, course_id, user_id, enrolled_at, progress, completed_lessons, status)

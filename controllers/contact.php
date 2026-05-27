@@ -4,10 +4,9 @@ require_once 'includes/init.php';
 $page_title = "Contact Us - CodeMastery";
 $current_page = 'contact';
 
-// Get platform statistics for the contact page
-$platformStats = getPlatformStats();
+$platformStats = getPlatformStats();   // OOP version
 
-// Handle contact form submission
+// Handle contact form submission (file storage for now – safe to keep)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact'])) {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
@@ -46,4 +45,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact'])) {
 require 'view/partial/nav.php';
 require 'view/contact_view.php';
 require 'view/partial/footer.php';
-?>

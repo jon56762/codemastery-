@@ -1,133 +1,79 @@
 <?php
+require_once 'includes/init.php';  
 require_once 'includes/auth-functions.php';
 requireAuth();
 
-$user = getCurrentUser();
-$userId = $user['id'];
-
-// Get user data
-$users = getFromFile('users.json');
-$currentUser = null;
-foreach ($users as $u) {
-    if ($u['id'] == $userId) {
-        $currentUser = $u;
-        break;
-    }
-}
-
-if (!$currentUser) {
+// Get current user as object
+$user = getCurrentUserObject();
+if (!$user) {
     logoutUser();
     header('Location: /login');
     exit;
 }
 
-// Get enrollments for stats
-$enrollments = getFromFile('enrollments.json');
-$userEnrollments = array_filter($enrollments, function($e) use ($userId) {
-    return $e['user_id'] == $userId;
-});
 
-$courses = getFromFile('courses.json');
-$enrolledCourses = array_filter($courses, function($course) use ($userEnrollments) {
-    foreach ($userEnrollments as $e) {
-        if ($e['course_id'] == $course['id']) {
-            return true;
-        }
+$enrollments = Enrollment::findByUser($user->getId());
+$enrolledCourses = [];
+foreach ($enrollments as $enrollment) {
+    $course = Course::findById($enrollment->courseId);
+    if ($course) {
+        $enrolledCourses[] = [
+            'course'     => $course->toArray(),
+            'enrollment' => $enrollment->toArray()
+        ];
     }
-    return false;
-});
+}
 
-$completedCourses = array_filter($userEnrollments, function($e) {
-    return $e['progress'] == 100;
-});
+$completedEnrollments = array_filter($enrollments, fn($e) => $e->progress >= 100);
+$completedCourses = array_map(fn($e) => Course::findById($e->courseId)?->toArray(), $completedEnrollments);
 
-$totalLearningTime = 0; // Calculate from lesson durations
 
-// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     if (isset($_POST['update_profile'])) {
-        $currentUser['name'] = $_POST['name'] ?? $currentUser['name'];
-        $currentUser['bio'] = $_POST['bio'] ?? '';
-        
-        // Handle skills
-        $skills = $_POST['skills'] ?? '';
-        $currentUser['skills'] = array_map('trim', explode(',', $skills));
-        
-        // Update user in array
-        foreach ($users as &$u) {
-            if ($u['id'] == $userId) {
-                $u = $currentUser;
-                break;
-            }
-        }
-        
-        saveToFile('users.json', $users);
-        $_SESSION['user']['name'] = $currentUser['name']; // Update session
+        $user->name   = $_POST['name'] ?? $user->name;
+        $user->bio    = $_POST['bio'] ?? '';
+        $user->skills = !empty($_POST['skills']) ? array_map('trim', explode(',', $_POST['skills'])) : [];
+        $user->save();
+        $_SESSION['user']['name'] = $user->name; // keep session in sync
         $_SESSION['success'] = 'Profile updated successfully!';
     }
-    
+
     if (isset($_POST['update_learning_goals'])) {
-        $currentUser['learning_goals'] = $_POST['learning_goals'] ?? '';
-        
-        foreach ($users as &$u) {
-            if ($u['id'] == $userId) {
-                $u = $currentUser;
-                break;
-            }
-        }
-        
-        saveToFile('users.json', $users);
-        $_SESSION['success'] = 'Learning goals updated successfully!';
+        $user->learningGoals = $_POST['learning_goals'] ?? '';
+        $user->save();
+        $_SESSION['success'] = 'Learning goals updated!';
     }
-    
+
     if (isset($_POST['update_notifications'])) {
-        $currentUser['notification_preferences'] = [
+        $user->notificationPreferences = [
             'email_notifications' => isset($_POST['email_notifications']),
-            'course_updates' => isset($_POST['course_updates']),
-            'newsletter' => isset($_POST['newsletter'])
+            'course_updates'      => isset($_POST['course_updates']),
+            'newsletter'          => isset($_POST['newsletter'])
         ];
-        
-        foreach ($users as &$u) {
-            if ($u['id'] == $userId) {
-                $u = $currentUser;
-                break;
-            }
-        }
-        
-        saveToFile('users.json', $users);
-        $_SESSION['success'] = 'Notification preferences updated successfully!';
+        $user->save();
+        $_SESSION['success'] = 'Notification preferences updated!';
     }
-    
+
     if (isset($_POST['update_privacy'])) {
-        $currentUser['privacy_settings'] = [
+        $user->privacySettings = [
             'profile_visibility' => $_POST['profile_visibility'] ?? 'public',
-            'show_progress' => isset($_POST['show_progress']),
-            'show_achievements' => isset($_POST['show_achievements'])
+            'show_progress'      => isset($_POST['show_progress']),
+            'show_achievements'  => isset($_POST['show_achievements'])
         ];
-        
-        foreach ($users as &$u) {
-            if ($u['id'] == $userId) {
-                $u = $currentUser;
-                break;
-            }
-        }
-        
-        saveToFile('users.json', $users);
-        $_SESSION['success'] = 'Privacy settings updated successfully!';
+        $user->save();
+        $_SESSION['success'] = 'Privacy settings updated!';
     }
-    
-    // Redirect to avoid resubmission
+
     header('Location: /profile');
     exit;
 }
 
-// Get achievements
+// Achievements 
+$achievements = getStudentAchievements($user->getId());
 
-$achievements = getStudentAchievements($userId);
-
-$page_title = "Profile - " . $currentUser['name'];
+$page_title = "Profile - " . $user->name;
 $current_page = 'profile';
 require 'view/partial/nav.php';
 require 'view/student/profile.php';
 require 'view/partial/footer.php';
-?>

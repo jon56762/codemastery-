@@ -1,77 +1,56 @@
 <?php
-require_once 'includes/auth-functions.php';
 require_once 'includes/init.php';
+require_once 'includes/auth-functions.php';
 requireAdmin();
-
-$user = getCurrentUser() ?? [];
 
 // Handle user actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $userId = $_POST['user_id'] ?? 0;
+
     if (isset($_POST['update_role'])) {
-        $userId = $_POST['user_id'] ?? 0;
-        $newRole = $_POST['new_role'] ?? '';
-        
-        if (updateUserRole($userId, $newRole)) {
-            $_SESSION['success'] = "User role updated successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to update user role.";
+        $user = User::findById($userId);
+        if ($user) {
+            $user->role = $_POST['new_role'];
+            $user->save();
+            $_SESSION['success'] = "Role updated.";
         }
     } elseif (isset($_POST['suspend_user'])) {
-        $userId = $_POST['user_id'] ?? 0;
-        if (updateUserStatus($userId, 'suspended')) {
-            $_SESSION['success'] = "User suspended successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to suspend user.";
+        $user = User::findById($userId);
+        if ($user) {
+            $user->status = 'suspended';
+            $user->save();
+            $_SESSION['success'] = "User suspended.";
         }
     } elseif (isset($_POST['activate_user'])) {
-        $userId = $_POST['user_id'] ?? 0;
-        if (updateUserStatus($userId, 'active')) {
-            $_SESSION['success'] = "User activated successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to activate user.";
+        $user = User::findById($userId);
+        if ($user) {
+            $user->status = 'active';
+            $user->save();
+            $_SESSION['success'] = "User activated.";
         }
     } elseif (isset($_POST['delete_user'])) {
-        $userId = $_POST['user_id'] ?? 0;
-        if (deleteUser($userId)) {
-            $_SESSION['success'] = "User deleted successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to delete user.";
+        $user = User::findById($userId);
+        if ($user) {
+            $user->delete();
+            $_SESSION['success'] = "User deleted.";
         }
     }
-    
-    // Refresh page to show updated data
     header('Location: /admin-users');
     exit;
 }
 
-// Get all users
-$users = getAllUsers() ?? [];
-$students = array_filter($users, function($user) {
-    return ($user['role'] ?? '') === 'student' && ($user['status'] ?? '') === 'active';
-});
-$instructors = array_filter($users, function($user) {
-    return ($user['role'] ?? '') === 'instructor' && ($user['status'] ?? '') === 'active';
-});
-$admins = array_filter($users, function($user) {
-    return ($user['role'] ?? '') === 'admin';
-});
-$suspended_users = array_filter($users, function($user) {
-    return ($user['status'] ?? '') === 'suspended';
-});
-
-// Filter users if search is provided
 $search = $_GET['search'] ?? '';
+$users = User::getAll();
 if ($search) {
-    $users = array_filter($users, function($user) use ($search) {
-        return stripos($user['name'] ?? '', $search) !== false || 
-               stripos($user['email'] ?? '', $search) !== false;
-    });
+    $users = array_filter($users, fn($u) =>
+        stripos($u->name, $search) !== false || stripos($u->email, $search) !== false
+    );
 }
+// Convert to arrays for the view
+$usersArray = array_map(fn($u) => $u->toArray(), $users);
 
 $page_title = "User Management - Admin Panel";
 $current_page = 'admin-users';
-
 require 'view/partial/admin-header.php';
 require 'view/admin/users.php';
 require 'view/partial/admin-footer.php';
-?>

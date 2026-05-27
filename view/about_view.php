@@ -1,8 +1,6 @@
-<?php
-// Get platform statistics
-$platformStats = getPlatformStats();
-?>
-
+    <?php
+    $platformStats = getPlatformStats(); 
+    ?>
 <div class="container py-5">
     <!-- Header -->
     <div class="row mb-5">

@@ -70,7 +70,7 @@ class User
             'skills'                  => $this->skills,
             'bio'                     => $this->bio,
             'learning_goals'          => $this->learningGoals,
-            'notification_preferences'=> $this->notificationPreferences,
+            'notification_preferences' => $this->notificationPreferences,
             'privacy_settings'        => $this->privacySettings,
             'created_at'              => $this->createdAt,
             'updated_at'              => $this->updatedAt,
@@ -217,5 +217,30 @@ class User
         $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
         $stmt->bind_param("i", $this->id);
         return $stmt->execute();
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    public function getRole()
+    {
+        return $this->role;
+    }
+    
+    public function getAvatar()
+    {
+        return $this->avatar;
     }
 }

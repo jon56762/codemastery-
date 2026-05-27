@@ -340,32 +340,6 @@
 
     <div class="content-wrapper" style="padding-top: 80px;">
 
-        <script>
-            // Auto-dismiss alerts after 5 seconds
-            document.addEventListener('DOMContentLoaded', function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(alert => {
-                    setTimeout(() => {
-                        if (alert.classList.contains('show')) {
-                            const bsAlert = new bootstrap.Alert(alert);
-                            bsAlert.close();
-                        }
-                    }, 5000);
-                });
-            });
+        
 
-            // Close offcanvas when clicking on links
-            document.addEventListener('DOMContentLoaded', function() {
-                const offcanvas = document.getElementById('offcanvasNavbar');
-                const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvas);
-                const links = offcanvas.querySelectorAll('a.nav-link, a.btn');
-
-                links.forEach(link => {
-                    link.addEventListener('click', function() {
-                        if (offcanvasInstance) {
-                            offcanvasInstance.hide();
-                        }
-                    });
-                });
-            });
-        </script>
+        <script src="/assets/js/bootstrap.bundle.js"></script>

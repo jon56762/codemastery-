@@ -1,49 +1,39 @@
 <?php
+require_once 'includes/init.php';
 require_once 'includes/auth-functions.php';
 requireAuth();
 
-$user = getCurrentUser();
+$user = getCurrentUserObject();
 $courseId = $_GET['id'] ?? null;
 
-if (!$courseId) {
-    header('Location: /courses');
-    exit;
-}
+if (!$courseId) { header('Location: /courses'); exit; }
 
-$course = getCourseById($courseId);
-if (!$course) {
-    header('Location: /courses');
-    exit;
-}
+$course = Course::findById($courseId);
+if (!$course) { header('Location: /courses'); exit; }
 
-// Check if user is enrolled
-$isEnrolled = isUserEnrolled($user['id'], $courseId);
-$enrollment = $isEnrolled;
+$enrollment = Enrollment::findByUserAndCourse($user->getId(), $courseId);
+$isEnrolled = $enrollment ? true : false;
 
-// Handle enrollment
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enroll'])) {
-    $result = enrollStudent($courseId, $user['id']);
-    if ($result) {
-        $_SESSION['success'] = "Successfully enrolled in " . htmlspecialchars($course['title']) . "!";
+    $enroll = Enrollment::enroll($user->getId(), $courseId);
+    if ($enroll) {
+        $_SESSION['success'] = "Enrolled!";
         header('Location: /course-player?course_id=' . $courseId . '&lesson_id=1');
         exit;
     } else {
-        $_SESSION['error'] = "You are already enrolled in this course!";
+        $_SESSION['error'] = "Already enrolled or an error occurred.";
         header('Location: /course/' . $courseId);
         exit;
     }
 }
 
-// Get related courses
-$related_courses = getCoursesByCategory($course['category'], 3);
-$related_courses = array_filter($related_courses, function($c) use ($courseId) {
-    return $c['id'] != $courseId;
-});
+// Related courses
+$related = array_filter(Course::getPublished(), fn($c) => $c->category === $course->category && $c->id != $courseId);
+$related = array_slice($related, 0, 3);
+$relatedArray = array_map(fn($c) => $c->toArray(), $related);
 
-$page_title = $course['title'] . ' - CodeMastery';
+$page_title = $course->title . ' - CodeMastery';
 $current_page = 'course-detail';
-
 require 'view/partial/nav.php';
 require 'view/course-detail.php';
 require 'view/partial/footer.php';
-?>

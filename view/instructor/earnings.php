@@ -8,7 +8,7 @@
                     <p class="text-muted mb-0">Track your earnings and manage payouts</p>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#payoutModal"
-                        <?= $earningsData['available_balance'] <= 0 ? 'disabled' : '' ?>>
+                        <?= ($earningsData['available_balance'] ?? 0) <= 0 ? 'disabled' : '' ?>>
                     <i class="fas fa-money-bill-wave me-2"></i>Request Payout
                 </button>
             </div>
@@ -38,7 +38,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">Available Balance</h6>
-                                    <h3 class="fw-bold text-success">$<?= number_format($earningsData['available_balance'], 2) ?></h3>
+                                    <h3 class="fw-bold text-success">$<?= number_format($earningsData['available_balance'] ?? 0, 2) ?></h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-wallet fa-2x text-success"></i>
@@ -55,7 +55,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">Pending Balance</h6>
-                                    <h3 class="fw-bold text-warning">$<?= number_format($earningsData['pending_balance'], 2) ?></h3>
+                                    <h3 class="fw-bold text-warning">$<?= number_format($earningsData['pending_balance'] ?? 0, 2) ?></h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-clock fa-2x text-warning"></i>
@@ -72,7 +72,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">Total Earned</h6>
-                                    <h3 class="fw-bold text-primary">$<?= number_format($earningsData['total_earned'], 2) ?></h3>
+                                    <h3 class="fw-bold text-primary">$<?= number_format($earningsData['total_earned'] ?? 0, 2) ?></h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-chart-line fa-2x text-primary"></i>
@@ -89,7 +89,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">Total Paid Out</h6>
-                                    <h3 class="fw-bold text-info">$<?= number_format($earningsData['total_paid_out'], 2) ?></h3>
+                                    <h3 class="fw-bold text-info">$<?= number_format($earningsData['total_paid_out'] ?? 0, 2) ?></h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-money-check fa-2x text-info"></i>
@@ -133,7 +133,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($earningsData['recent_transactions'] as $transaction): ?>
+                                        <?php foreach ($earningsData['recent_transactions'] ?? [] as $transaction): ?>
                                             <tr>
                                                 <td>
                                                     <small><?= date('M j, Y', strtotime($transaction['date'])) ?></small>
@@ -143,14 +143,14 @@
                                                 </td>
                                                 <td><?= htmlspecialchars($transaction['student_name']) ?></td>
                                                 <td>
-                                                    <span class="badge bg-<?= $transaction['type'] === 'sale' ? 'success' : 'info' ?>">
-                                                        <?= ucfirst($transaction['type']) ?>
+                                                    <span class="badge bg-<?= ($transaction['type'] ?? '') === 'sale' ? 'success' : 'info' ?>">
+                                                        <?= ucfirst($transaction['type'] ?? '') ?>
                                                     </span>
                                                 </td>
-                                                <td class="fw-semibold text-success">$<?= number_format($transaction['amount'], 2) ?></td>
+                                                <td class="fw-semibold text-success">$<?= number_format($transaction['amount'] ?? 0, 2) ?></td>
                                                 <td>
-                                                    <span class="badge bg-<?= $transaction['status'] === 'paid' ? 'success' : 'warning' ?>">
-                                                        <?= ucfirst($transaction['status']) ?>
+                                                    <span class="badge bg-<?= ($transaction['status'] ?? '') === 'paid' ? 'success' : 'warning' ?>">
+                                                        <?= ucfirst($transaction['status'] ?? '') ?>
                                                     </span>
                                                 </td>
                                             </tr>
@@ -171,7 +171,7 @@
                         </div>
                         <div class="card-body">
                             <div class="text-center mb-3">
-                                <div class="h4 fw-bold text-success">$<?= number_format($earningsData['available_balance'], 2) ?></div>
+                                <div class="h4 fw-bold text-success">$<?= number_format($earningsData['available_balance'] ?? 0, 2) ?></div>
                                 <small class="text-muted">Available for withdrawal</small>
                             </div>
                             
@@ -200,15 +200,15 @@
                             <h5 class="fw-bold mb-0">Recent Payouts</h5>
                         </div>
                         <div class="card-body">
-                            <?php if (!empty($payouts)): ?>
+                            <?php if (!empty($payouts ?? [])): ?>
                                 <?php foreach ($payouts as $payout): ?>
                                     <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
                                         <div>
                                             <h6 class="fw-semibold mb-1">$<?= number_format($payout['amount'], 2) ?></h6>
                                             <small class="text-muted"><?= date('M j, Y', strtotime($payout['processed_at'])) ?></small>
                                         </div>
-                                        <span class="badge bg-<?= $payout['status'] === 'completed' ? 'success' : 'warning' ?>">
-                                            <?= ucfirst($payout['status']) ?>
+                                        <span class="badge bg-<?= ($payout['status'] ?? '') === 'completed' ? 'success' : 'warning' ?>">
+                                            <?= ucfirst($payout['status'] ?? '') ?>
                                         </span>
                                     </div>
                                 <?php endforeach; ?>
@@ -244,23 +244,23 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($earningsData['earnings_by_course'] as $course): ?>
+                                        <?php foreach ($earningsData['earnings_by_course'] ?? [] as $course): ?>
                                             <tr>
                                                 <td>
                                                     <strong><?= htmlspecialchars($course['title']) ?></strong>
                                                 </td>
-                                                <td><?= $course['enrollments'] ?></td>
-                                                <td class="text-success">$<?= number_format($course['total_revenue'], 2) ?></td>
-                                                <td class="fw-bold text-primary">$<?= number_format($course['instructor_earnings'], 2) ?></td>
+                                                <td><?= $course['enrollments'] ?? 0 ?></td>
+                                                <td class="text-success">$<?= number_format($course['total_revenue'] ?? 0, 2) ?></td>
+                                                <td class="fw-bold text-primary">$<?= number_format($course['instructor_earnings'] ?? 0, 2) ?></td>
                                                 <td>
-                                                    <span class="badge bg-info"><?= $course['commission_rate'] ?>%</span>
+                                                    <span class="badge bg-info"><?= $course['commission_rate'] ?? 70 ?>%</span>
                                                 </td>
                                                 <td>
                                                     <div class="progress" style="height: 6px;">
-                                                        <div class="progress-bar bg-<?= $course['performance'] >= 80 ? 'success' : ($course['performance'] >= 60 ? 'warning' : 'danger') ?>" 
-                                                             style="width: <?= $course['performance'] ?>%"></div>
+                                                        <div class="progress-bar bg-<?= ($course['performance'] ?? 0) >= 80 ? 'success' : (($course['performance'] ?? 0) >= 60 ? 'warning' : 'danger') ?>" 
+                                                             style="width: <?= $course['performance'] ?? 0 ?>%"></div>
                                                     </div>
-                                                    <small class="text-muted"><?= $course['performance'] ?>%</small>
+                                                    <small class="text-muted"><?= $course['performance'] ?? 0 ?>%</small>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -292,11 +292,11 @@
                         <div class="input-group">
                             <span class="input-group-text">$</span>
                             <input type="number" class="form-control" id="payout_amount" name="payout_amount"
-                                   min="50" max="<?= $earningsData['available_balance'] ?>" 
-                                   step="0.01" value="<?= min($earningsData['available_balance'], 50) ?>" required>
+                                   min="50" max="<?= $earningsData['available_balance'] ?? 0 ?>" 
+                                   step="0.01" value="<?= min($earningsData['available_balance'] ?? 0, 50) ?>" required>
                         </div>
                         <div class="form-text">
-                            Minimum withdrawal: $50.00 | Available: $<?= number_format($earningsData['available_balance'], 2) ?>
+                            Minimum withdrawal: $50.00 | Available: $<?= number_format($earningsData['available_balance'] ?? 0, 2) ?>
                         </div>
                     </div>
                     
@@ -335,27 +335,15 @@
 </div>
 
 <style>
-.card {
-    border-radius: 12px;
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-    color: #6c757d;
-}
-
-.progress {
-    border-radius: 10px;
-}
+.card { border-radius: 12px; }
+.table th { border-top: none; font-weight: 600; color: #6c757d; }
+.progress { border-radius: 10px; }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Update max amount dynamically
     const payoutAmount = document.getElementById('payout_amount');
-    const availableBalance = <?= $earningsData['available_balance'] ?>;
-    
+    const availableBalance = <?= $earningsData['available_balance'] ?? 0 ?>;
     if (payoutAmount) {
         payoutAmount.addEventListener('input', function() {
             if (this.value > availableBalance) {

@@ -1,39 +1,40 @@
 <?php
 require_once 'includes/auth-functions.php';
 require_once 'includes/init.php';
-requireInstructor();
+requireRole('instructor');
 
-$user = getCurrentUser();
+$user = getCurrentUser();           
+$instructorId = $user['id'];
 
-// Get earnings data
-$earningsData = getInstructorEarnings($user['id']);
-$payouts = getInstructorPayouts($user['id']);
+$courses = Course::getByInstructor($instructorId);
+$totalEarned = 0;
+$earningsByCourse = [];
+foreach ($courses as $course) {
+    $enrollments = Enrollment::findByCourse($course->getId());
+    $courseRevenue = count($enrollments) * $course->price;
+    $instructorEarnings = $courseRevenue * 0.7;
+    $totalEarned += $instructorEarnings;
+    $earningsByCourse[] = [
+        'title'       => $course->title,
+        'revenue'     => $courseRevenue,
+        'instructor_earnings' => $instructorEarnings,
+    ];
+}
 
-// Handle payout request
+$earningsData = [
+    'available_balance' => $totalEarned,
+    'total_earned'      => $totalEarned,
+    'earnings_by_course'=> $earningsByCourse,
+];
+$payouts = []; // placeholder
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_payout'])) {
-    $amount = floatval($_POST['payout_amount']);
-    $availableBalance = $earningsData['available_balance'];
-    
-    if ($amount <= 0) {
-        $_SESSION['error'] = "Please enter a valid amount.";
-    } elseif ($amount > $availableBalance) {
-        $_SESSION['error'] = "Requested amount exceeds available balance.";
-    } else {
-        $result = requestPayout($user['id'], $amount);
-        if ($result) {
-            $_SESSION['success'] = "Payout request submitted successfully!";
-            // Refresh data
-            $earningsData = getInstructorEarnings($user['id']);
-            $payouts = getInstructorPayouts($user['id']);
-        } else {
-            $_SESSION['error'] = "Failed to submit payout request.";
-        }
-    }
+    $_SESSION['success'] = "Payout requested (placeholder).";
+    header('Location: /instructor-earnings');
+    exit;
 }
 
 $page_title = "Earnings - Instructor Panel";
 $current_page = 'instructor-earnings';
-
 require 'view/partial/instructor-header.php';
 require 'view/instructor/earnings.php';
-?>

@@ -35,16 +35,9 @@
                 <?php if (isset($_SESSION['user'])): ?>
                     <a href="/notifications" class="text-decoration-none text-dark position-relative me-2">
                         <i class="fas fa-bell fs-5"></i>
-                        <?php
-                        // Count unread notifications for the logged-in user
-                        $unreadCount = 0;
-                        if (isset($_SESSION['user'])) {
-                            $notifications = getFromFile('notifications.json');
-                            $unreadCount = count(array_filter($notifications, function ($n) {
-                                return isset($n['user_id']) && $n['user_id'] == $_SESSION['user']['id'] && empty($n['read']);
-                            }));
-                        }
-                        if ($unreadCount > 0): ?>
+                        <?php $unreadCount = 0; // temporary – will be replaced with DB query later 
+                        ?>
+                        <?php if ($unreadCount > 0): ?>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.65rem;">
                                 <?= $unreadCount ?>
                             </span>
@@ -340,6 +333,6 @@
 
     <div class="content-wrapper" style="padding-top: 80px;">
 
-        
+
 
         <script src="/assets/js/bootstrap.bundle.js"></script>

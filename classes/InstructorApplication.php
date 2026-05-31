@@ -83,22 +83,44 @@ class InstructorApplication
                 user_id = ?, name = ?, email = ?, experience = ?, specialization = ?,
                 portfolio = ?, linkedin = ?, status = ?, submitted_at = ?, reviewed_at = ?,
                 reviewed_by = ?, notes = ? WHERE application_id = ?");
-            $stmt->bind_param("isssssssssiss", 
-                $this->userId, $this->name, $this->email, $this->experience, $this->specialization,
-                $this->portfolio, $this->linkedin, $this->status, $this->submittedAt, $this->reviewedAt,
-                $this->reviewedBy, $this->notes, $this->id
+            $stmt->bind_param(
+                "isssssssssiss",
+                $this->userId,
+                $this->name,
+                $this->email,
+                $this->experience,
+                $this->specialization,
+                $this->portfolio,
+                $this->linkedin,
+                $this->status,
+                $this->submittedAt,
+                $this->reviewedAt,
+                $this->reviewedBy,
+                $this->notes,
+                $this->id
             );
         } else {
             if (!$this->id) {
-                $this->id = 'APP' . date('YmdHis') . rand(1000,9999);
+                $this->id = 'APP' . date('YmdHis') . rand(1000, 9999);
             }
             $stmt = $db->prepare("INSERT INTO instructor_applications 
                 (application_id, user_id, name, email, experience, specialization, portfolio, linkedin, status, submitted_at, reviewed_at, reviewed_by, notes)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sisssssssssis", 
-                $this->id, $this->userId, $this->name, $this->email, $this->experience, $this->specialization,
-                $this->portfolio, $this->linkedin, $this->status, $this->submittedAt, $this->reviewedAt,
-                $this->reviewedBy, $this->notes
+            $stmt->bind_param(
+                "sisssssssssis",
+                $this->id,
+                $this->userId,
+                $this->name,
+                $this->email,
+                $this->experience,
+                $this->specialization,
+                $this->portfolio,
+                $this->linkedin,
+                $this->status,
+                $this->submittedAt,
+                $this->reviewedAt,
+                $this->reviewedBy,
+                $this->notes
             );
         }
         return $stmt->execute();
@@ -148,6 +170,12 @@ class InstructorApplication
             $app->reviewedBy = $reviewerId;
             $app->notes = 'Approved';
             $app->save();
+
+            $user = User::findById($app->userId);
+            if ($user) {
+                $user->role = 'instructor';
+                $user->save();
+            }
             return true;
         }
         return false;

@@ -1,58 +1,62 @@
 <?php
 require_once 'includes/auth-functions.php';
 require_once 'includes/init.php';
-requireInstructor();
+requireRole('instructor');
 
-$user = getCurrentUser();
+$user = getCurrentUser();           
+$userObj = getCurrentUserObject();  
 
-// Handle profile update
+$instructorId = $user['id'];
+
+$instructorCourses = Course::getByInstructor($instructorId);
+$totalCourses = count($instructorCourses);
+
+$totalStudents = 0;
+$totalReviews = 0;
+$totalRating = 0;
+$ratedCourses = 0;
+foreach ($instructorCourses as $course) {
+    $enrollments = Enrollment::findByCourse($course->getId());
+    $totalStudents += count($enrollments);
+    if (!empty($course->rating) && $course->rating > 0) {
+        $totalRating += $course->rating;
+        $ratedCourses++;
+        $totalReviews++; 
+    }
+}
+$averageRating = $ratedCourses > 0 ? round($totalRating / $ratedCourses, 1) : 0;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_profile'])) {
-        $profileData = [
-            'name' => trim($_POST['name']),
-            'bio' => trim($_POST['bio']),
-            'website' => trim($_POST['website'] ?? ''),
-            'twitter' => trim($_POST['twitter'] ?? ''),
-            'linkedin' => trim($_POST['linkedin'] ?? ''),
-            'youtube' => trim($_POST['youtube'] ?? ''),
-            'specialization' => $_POST['specialization'] ?? '',
-            'experience' => $_POST['experience'] ?? ''
-        ];
+        $userObj->name           = trim($_POST['name'] ?? $userObj->name);
+        $userObj->bio            = trim($_POST['bio'] ?? '');
+        $userObj->website        = trim($_POST['website'] ?? '');
+        $userObj->twitter        = trim($_POST['twitter'] ?? '');
+        $userObj->linkedin       = trim($_POST['linkedin'] ?? '');
+        $userObj->youtube        = trim($_POST['youtube'] ?? '');
+        $userObj->specialization = $_POST['specialization'] ?? '';
+        $userObj->experience     = $_POST['experience'] ?? '';
 
-        if (empty($profileData['name'])) {
+        if (empty($userObj->name)) {
             $_SESSION['error'] = "Name is required.";
         } else {
-            $result = updateUser($user['id'], $profileData);
-            if ($result) {
-                $_SESSION['success'] = "Profile updated successfully!";
-                // Update session user data
-                $_SESSION['user'] = getUserById($user['id']);
-                $user = $_SESSION['user'];
-            } else {
-                $_SESSION['error'] = "Failed to update profile.";
-            }
+            $userObj->save();
+            $_SESSION['user']['name'] = $userObj->name; 
+            $_SESSION['success'] = "Profile updated!";
         }
     }
-    
-    // Handle password change
+
     if (isset($_POST['change_password'])) {
-        $currentPassword = $_POST['current_password'];
-        $newPassword = $_POST['new_password'];
-        $confirmPassword = $_POST['confirm_password'];
-        
-        if (!password_verify($currentPassword, $user['password'])) {
+        if (!$userObj->verifyPassword($_POST['current_password'])) {
             $_SESSION['error'] = "Current password is incorrect.";
-        } elseif ($newPassword !== $confirmPassword) {
+        } elseif ($_POST['new_password'] !== $_POST['confirm_password']) {
             $_SESSION['error'] = "New passwords do not match.";
-        } elseif (strlen($newPassword) < 6) {
-            $_SESSION['error'] = "New password must be at least 6 characters long.";
+        } elseif (strlen($_POST['new_password']) < 6) {
+            $_SESSION['error'] = "Password must be at least 6 characters.";
         } else {
-            $result = updateUserPassword($user['id'], $newPassword);
-            if ($result) {
-                $_SESSION['success'] = "Password changed successfully!";
-            } else {
-                $_SESSION['error'] = "Failed to change password.";
-            }
+            $userObj->changePassword($_POST['new_password']);
+            $userObj->save();
+            $_SESSION['success'] = "Password changed!";
         }
     }
 }
@@ -62,4 +66,3 @@ $current_page = 'instructor-profile';
 
 require 'view/partial/instructor-header.php';
 require 'view/instructor/profile.php';
-?>

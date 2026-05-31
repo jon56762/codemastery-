@@ -287,7 +287,7 @@ require 'view/partial/instructor-header.php';
                                                     <small class="text-muted">Lessons</small>
                                                 </div>
                                                 <div class="col-6 mb-3">
-                                                    <div class="h4 fw-bold text-success mb-1"><?= count(getCourseEnrollments($courseId)) ?></div>
+                                                    <div class="h4 fw-bold text-success mb-1"><?= $enrollmentCount ?></div>
                                                     <small class="text-muted">Students</small>
                                                 </div>
                                             </div>

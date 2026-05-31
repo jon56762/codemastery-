@@ -3,20 +3,14 @@ require_once 'includes/init.php';
 require_once 'includes/auth-functions.php';
 requireAdmin();
 
-// Platform stats using OOP
-$platformStats = [
-    'total_students'    => count(User::findByRole('student')),
-    'total_courses'     => count(Course::getPublished()),
-    'total_instructors' => count(User::findByRole('instructor')),
-    'total_enrollments' => 0, 
-    'average_rating'    => 4.5,
-];
-$pendingApplications = count(InstructorApplication::getAll()); 
-$pendingTestimonials  = count(Testimonial::getApproved());    
-$pendingCourses       = count(Course::getAll()) - count(Course::getPublished()); 
-$pendingBlogPosts     = count(BlogPost::getByStatus('pending'));
+$user = getCurrentUser();         
 
-$recentActivities = []; 
+$platformStats = getPlatformStats();   
+
+$pendingApplications = count(array_filter(InstructorApplication::getAll(), fn($a) => $a->status === 'pending'));
+$pendingTestimonials  = count(array_filter(Testimonial::getAll(), fn($t) => $t->status === 'pending'));
+$pendingCourses       = count(array_filter(Course::getAll(), fn($c) => $c->status === 'pending'));
+$pendingBlogPosts     = count(BlogPost::getByStatus('pending'));
 
 $page_title = "Admin Dashboard - CodeMastery";
 $current_page = 'admin-dashboard';

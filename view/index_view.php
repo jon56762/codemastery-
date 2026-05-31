@@ -5,36 +5,63 @@ $current_page = 'home';
 
 <link rel="stylesheet" href="/assets/css/style.css">
 
-<!-- Hero Section -->
-<section class="hero-section bg-light py-5">
-    <div class="container">
+<section class="hero-night">
+    <!-- Star icons (learning symbols) -->
+    <div class="stars-container">
+        <i class="fas fa-book star-icon" style="top: 15%; left: 10%; font-size: 1.2rem; opacity: 0.8; --delay: 0s;"></i>
+        <i class="fas fa-laptop-code star-icon" style="top: 25%; left: 80%; font-size: 1.5rem; opacity: 0.6; --delay: 1.5s;"></i>
+        <i class="fas fa-lightbulb star-icon" style="top: 60%; left: 20%; font-size: 1.4rem; opacity: 0.7; --delay: 0.8s;"></i>
+        <i class="fas fa-graduation-cap star-icon" style="top: 40%; left: 75%; font-size: 1.8rem; opacity: 0.5; --delay: 2.2s;"></i>
+        <i class="fas fa-code star-icon" style="top: 70%; left: 65%; font-size: 1.3rem; opacity: 0.6; --delay: 1.0s;"></i>
+        <i class="fas fa-brain star-icon" style="top: 12%; left: 45%; font-size: 1.6rem; opacity: 0.7; --delay: 0.4s;"></i>
+        <i class="fas fa-rocket star-icon" style="top: 80%; left: 35%; font-size: 1.4rem; opacity: 0.8; --delay: 2.5s;"></i>
+        <i class="fas fa-puzzle-piece star-icon" style="top: 55%; left: 55%; font-size: 1.1rem; opacity: 0.5; --delay: 1.8s;"></i>
+        <i class="fas fa-award star-icon" style="top: 30%; left: 90%; font-size: 1.7rem; opacity: 0.6; --delay: 0.6s;"></i>
+        <i class="fas fa-chalkboard-teacher star-icon" style="top: 85%; left: 15%; font-size: 1.3rem; opacity: 0.7; --delay: 1.2s;"></i>
+    </div>
+
+    <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Learn the Skills That Drive Your Career Forward</h1>
-                <p class="lead mb-4">Join <?= number_format($platformStats['total_students'] ?? 0) ?>+ students and <?= number_format($platformStats['total_instructors'] ?? 0) ?>+ instructors in our vibrant learning community. Master in-demand skills with project-based courses.</p>
-                <div class="d-flex flex-wrap gap-3 mb-4">
-                    <center>
-                        <a href="<?= BASE_PATH ?? '' ?>/courses" class="btn btn-primary px-4 py-3 mb-2 fw-bold">
+            <!-- Left text content -->
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="text-center text-md-start text-lg-start">
+                    <h1 class="display-4 fw-bold text-white mb-3">
+                        Learn the Skills<br><span class="text-light">That Drive Your Career</span>
+                    </h1>
+                    <p class="lead text-white-50 mb-4">
+                        Join <?= number_format($platformStats['total_students'] ?? 0) ?>+ students and
+                        <?= number_format($platformStats['total_instructors'] ?? 0) ?>+ instructors.
+                        Master in‑demand skills with real‑world projects.
+                    </p>
+                </div>
+                <center>
+                    <div class="d-flex justify-content-center justify-content-md-start justify-content-lg-start flex-wrap gap-3 ">
+                        <a href="/courses" class="btn btn-light btn-lg fw-bold px-4 py-3">
                             <i class="fas fa-search me-2"></i>Explore Courses
                         </a>
-                        <a href="/become-instructor" class="btn btn-outline-dark px-4 mb-2 py-3">
-                            <i class="fas fa-chalkboard-teacher me-2"></i>Teach on CodeMastery
+                        <a href="/become-instructor" class="btn btn-outline-light btn-lg px-4 py-3">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Become an Instructor
                         </a>
-                    </center>
-                </div>
-                <div class="d-flex flex-wrap gap-4 text-muted">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-star text-warning me-2"></i>
-                        <span>Rated <?= $platformStats['average_rating'] ?? 0 ?>/5 by students</span>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-play-circle me-2"></i>
-                        <span><?= number_format($platformStats['total_courses'] ?? 0) ?>+ Courses</span>
+                </center>
+                <div class="d-flex flex-wrap gap-4 mt-4 text-white-50">
+                    <div>
+                        <i class="fas fa-star text-warning me-1"></i>
+                        Rated <?= $platformStats['average_rating'] ?? '4.8' ?>/5
+                    </div>
+                    <div>
+                        <i class="fas fa-play-circle me-1"></i>
+                        <?= number_format($platformStats['total_courses'] ?? 0) ?>+ Courses
                     </div>
                 </div>
             </div>
+
+            <!-- Right visual (your screenshot or illustration) -->
             <div class="col-lg-6 text-center">
-                <img src="/assets/images/womanbackground.jpg" alt="Learning Community" class="img-fluid rounded-3 shadow">
+                <img src="/assets/images/Course.gif"
+                    alt="CodeMastery Platform"
+                    class="img-fluid hero-image"
+                    style="max-height: 500px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             </div>
         </div>
     </div>

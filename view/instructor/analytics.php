@@ -8,11 +8,10 @@
                     <p class="text-muted mb-0">Track your course performance and student engagement</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <!-- Date Range Filter -->
                     <form method="GET" class="d-flex gap-2">
-                        <input type="date" class="form-control" name="start_date" value="<?= $startDate ?>">
+                        <input type="date" class="form-control" name="start_date" value="<?= $startDate ?? '' ?>">
                         <span class="align-self-center">to</span>
-                        <input type="date" class="form-control" name="end_date" value="<?= $endDate ?>">
+                        <input type="date" class="form-control" name="end_date" value="<?= $endDate ?? '' ?>">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-filter me-2"></i>Apply
                         </button>
@@ -28,13 +27,13 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">Total Revenue</h6>
-                                    <h3 class="fw-bold text-success">$<?= number_format($analyticsData['total_revenue'], 2) ?></h3>
+                                    <h3 class="fw-bold text-success">$<?= number_format($analyticsData['total_revenue'] ?? 0, 2) ?></h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-dollar-sign fa-2x text-success"></i>
                                 </div>
                             </div>
-                            <small class="text-muted"><?= $analyticsData['revenue_change'] ?>% from previous period</small>
+                            <small class="text-muted"><?= $analyticsData['revenue_change'] ?? 0 ?>% from previous period</small>
                         </div>
                     </div>
                 </div>
@@ -45,13 +44,13 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">New Students</h6>
-                                    <h3 class="fw-bold text-primary"><?= $analyticsData['new_students'] ?></h3>
+                                    <h3 class="fw-bold text-primary"><?= $analyticsData['new_students'] ?? 0 ?></h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-users fa-2x text-primary"></i>
                                 </div>
                             </div>
-                            <small class="text-muted"><?= $analyticsData['student_change'] ?>% from previous period</small>
+                            <small class="text-muted"><?= $analyticsData['student_change'] ?? 0 ?>% from previous period</small>
                         </div>
                     </div>
                 </div>
@@ -62,7 +61,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">Course Completion</h6>
-                                    <h3 class="fw-bold text-info"><?= $analyticsData['completion_rate'] ?>%</h3>
+                                    <h3 class="fw-bold text-info"><?= $analyticsData['completion_rate'] ?? 0 ?>%</h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-flag-checkered fa-2x text-info"></i>
@@ -79,13 +78,13 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted mb-2">Avg Rating</h6>
-                                    <h3 class="fw-bold text-warning"><?= $analyticsData['avg_rating'] ?>/5</h3>
+                                    <h3 class="fw-bold text-warning"><?= $analyticsData['avg_rating'] ?? 4.5 ?>/5</h3>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-star fa-2x text-warning"></i>
                                 </div>
                             </div>
-                            <small class="text-muted">Based on <?= $analyticsData['total_reviews'] ?> reviews</small>
+                            <small class="text-muted">Based on <?= $analyticsData['total_reviews'] ?? 0 ?> reviews</small>
                         </div>
                     </div>
                 </div>
@@ -114,17 +113,15 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($analyticsData['course_performance'] as $course): ?>
+                                            <?php foreach ($analyticsData['course_performance'] ?? [] as $course): ?>
                                                 <tr>
+                                                    <td><strong><?= htmlspecialchars($course['title']) ?></strong></td>
+                                                    <td><?= $course['enrollments'] ?? 0 ?></td>
+                                                    <td class="text-success">$<?= number_format($course['revenue'] ?? 0, 2) ?></td>
                                                     <td>
-                                                        <strong><?= htmlspecialchars($course['title']) ?></strong>
-                                                    </td>
-                                                    <td><?= $course['enrollments'] ?></td>
-                                                    <td class="text-success">$<?= number_format($course['revenue'], 2) ?></td>
-                                                    <td>
-                                                        <span class="badge bg-<?= $course['trend'] === 'up' ? 'success' : 'danger' ?>">
-                                                            <i class="fas fa-arrow-<?= $course['trend'] === 'up' ? 'up' : 'down' ?> me-1"></i>
-                                                            <?= $course['change'] ?>%
+                                                        <span class="badge bg-<?= ($course['trend'] ?? '') === 'up' ? 'success' : 'danger' ?>">
+                                                            <i class="fas fa-arrow-<?= ($course['trend'] ?? '') === 'up' ? 'up' : 'down' ?> me-1"></i>
+                                                            <?= $course['change'] ?? 0 ?>%
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -147,25 +144,25 @@
                             <div class="mb-4">
                                 <h6 class="fw-semibold">Active Students</h6>
                                 <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: <?= $analyticsData['active_students_rate'] ?>%"></div>
+                                    <div class="progress-bar bg-success" style="width: <?= $analyticsData['active_students_rate'] ?? 0 ?>%"></div>
                                 </div>
-                                <small class="text-muted"><?= $analyticsData['active_students_rate'] ?>% of students active this period</small>
+                                <small class="text-muted"><?= $analyticsData['active_students_rate'] ?? 0 ?>% of students active this period</small>
                             </div>
 
                             <div class="mb-4">
                                 <h6 class="fw-semibold">Lesson Completion</h6>
                                 <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-info" style="width: <?= $analyticsData['lesson_completion_rate'] ?>%"></div>
+                                    <div class="progress-bar bg-info" style="width: <?= $analyticsData['lesson_completion_rate'] ?? 0 ?>%"></div>
                                 </div>
-                                <small class="text-muted"><?= $analyticsData['lesson_completion_rate'] ?>% average lesson completion</small>
+                                <small class="text-muted"><?= $analyticsData['lesson_completion_rate'] ?? 0 ?>% average lesson completion</small>
                             </div>
 
                             <div>
                                 <h6 class="fw-semibold">Assignment Submission</h6>
                                 <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: <?= $analyticsData['assignment_submission_rate'] ?>%"></div>
+                                    <div class="progress-bar bg-warning" style="width: <?= $analyticsData['assignment_submission_rate'] ?? 0 ?>%"></div>
                                 </div>
-                                <small class="text-muted"><?= $analyticsData['assignment_submission_rate'] ?>% assignments submitted</small>
+                                <small class="text-muted"><?= $analyticsData['assignment_submission_rate'] ?? 0 ?>% assignments submitted</small>
                             </div>
                         </div>
                     </div>
@@ -176,7 +173,7 @@
                             <h5 class="fw-bold mb-0">Top Performing Courses</h5>
                         </div>
                         <div class="card-body">
-                            <?php foreach ($analyticsData['top_courses'] as $index => $course): ?>
+                            <?php foreach ($analyticsData['top_courses'] ?? [] as $index => $course): ?>
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="flex-shrink-0">
                                         <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
@@ -187,9 +184,9 @@
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="fw-semibold mb-1"><?= htmlspecialchars($course['title']) ?></h6>
                                         <div class="d-flex justify-content-between">
-                                            <small class="text-muted">$<?= number_format($course['revenue'], 2) ?></small>
+                                            <small class="text-muted">$<?= number_format($course['revenue'] ?? 0, 2) ?></small>
                                             <small class="text-warning">
-                                                <i class="fas fa-star me-1"></i><?= $course['rating'] ?>
+                                                <i class="fas fa-star me-1"></i><?= $course['rating'] ?? 0 ?>
                                             </small>
                                         </div>
                                     </div>
@@ -221,33 +218,33 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($analyticsData['detailed_analytics'] as $course): ?>
+                                        <?php foreach ($analyticsData['detailed_analytics'] ?? [] as $course): ?>
                                             <tr>
                                                 <td>
                                                     <strong><?= htmlspecialchars($course['title']) ?></strong>
                                                     <br>
-                                                    <small class="text-muted"><?= $course['status'] ?></small>
+                                                    <small class="text-muted"><?= $course['status'] ?? '' ?></small>
                                                 </td>
                                                 <td>
-                                                    <div class="fw-semibold"><?= $course['enrollments'] ?></div>
-                                                    <small class="text-muted"><?= $course['new_enrollments'] ?> new</small>
+                                                    <div class="fw-semibold"><?= $course['enrollments'] ?? 0 ?></div>
+                                                    <small class="text-muted"><?= $course['new_enrollments'] ?? 0 ?> new</small>
                                                 </td>
                                                 <td>
                                                     <div class="progress" style="height: 6px;">
-                                                        <div class="progress-bar bg-success" style="width: <?= $course['completion_rate'] ?>%"></div>
+                                                        <div class="progress-bar bg-success" style="width: <?= $course['completion_rate'] ?? 0 ?>%"></div>
                                                     </div>
-                                                    <small class="text-muted"><?= $course['completion_rate'] ?>%</small>
+                                                    <small class="text-muted"><?= $course['completion_rate'] ?? 0 ?>%</small>
                                                 </td>
                                                 <td>
                                                     <div class="text-warning">
-                                                        <?= str_repeat('★', floor($course['rating'])) ?><?= str_repeat('☆', 5 - floor($course['rating'])) ?>
-                                                        <small class="text-muted">(<?= $course['rating'] ?>)</small>
+                                                        <?= str_repeat('★', floor($course['rating'] ?? 0)) ?><?= str_repeat('☆', 5 - floor($course['rating'] ?? 0)) ?>
+                                                        <small class="text-muted">(<?= $course['rating'] ?? 0 ?>)</small>
                                                     </div>
                                                 </td>
-                                                <td class="text-success fw-semibold">$<?= number_format($course['revenue'], 2) ?></td>
+                                                <td class="text-success fw-semibold">$<?= number_format($course['revenue'] ?? 0, 2) ?></td>
                                                 <td>
-                                                    <span class="badge bg-<?= $course['satisfaction'] >= 80 ? 'success' : ($course['satisfaction'] >= 60 ? 'warning' : 'danger') ?>">
-                                                        <?= $course['satisfaction'] ?>%
+                                                    <span class="badge bg-<?= ($course['satisfaction'] ?? 0) >= 80 ? 'success' : (($course['satisfaction'] ?? 0) >= 60 ? 'warning' : 'danger') ?>">
+                                                        <?= $course['satisfaction'] ?? 0 ?>%
                                                     </span>
                                                 </td>
                                             </tr>
@@ -264,17 +261,7 @@
 </div>
 
 <style>
-.card {
-    border-radius: 12px;
-}
-
-.progress {
-    border-radius: 10px;
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-    color: #6c757d;
-}
+.card { border-radius: 12px; }
+.progress { border-radius: 10px; }
+.table th { border-top: none; font-weight: 600; color: #6c757d; }
 </style>

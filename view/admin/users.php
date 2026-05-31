@@ -14,19 +14,6 @@
                 </button>
             </div>
         </form>
-        
-        <!-- <div class="dropdown">
-            <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-filter me-2"></i>Filter
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="?">All Users</a></li>
-                <li><a class="dropdown-item" href="?role=student">Students</a></li>
-                <li><a class="dropdown-item" href="?role=instructor">Instructors</a></li>
-                <li><a class="dropdown-item" href="?role=admin">Admins</a></li>
-                <li><a class="dropdown-item" href="?status=suspended">Suspended</a></li>
-            </ul>
-        </div> -->
     </div>
 </div>
 
@@ -137,7 +124,7 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="<?= htmlspecialchars($user['avatar'] ?? '/assets/images/avatars/default.jpg') ?>" 
+                                    <img src="<?= htmlspecialchars($user['avatar'] ?? '/assets/images/avatars/default.png') ?>" 
                                          alt="<?= htmlspecialchars($user['name']) ?>" 
                                          class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;">
                                     <div>
@@ -165,17 +152,7 @@
                                 </small>
                             </td>
                             <td>
-                                <?php if ($user['role'] === 'instructor'): ?>
-                                    <?php
-                                    $instructor_courses = getCoursesByInstructor($user['id']);
-                                    echo count($instructor_courses);
-                                    ?>
-                                <?php else: ?>
-                                    <?php
-                                    $student_enrollments = getStudentEnrollments($user['id']);
-                                    echo count($student_enrollments);
-                                    ?>
-                                <?php endif; ?>
+                                <?= $user['course_count'] ?? 0 ?>
                             </td>
                             <td>
                                 <div class="dropdown">

@@ -41,5 +41,3 @@
         </div>
     <?php endif; ?>
 </div>
-
-<?php require 'view/partial/footer.php'; ?>

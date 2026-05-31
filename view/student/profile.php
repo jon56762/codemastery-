@@ -11,12 +11,6 @@
                         <a href="#learning-goals" class="list-group-item list-group-item-action border-0">
                             <i class="fas fa-bullseye me-2"></i>Learning Goals
                         </a>
-                        <!-- <a href="#notifications" class="list-group-item list-group-item-action border-0">
-                            <i class="fas fa-bell me-2"></i>Notifications
-                        </a>
-                        <a href="#privacy" class="list-group-item list-group-item-action border-0">
-                            <i class="fas fa-shield-alt me-2"></i>Privacy & Security
-                        </a> -->
                         <a href="#achievements" class="list-group-item list-group-item-action border-0">
                             <i class="fas fa-trophy me-2"></i>Achievements
                         </a>
@@ -28,31 +22,31 @@
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.png')?>" 
-                             alt="<?= htmlspecialchars($u['name']) ?>" 
+                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? '/assets/images/avatars/default.png') ?>" 
+                             alt="<?= htmlspecialchars($_SESSION['user']['name']) ?>" 
                              class="rounded-circle" width="80" height="80">
                     </div>
-                    <h6 class="fw-bold mb-1"><?= htmlspecialchars($u['name']) ?></h6>
-                    <p class="text-muted small mb-3">Student since <?= date('M Y', strtotime($u['created_at'])) ?></p>
+                    <h6 class="fw-bold mb-1"><?= htmlspecialchars($_SESSION['user']['name']) ?></h6>
+                    <p class="text-muted small mb-3">Student since <?= date('M Y', strtotime($_SESSION['user']['created_at'] ?? 'now')) ?></p>
                     
                     <div class="row text-center">
                         <div class="col-6 mb-3">
-                            <div class="h5 fw-bold text-dark mb-1"><?= count($enrollments) ?></div>
+                            <div class="h5 fw-bold text-dark mb-1"><?= $totalCourses ?? 0 ?></div>
                             <small class="text-muted">Courses</small>
                         </div>
                         <div class="col-6 mb-3">
-                            <div class="h5 fw-bold text-success mb-1"><?= count($completedCourses) ?></div>
+                            <div class="h5 fw-bold text-success mb-1"><?= $completedCount ?? 0 ?></div>
                             <small class="text-muted">Completed</small>
                         </div>
                     </div>
                     
                     <div class="progress mb-2" style="height: 6px;">
                         <div class="progress-bar bg-success" 
-                             style="width: <?= count($enrollments) > 0 ? (count($completedCourses) / count($enrollments)) * 100 : 0 ?>%">
+                             style="width: <?= ($totalCourses ?? 0) > 0 ? (($completedCount ?? 0) / $totalCourses) * 100 : 0 ?>%">
                         </div>
                     </div>
                     <small class="text-muted">
-                        <?= count($completedCourses) ?> of <?= count($enrollments) ?> courses completed
+                        <?= $completedCount ?? 0 ?> of <?= $totalCourses ?? 0 ?> courses completed
                     </small>
                 </div>
             </div>
@@ -73,12 +67,12 @@
                             <div class="col-md-6 mb-3">
                                 <label for="name" class="form-label fw-semibold">Full Name</label>
                                 <input type="text" class="form-control" id="name" name="name" 
-                                       value="<?= htmlspecialchars($user['name'] ?? '') ?>" required>
+                                       value="<?= htmlspecialchars($_SESSION['user']['name'] ?? '') ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label fw-semibold">Email Address</label>
                                 <input type="email" class="form-control" id="email" 
-                                       value="<?= htmlspecialchars($user['email'] ?? '') ?>" disabled>
+                                       value="<?= htmlspecialchars($_SESSION['user']['email'] ?? '') ?>" disabled>
                                 <small class="text-muted">Email cannot be changed</small>
                             </div>
                         </div>
@@ -86,13 +80,13 @@
                         <div class="mb-3">
                             <label for="bio" class="form-label fw-semibold">Bio</label>
                             <textarea class="form-control" id="bio" name="bio" rows="3" 
-                                      placeholder="Tell us about yourself and your learning journey..."><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
+                                      placeholder="Tell us about yourself and your learning journey..."><?= htmlspecialchars($_SESSION['user']['bio'] ?? '') ?></textarea>
                         </div>
 
                         <div class="mb-4">
                             <label for="skills" class="form-label fw-semibold">Skills & Interests</label>
                             <input type="text" class="form-control" id="skills" name="skills" 
-                                   value="<?= htmlspecialchars(implode(', ', $user['skills'] ?? [])) ?>" 
+                                   value="<?= htmlspecialchars(implode(', ', $_SESSION['user']['skills'] ?? [])) ?>" 
                                    placeholder="e.g., JavaScript, Python, Web Development">
                             <small class="text-muted">Separate skills with commas</small>
                         </div>
@@ -116,7 +110,7 @@
                         <div class="mb-3">
                             <label for="learning_goals" class="form-label fw-semibold">My Learning Goals</label>
                             <textarea class="form-control" id="learning_goals" name="learning_goals" rows="4"
-                                      placeholder="What do you want to achieve with your learning? Set clear goals to stay motivated..."><?= htmlspecialchars($user['learning_goals'] ?? '') ?></textarea>
+                                      placeholder="What do you want to achieve with your learning? Set clear goals to stay motivated..."><?= htmlspecialchars($_SESSION['user']['learning_goals'] ?? '') ?></textarea>
                         </div>
                         <button type="submit" name="update_profile" class="btn btn-dark">
                             <i class="fas fa-save me-2"></i>Save Goals
@@ -131,12 +125,12 @@
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="small">Complete first course</span>
                                 <span class="small fw-semibold">
-                                    <?= count($completedCourses) >= 1 ? '✅ Completed' : '🟡 In Progress' ?>
+                                    <?= ($completedCount ?? 0) >= 1 ? '✅ Completed' : '🟡 In Progress' ?>
                                 </span>
                             </div>
                             <div class="progress" style="height: 6px;">
-                                <div class="progress-bar <?= count($completedCourses) >= 1 ? 'bg-success' : 'bg-warning' ?>" 
-                                     style="width: <?= count($completedCourses) >= 1 ? 100 : 50 ?>%"></div>
+                                <div class="progress-bar <?= ($completedCount ?? 0) >= 1 ? 'bg-success' : 'bg-warning' ?>" 
+                                     style="width: <?= ($completedCount ?? 0) >= 1 ? 100 : 50 ?>%"></div>
                             </div>
                         </div>
 
@@ -144,12 +138,12 @@
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="small">Complete 3 courses</span>
                                 <span class="small fw-semibold">
-                                    <?= count($completedCourses) >= 3 ? '✅ Completed' : (count($completedCourses) . '/3') ?>
+                                    <?= ($completedCount ?? 0) >= 3 ? '✅ Completed' : ($completedCount ?? 0) . '/3' ?>
                                 </span>
                             </div>
                             <div class="progress" style="height: 6px;">
-                                <div class="progress-bar <?= count($completedCourses) >= 3 ? 'bg-success' : 'bg-warning' ?>" 
-                                     style="width: <?= (count($completedCourses) / 3) * 100 ?>%"></div>
+                                <div class="progress-bar <?= ($completedCount ?? 0) >= 3 ? 'bg-success' : 'bg-warning' ?>" 
+                                     style="width: <?= (($completedCount ?? 0) / 3) * 100 ?>%"></div>
                             </div>
                         </div>
 
@@ -157,123 +151,17 @@
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="small">Spend 10 hours learning</span>
                                 <span class="small fw-semibold">
-                                    <?= $totalLearningTime >= 600 ? '✅ Completed' : (round($totalLearningTime / 60, 1) . '/10 hours') ?>
+                                    <?= ($totalLearningTime ?? 0) >= 600 ? '✅ Completed' : (round(($totalLearningTime ?? 0) / 60, 1) . '/10 hours') ?>
                                 </span>
                             </div>
                             <div class="progress" style="height: 6px;">
-                                <div class="progress-bar <?= $totalLearningTime >= 600 ? 'bg-success' : 'bg-warning' ?>" 
-                                     style="width: <?= min(($totalLearningTime / 600) * 100, 100) ?>%"></div>
+                                <div class="progress-bar <?= ($totalLearningTime ?? 0) >= 600 ? 'bg-success' : 'bg-warning' ?>" 
+                                     style="width: <?= min((($totalLearningTime ?? 0) / 600) * 100, 100) ?>%"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Notification Preferences -->
-            <!-- <div class="card border-0 shadow-sm mb-4" id="notifications">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="fw-bold mb-0">
-                        <i class="fas fa-bell me-2"></i>Notification Preferences
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="mb-3">
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="email_notifications" 
-                                       name="email_notifications" checked>
-                                <label class="form-check-label fw-semibold" for="email_notifications">
-                                    Email Notifications
-                                </label>
-                                <div class="form-text">Receive important updates via email</div>
-                            </div>
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="course_updates" 
-                                       name="course_updates" checked>
-                                <label class="form-check-label fw-semibold" for="course_updates">
-                                    Course Updates
-                                </label>
-                                <div class="form-text">Get notified when your courses are updated</div>
-                            </div>
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="newsletter" 
-                                       name="newsletter" checked>
-                                <label class="form-check-label fw-semibold" for="newsletter">
-                                    Newsletter
-                                </label>
-                                <div class="form-text">Receive weekly learning tips and new course announcements</div>
-                            </div>
-                        </div>
-
-                        <button type="submit" name="update_notifications" class="btn btn-dark">
-                            <i class="fas fa-save me-2"></i>Save Preferences
-                        </button>
-                    </form>
-                </div>
-            </div> -->
-
-            <!-- Privacy & Security -->
-            <!-- <div class="card border-0 shadow-sm mb-4" id="privacy">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="fw-bold mb-0">
-                        <i class="fas fa-shield-alt me-2"></i>Privacy & Security
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="profile_visibility" class="form-label fw-semibold">Profile Visibility</label>
-                            <select class="form-select" id="profile_visibility" name="profile_visibility">
-                                <option value="public">Public - Anyone can see my profile</option>
-                                <option value="students">Only CodeMastery Students</option>
-                                <option value="private">Private - Only I can see my profile</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="show_progress" 
-                                       name="show_progress" checked>
-                                <label class="form-check-label fw-semibold" for="show_progress">
-                                    Show Learning Progress
-                                </label>
-                                <div class="form-text">Allow others to see my course progress and achievements</div>
-                            </div>
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="show_achievements" 
-                                       name="show_achievements" checked>
-                                <label class="form-check-label fw-semibold" for="show_achievements">
-                                    Show Achievements
-                                </label>
-                                <div class="form-text">Display my earned achievements on my public profile</div>
-                            </div>
-                        </div>
-
-                        <button type="submit" name="update_privacy" class="btn btn-dark">
-                            <i class="fas fa-save me-2"></i>Save Privacy Settings
-                        </button>
-                    </form>
-
-                    Security Actions 
-                    <div class="mt-4 pt-3 border-top">
-                        <h6 class="fw-semibold mb-3">Security</h6>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-outline-dark btn-sm">
-                                <i class="fas fa-key me-1"></i>Change Password
-                            </a>
-                            <a href="#" class="btn btn-outline-dark btn-sm">
-                                <i class="fas fa-envelope me-1"></i>Update Email
-                            </a>
-                            <a href="#" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-user-slash me-1"></i>Delete Account
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
 
             <!-- Achievements -->
             <div class="card border-0 shadow-sm" id="achievements">
@@ -283,7 +171,6 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <?php $achievements = getStudentAchievements($userId); ?>
                     <?php if (empty($achievements)): ?>
                         <div class="text-center py-4">
                             <i class="fas fa-trophy fa-3x text-muted mb-3"></i>
@@ -340,4 +227,3 @@
     background-color: #f8f9fa;
 }
 </style>
-

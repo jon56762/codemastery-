@@ -3,6 +3,55 @@
     min-height: 100vh;
 }
 
+.admin-offcanvas {
+    background-color: #1a1a1a;
+    color: #fff;
+}
+
+.admin-offcanvas .nav-link {
+    color: #adb5bd;
+    padding: 12px 20px;
+    border-left: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.admin-offcanvas .nav-link:hover,
+.admin-offcanvas .nav-link.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: #dc3545;
+}
+
+.admin-offcanvas .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.admin-offcanvas .accordion-button {
+    background: transparent;
+    color: #adb5bd;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-left: 3px solid transparent;
+    box-shadow: none;
+}
+
+.admin-offcanvas .accordion-button:not(.collapsed) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-left-color: #dc3545;
+}
+
+.admin-offcanvas .accordion-body .nav-link {
+    padding-left: 2.5rem;
+}
+
+.admin-navbar {
+    background-color: #fff !important;
+    border-bottom: 3px solid #dc3545;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
 /* Desktop Sidebar */
 #sidebar {
     width: 280px;

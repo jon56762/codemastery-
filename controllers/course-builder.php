@@ -3,61 +3,77 @@ require_once 'includes/init.php';
 require_once 'includes/auth-functions.php';
 requireRole('instructor');
 
-$user = getCurrentUserObject();   // returns User object (or null)
+$userObj = getCurrentUserObject(); 
+$user = getCurrentUser();          
 $courseId = $_GET['course_id'] ?? null;
 $course = null;
 
-// Load existing course
 if ($courseId) {
     $course = Course::findById($courseId);
     if (!$course || $course->instructorId != $user->getId()) {
-        $_SESSION['error'] = "Course not found or you don't have permission to edit it.";
+        $_SESSION['error'] = "Course not found or you don't have permission.";
         header('Location: /instructor-courses');
         exit;
     }
 }
 
-// Resource upload helper (unchanged)
-function handleResourceUpload($courseId, $fieldName) { ... } // keep as is
+function handleResourceUpload($courseId, $fieldName) {
+    $resources = [];
+    if (isset($_FILES[$fieldName]) && is_array($_FILES[$fieldName]['name'])) {
+        $upload_dir = "uploads/courses/{$courseId}/resources/";
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        foreach ($_FILES[$fieldName]['name'] as $key => $name) {
+            if ($_FILES[$fieldName]['error'][$key] === UPLOAD_ERR_OK) {
+                $filename = 'resource_' . time() . '_' . uniqid() . '_' . $name;
+                $filepath = $upload_dir . $filename;
+                if (move_uploaded_file($_FILES[$fieldName]['tmp_name'][$key], $filepath)) {
+                    $resources[] = [
+                        'name' => $name,
+                        'url' => '/' . $filepath,
+                        'type' => pathinfo($name, PATHINFO_EXTENSION)
+                    ];
+                }
+            }
+        }
+    }
+    return $resources;
+}
 
-// Handle ALL form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 1. Course Information Update
+    // 1. Update course info
     if (isset($_POST['update_course'])) {
         $courseData = [
-            'title'            => trim($_POST['title']),
-            'description'      => trim($_POST['description']),
-            'short_description'=> trim($_POST['short_description']),
-            'price'            => floatval($_POST['price']),
-            'category'         => $_POST['category'],
-            'level'            => $_POST['level'],
-            'thumbnail'        => $_POST['thumbnail'] ?? '/assets/images/courses/default.jpg'
+            'title' => trim($_POST['title']),
+            'description' => trim($_POST['description']),
+            'short_description' => trim($_POST['short_description']),
+            'price' => floatval($_POST['price']),
+            'category' => $_POST['category'],
+            'level' => $_POST['level'],
+            'thumbnail' => $_POST['thumbnail'] ?? '/assets/images/courses/default.jpg'
         ];
 
         if (empty($courseData['title']) || empty($courseData['description']) || empty($courseData['category'])) {
             $_SESSION['error'] = "Please fill in all required fields.";
         } else {
             if ($courseId) {
-                // Update existing course (object properties)
-                $course->title           = $courseData['title'];
-                $course->description     = $courseData['description'];
+                $course->title = $courseData['title'];
+                $course->description = $courseData['description'];
                 $course->shortDescription = $courseData['short_description'];
-                $course->price           = $courseData['price'];
-                $course->category        = $courseData['category'];
-                $course->level           = $courseData['level'];
-                $course->thumbnail       = $courseData['thumbnail'];
+                $course->price = $courseData['price'];
+                $course->category = $courseData['category'];
+                $course->level = $courseData['level'];
+                $course->thumbnail = $courseData['thumbnail'];
                 $result = $course->save();
-                $_SESSION['success'] = $result ? "Course updated successfully!" : "Failed to update course.";
+                $_SESSION['success'] = $result ? "Course updated!" : "Failed to update.";
             } else {
-                // Create new course
-                $courseData['instructor_id']   = $user->getId();
+                $courseData['instructor_id'] = $user->getId();
                 $courseData['instructor_name'] = $user->getName();
-                $courseData['status']          = 'draft';
-                $courseData['curriculum']      = [];
+                $courseData['status'] = 'draft';
+                $courseData['curriculum'] = [];
                 $course = Course::create($courseData);
                 if ($course) {
-                    $_SESSION['success'] = "Course created successfully!";
+                    $_SESSION['success'] = "Course created!";
                     header('Location: /course-builder?course_id=' . $course->getId());
                     exit;
                 } else {
@@ -67,71 +83,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 2. Publish/Unpublish
+    // 2. Update status
     if (isset($_POST['update_status'])) {
-        $newStatus = $_POST['status'];
-        $course->status = $newStatus;
-        $result = $course->save();
-        $_SESSION['success'] = $result ? "Course " . ($newStatus === 'published' ? 'published' : 'unpublished') . "!" : "Failed.";
+        $course->status = $_POST['status'];
+        $course->save();
+        $_SESSION['success'] = "Status updated!";
         header('Location: /course-builder?course_id=' . $courseId);
         exit;
     }
 
-    // 3. Delete Course
+    // 3. Delete course
     if (isset($_POST['delete_course'])) {
         if ($course->delete()) {
             $_SESSION['success'] = "Course deleted!";
             header('Location: /instructor-courses');
             exit;
-        } else {
-            $_SESSION['error'] = "Failed to delete course.";
         }
     }
 
-    // 4. Add New Lesson
+    // 4. Add lesson
     if (isset($_POST['add_lesson'])) {
         $lessonData = [
-            'id'          => uniqid(),
-            'title'       => trim($_POST['lesson_title']),
-            'type'        => $_POST['lesson_type'],
-            'duration'    => intval($_POST['lesson_duration']),
+            'id' => uniqid(),
+            'title' => trim($_POST['lesson_title']),
+            'type' => $_POST['lesson_type'],
+            'duration' => intval($_POST['lesson_duration']),
             'description' => trim($_POST['lesson_description']),
-            'order'       => count($course->curriculum)
+            'order' => count($course->curriculum)
         ];
-        // handle type-specific fields (video, reading, quiz, exercise) – same logic as before
+
         switch ($_POST['lesson_type']) {
-            case 'video': ... break;
-            case 'reading': ... break;
-            case 'quiz': ... break;
-            case 'exercise': ... break;
+            case 'video':
+                $lessonData['video_url'] = $_POST['video_url'] ?? '';
+                $lessonData['content'] = trim($_POST['lesson_content'] ?? '');
+                if (isset($_FILES['video_upload']) && $_FILES['video_upload']['error'] === UPLOAD_ERR_OK) {
+                    $upload_dir = "uploads/courses/{$courseId}/videos/";
+                    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+                    $filename = 'video_' . time() . '_' . uniqid() . '.' . pathinfo($_FILES['video_upload']['name'], PATHINFO_EXTENSION);
+                    $filepath = $upload_dir . $filename;
+                    if (move_uploaded_file($_FILES['video_upload']['tmp_name'], $filepath)) {
+                        $lessonData['video_url'] = '/' . $filepath;
+                    }
+                }
+                break;
+            case 'reading':
+                $lessonData['content'] = trim($_POST['lesson_content'] ?? '');
+                $lessonData['reading_time'] = $_POST['reading_time'] ?? '5 min';
+                $lessonData['resources'] = handleResourceUpload($courseId, 'reading_resources');
+                break;
+            case 'quiz':
+                $lessonData['questions'] = json_decode($_POST['quiz_questions'] ?? '[]', true) ?? [];
+                $lessonData['passing_score'] = intval($_POST['passing_score'] ?? 70);
+                $lessonData['time_limit'] = intval($_POST['time_limit'] ?? 0);
+                $lessonData['instructions'] = trim($_POST['quiz_instructions'] ?? '');
+                break;
+            case 'exercise':
+                $lessonData['instructions'] = trim($_POST['exercise_instructions'] ?? '');
+                $lessonData['starter_code'] = trim($_POST['starter_code'] ?? '');
+                $lessonData['solution_code'] = trim($_POST['solution_code'] ?? '');
+                $lessonData['hints'] = array_filter(array_map('trim', explode("\n", $_POST['exercise_hints'] ?? '')));
+                $lessonData['resources'] = handleResourceUpload($courseId, 'exercise_resources');
+                break;
         }
         $course->addLesson($lessonData);
-        $result = $course->save();
-        $_SESSION['success'] = $result ? "Lesson added!" : "Failed.";
+        $course->save();
+        $_SESSION['success'] = "Lesson added!";
         header('Location: /course-builder?course_id=' . $courseId . '&tab=curriculum');
         exit;
     }
 
-    // 5. Update Lesson
+    // 5. Update lesson
     if (isset($_POST['update_lesson'])) {
-        $lessonId = $_POST['lesson_id'];
-        $result = $course->save();
-        $_SESSION['success'] = $result ? "Lesson updated!" : "Failed.";
+        $course->save();
+        $_SESSION['success'] = "Lesson updated!";
         header('Location: /course-builder?course_id=' . $courseId . '&tab=curriculum');
         exit;
     }
 
-    // 6. Delete Lesson
+    // 6. Delete lesson
     if (isset($_POST['delete_lesson'])) {
-        $lessonId = $_POST['lesson_id'];
-        $course->deleteLesson($lessonId);
-        $result = $course->save();
-        $_SESSION['success'] = $result ? "Lesson deleted!" : "Failed.";
+        $course->deleteLesson($_POST['lesson_id']);
+        $course->save();
+        $_SESSION['success'] = "Lesson deleted!";
         header('Location: /course-builder?course_id=' . $courseId . '&tab=curriculum');
         exit;
     }
 
-    // 7. Reorder Lessons
+    // 7. Reorder lessons
     if (isset($_POST['reorder_lessons'])) {
         $newOrder = json_decode($_POST['lesson_order'], true);
         $reordered = [];
@@ -145,22 +183,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         $course->setCurriculum($reordered);
-        $result = $course->save();
-        $_SESSION['success'] = $result ? "Reordered!" : "Failed.";
+        $course->save();
+        $_SESSION['success'] = "Reordered!";
         header('Location: /course-builder?course_id=' . $courseId . '&tab=curriculum');
         exit;
     }
 
-    // 8. Add Announcement (use Announcement class)
+    // 8. Add announcement
     if (isset($_POST['add_announcement'])) {
-        $ann = Announcement::create([
-            'course_id'       => $courseId,
-            'instructor_id'   => $user->getId(),
+        Announcement::create([
+            'course_id' => $courseId,
+            'instructor_id' => $user->getId(),
             'instructor_name' => $user->getName(),
-            'title'           => trim($_POST['announcement_title']),
-            'content'         => trim($_POST['announcement_content'])
+            'title' => trim($_POST['announcement_title']),
+            'content' => trim($_POST['announcement_content'])
         ]);
-        $_SESSION['success'] = $ann ? "Announcement published!" : "Failed.";
+        $_SESSION['success'] = "Announcement published!";
         header('Location: /course-builder?course_id=' . $courseId . '&tab=communication');
         exit;
     }
@@ -169,14 +207,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Get announcements for display
-$announcements = [];
-if ($courseId) {
-    $announcements = Announcement::getByCourse($courseId);
-}
-
+$announcements = $courseId ? Announcement::getByCourse($courseId) : [];
 $activeTab = $_GET['tab'] ?? 'basic';
 $page_title = $courseId ? "Edit Course - CodeMastery" : "Create New Course - CodeMastery";
 $current_page = 'course-builder';
+$enrollmentCount = $courseId ? count(Enrollment::findByCourse($courseId)) : 0;
 require 'view/partial/instructor-header.php';
 require 'view/instructor/course-builder.php';

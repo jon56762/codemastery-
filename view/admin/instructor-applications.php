@@ -3,19 +3,6 @@
         <h1 class="h3 fw-bold text-dark mb-1">Instructor Applications</h1>
         <p class="text-muted mb-0">Review and manage instructor applications</p>
     </div>
-    <!-- <div class="d-flex gap-2">
-        <div class="dropdown">
-            <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-filter me-2"></i>Filter
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="?status=all">All Applications</a></li>
-                <li><a class="dropdown-item" href="?status=pending">Pending</a></li>
-                <li><a class="dropdown-item" href="?status=approved">Approved</a></li>
-                <li><a class="dropdown-item" href="?status=rejected">Rejected</a></li>
-            </ul>
-        </div>
-    </div> -->
 </div>
 
 <!-- Success/Error Messages -->
@@ -124,8 +111,7 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <?php $applicant = getUserById($application['user_id']); ?>
-                                    <img src="<?= htmlspecialchars($applicant['avatar'] ?? '/assets/images/avatars/default.jpg') ?>" 
+                                    <img src="/assets/images/avatars/default.png" 
                                          alt="<?= htmlspecialchars($application['name']) ?>" 
                                          class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;">
                                     <div>
@@ -153,7 +139,16 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <span class="badge bg-<?= getStatusBadgeColor($application['status']) ?>">
+                                <?php
+                                // Inline status badge colors (replaces getStatusBadgeColor)
+                                $statusColors = [
+                                    'pending'  => 'warning',
+                                    'approved' => 'success',
+                                    'rejected' => 'danger'
+                                ];
+                                $statusColor = $statusColors[$application['status']] ?? 'secondary';
+                                ?>
+                                <span class="badge bg-<?= $statusColor ?>">
                                     <?= ucfirst($application['status']) ?>
                                 </span>
                             </td>
@@ -217,7 +212,7 @@
                                                     </div>
                                                     <div class="col-md-6">
                                                         <strong>Status:</strong> 
-                                                        <span class="badge bg-<?= getStatusBadgeColor($application['status']) ?>">
+                                                        <span class="badge bg-<?= $statusColor ?>">
                                                             <?= ucfirst($application['status']) ?>
                                                         </span>
                                                     </div>

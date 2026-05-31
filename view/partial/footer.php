@@ -1,4 +1,4 @@
-    </div> <!-- Close content-wrapper -->
+</div>
 
     <footer class="bg-dark text-white py-5 mt-5">
         <div class="container">
@@ -18,16 +18,16 @@
                 <div class="col-lg-2 col-6 mb-4">
                     <h6 class="fw-bold">Learn</h6>
                     <ul class="list-unstyled">
-                        <li><a href="<?= BASE_PATH ?>/courses" class="text-white-50 text-decoration-none">All Courses</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Web Development</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Data Science</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Mobile Dev</a></li>
+                        <li><a href="/courses" class="text-white-50 text-decoration-none">All Courses</a></li>
+                        <li><a href="/courses?category=Web+Development" class="text-white-50 text-decoration-none">Web Development</a></li>
+                        <li><a href="/courses?category=Data+Science" class="text-white-50 text-decoration-none">Data Science</a></li>
+                        <li><a href="/courses?category=Mobile+Development" class="text-white-50 text-decoration-none">Mobile Dev</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-6 mb-4">
                     <h6 class="fw-bold">Teach</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-white-50 text-decoration-none">Become Instructor</a></li>
+                        <li><a href="/become-instructor" class="text-white-50 text-decoration-none">Become Instructor</a></li>
                         <li><a href="#" class="text-white-50 text-decoration-none">Instructor Terms</a></li>
                         <li><a href="#" class="text-white-50 text-decoration-none">Teaching Resources</a></li>
                     </ul>
@@ -35,8 +35,8 @@
                 <div class="col-lg-2 col-6 mb-4">
                     <h6 class="fw-bold">Support</h6>
                     <ul class="list-unstyled">
-                        <li><a href="<?= BASE_PATH ?>/about" class="text-white-50 text-decoration-none">About</a></li>
-                        <li><a href="<?= BASE_PATH ?>/contact" class="text-white-50 text-decoration-none">Contact</a></li>
+                        <li><a href="/about" class="text-white-50 text-decoration-none">About</a></li>
+                        <li><a href="/contact" class="text-white-50 text-decoration-none">Contact</a></li>
                         <li><a href="#" class="text-white-50 text-decoration-none">Help Center</a></li>
                     </ul>
                 </div>

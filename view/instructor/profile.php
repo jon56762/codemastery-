@@ -242,19 +242,19 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Total Courses</span>
-                                <strong class="text-primary"><?= count(getCoursesByInstructor($user['id'])) ?></strong>
+                                <strong class="text-primary"><?= $totalCourses ?></strong>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Total Students</span>
-                                <strong class="text-success"><?= getInstructorStudentCount($user['id']) ?></strong>
+                                <strong class="text-success"><?= $totalStudents ?></strong>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Total Reviews</span>
-                                <strong class="text-warning"><?= getInstructorReviewCount($user['id']) ?></strong>
+                                <strong class="text-warning"><?= $totalReviews ?></strong>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>Average Rating</span>
-                                <strong class="text-info"><?= getInstructorRating($user['id']) ?>/5</strong>
+                                <strong class="text-info"><?= $averageRating ?>/5</strong>
                             </div>
                         </div>
                     </div>

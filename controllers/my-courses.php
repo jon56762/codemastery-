@@ -1,81 +1,62 @@
 <?php
 require_once 'includes/init.php';
 require_once 'includes/auth-functions.php';
-
-$page_title = "My Courses - CodeMastery";
-$current_page = 'my-courses';
-
-// Require authentication and student role
 requireAuth();
-if ($_SESSION['user']['role'] !== 'student') {
+
+$user = getCurrentUserObject();
+if (!$user || $user->role !== 'student') {
     $_SESSION['error'] = "You don't have permission to access this page.";
     header('Location: /');
     exit;
 }
 
-$userId = $_SESSION['user']['id'];
-$user = getUserById($userId);
+$userId = $user->getId();
 
-// Get student's enrollments with course details
-$enrollments = getStudentEnrollments($userId);
+$enrollmentObjects = Enrollment::findByUser($userId);
+
 $enrolledCourses = [];
-
-foreach ($enrollments as $enrollment) {
-    $course = getCourseById($enrollment['course_id']);
+foreach ($enrollmentObjects as $enrollment) {
+    $course = Course::findById($enrollment->courseId);
     if ($course) {
         $enrolledCourses[] = [
-            'course' => $course,
-            'enrollment' => $enrollment
+            'course'     => $course->toArray(),
+            'enrollment' => $enrollment->toArray()
         ];
     }
 }
 
-// Filter and sort handling
 $filter = $_GET['filter'] ?? 'all';
-$sort = $_GET['sort'] ?? 'recent';
+$sort   = $_GET['sort']   ?? 'recent';
 
-// Apply filters
 $filteredCourses = $enrolledCourses;
 if ($filter === 'completed') {
-    $filteredCourses = array_filter($enrolledCourses, function($item) {
-        return $item['enrollment']['progress'] >= 100;
-    });
+    $filteredCourses = array_filter($filteredCourses, fn($item) => $item['enrollment']['progress'] >= 100);
 } elseif ($filter === 'in-progress') {
-    $filteredCourses = array_filter($enrolledCourses, function($item) {
-        return $item['enrollment']['progress'] > 0 && $item['enrollment']['progress'] < 100;
-    });
+    $filteredCourses = array_filter($filteredCourses, fn($item) => $item['enrollment']['progress'] > 0 && $item['enrollment']['progress'] < 100);
 } elseif ($filter === 'not-started') {
-    $filteredCourses = array_filter($enrolledCourses, function($item) {
-        return $item['enrollment']['progress'] == 0;
-    });
+    $filteredCourses = array_filter($filteredCourses, fn($item) => $item['enrollment']['progress'] == 0);
 }
 
-// Apply sorting
 usort($filteredCourses, function($a, $b) use ($sort) {
     switch ($sort) {
-        case 'progress':
-            return $b['enrollment']['progress'] <=> $a['enrollment']['progress'];
-        case 'title':
-            return $a['course']['title'] <=> $b['course']['title'];
-        case 'recent':
-        default:
-            return strtotime($b['enrollment']['enrolled_at']) <=> strtotime($a['enrollment']['enrolled_at']);
+        case 'progress': return $b['enrollment']['progress'] <=> $a['enrollment']['progress'];
+        case 'title':    return $a['course']['title'] <=> $b['course']['title'];
+        default:         return strtotime($b['enrollment']['enrolled_at']) <=> strtotime($a['enrollment']['enrolled_at']);
     }
 });
 
-// Handle search
 $search = $_GET['search'] ?? '';
 if ($search) {
-    $filteredCourses = array_filter($filteredCourses, function($item) use ($search) {
-        return stripos($item['course']['title'], $search) !== false ||
-               stripos($item['course']['description'], $search) !== false;
-    });
+    $filteredCourses = array_filter($filteredCourses, fn($item) =>
+        stripos($item['course']['title'], $search) !== false ||
+        stripos($item['course']['description'], $search) !== false
+    );
 }
 
-// Get wishlist (placeholder for now)
-$wishlist = [];
+$wishlist = []; 
 
+$page_title = "My Courses - CodeMastery";
+$current_page = 'my-courses';
 require 'view/partial/nav.php';
 require 'view/student/my-courses.php';
 require 'view/partial/footer.php';
-?>

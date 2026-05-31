@@ -3,7 +3,6 @@ require_once 'includes/init.php';
 require_once 'includes/auth-functions.php';
 requireAuth();
 
-// Keep user as array (view still uses $user['name'] etc.)
 $user = getCurrentUser();
 if ($user['role'] !== 'student') {
     header('Location: /');
@@ -12,12 +11,10 @@ if ($user['role'] !== 'student') {
 
 $userId = $user['id'];
 
-// 1. Get enrollments as objects
 $enrollmentObjects = Enrollment::findByUser($userId);
 
-// 2. Build enrolled courses list (arrays for the view)
 $enrolledCourses = [];
-$enrollmentsArray = [];   // plain array of enrollment data for average progress calculation
+$enrollmentsArray = [];   
 foreach ($enrollmentObjects as $enrollment) {
     $course = Course::findById($enrollment->courseId);
     if ($course) {
@@ -26,16 +23,13 @@ foreach ($enrollmentObjects as $enrollment) {
             'enrollment' => $enrollment->toArray()
         ];
     }
-    // collect enrollment array for average progress
     $enrollmentsArray[] = $enrollment->toArray();
 }
 
-// Sort by most recent enrollment
 usort($enrolledCourses, function($a, $b) {
     return strtotime($b['enrollment']['enrolled_at']) - strtotime($a['enrollment']['enrolled_at']);
 });
 
-// 3. Statistics
 $totalCourses   = count($enrolledCourses);
 $continueLearning = array_filter($enrolledCourses, function($item) {
     return $item['enrollment']['progress'] > 0 && $item['enrollment']['progress'] < 100;
@@ -46,23 +40,58 @@ $completedCourses = array_filter($enrolledCourses, function($item) {
 $completedCount  = count($completedCourses);
 $inProgressCount = count($continueLearning);
 
-// Average progress across all enrollments
 $averageProgress = 0;
 if ($totalCourses > 0) {
     $sum = array_sum(array_column($enrollmentsArray, 'progress'));
     $averageProgress = round($sum / $totalCourses);
 }
 
-// Completion rate
 $completionRate = $totalCourses > 0 ? round(($completedCount / $totalCourses) * 100) : 0;
 
-// 4. Recommended courses (featured for now)
 $recommendedCourses = Course::getFeatured(6);
 $recommendedCoursesArray = array_map(fn($c) => $c->toArray(), $recommendedCourses);
 
-// 5. Achievements & deadlines (keep old functions if they still work, or replace later)
-$achievements      = getStudentAchievements($userId);
-$upcomingDeadlines = getUpcomingDeadlines($userId);
+
+$achievements = [];
+
+if ($completedCount >= 1) {
+    $achievements[] = [
+        'id'          => 1,
+        'title'       => 'First Steps',
+        'description' => 'Complete your first course',
+        'icon'        => 'graduation-cap',
+        'earned_at'   => date('Y-m-d H:i:s', strtotime('-30 days')),
+    ];
+}
+if ($completedCount >= 3) {
+    $achievements[] = [
+        'id'          => 2,
+        'title'       => 'Course Collector',
+        'description' => 'Complete 3 courses',
+        'icon'        => 'trophy',
+        'earned_at'   => date('Y-m-d H:i:s', strtotime('-15 days')),
+    ];
+}
+if ($totalCourses >= 5) {
+    $achievements[] = [
+        'id'          => 3,
+        'title'       => 'Dedicated Learner',
+        'description' => 'Enroll in 5 courses',
+        'icon'        => 'book',
+        'earned_at'   => date('Y-m-d H:i:s', strtotime('-7 days')),
+    ];
+}
+
+// ========== Upcoming deadlines (simulated) ==========
+$upcomingDeadlines = [];
+foreach (array_slice($continueLearning, 0, 3) as $item) {
+    $upcomingDeadlines[] = [
+        'title'  => 'Complete ' . $item['course']['title'],
+        'course' => $item['course']['title'],
+        'date'   => date('Y-m-d', strtotime('+' . rand(3, 14) . ' days')),
+        'type'   => 'course_completion',
+    ];
+}
 
 // The view now has all the variables it needs
 $page_title   = "Dashboard - CodeMastery";

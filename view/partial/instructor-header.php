@@ -50,6 +50,12 @@
                             <i class="fas fa-book me-1"></i>My Courses
                         </a>
                     </li>
+		<li class="nav-item">
+                    <a class="nav-link <?= ($current_page ?? '') === 'blog-creation' ? 'active' : '' ?>" href="/blog-creation">
+                        <i class="fas fa-newspaper me-1"></i>Blogging
+                    </a>
+                </li>
+
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_page ?? '') === 'instructor-analytics' ? 'active' : '' ?>" href="/instructor-analytics">
                             <i class="fas fa-chart-bar me-1"></i>Analytics
@@ -124,6 +130,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= ($current_page ?? '') === 'blog-creation' ? 'active' : '' ?>" href="/blog-creation">
+                        <i class="fas fa-newspaper me-1"></i>Blogging
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= ($current_page ?? '') === 'course-builder' ? 'active' : '' ?>" href="/course-builder">
                         <i class="fas fa-plus-circle me-2"></i>Create Course
                     </a>
@@ -173,3 +184,4 @@
 
     <div class="content-wrapper instructor-content">
         <script src="/assets/js/bootstrap.bundle.js"></script>
+        

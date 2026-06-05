@@ -1,108 +1,75 @@
 <?php
 require_once 'includes/init.php';
+require_once 'includes/auth-functions.php';
 
 $page_title = "Blog Post - CodeMastery";
 $current_page = 'blog';
 
-// Get blog post ID from URL
 $postId = $_GET['id'] ?? 0;
-$blog_posts = getBlogPosts();
-$post = null;
 
-// Find the specific blog post
-foreach ($blog_posts as $blog_post) {
-    if ($blog_post['id'] == $postId) {
-        $post = $blog_post;
-        break;
-    }
-}
+$post = BlogPost::findById($postId);
 
-// If post not found, show 404
 if (!$post) {
     http_response_code(404);
-    require 'views/404.php';
+    require 'view/404.php';
     exit;
 }
 
-// Update page title with post title
-$page_title = $post['title'] . " - CodeMastery Blog";
-
-// Get related posts (same category)
-$related_posts = array_filter($blog_posts, function($p) use ($post) {
-    return $p['category'] === $post['category'] && $p['id'] != $post['id'];
-});
-$related_posts = array_slice($related_posts, 0, 3);
-
-// Get platform stats for sidebar
-$platformStats = getPlatformStats();
-
-// Get comments for this post
-$comments = getComments($postId);
-
-// Check if user liked this post
-$userLiked = false;
-$likeCount = getLikeCount($postId);
-if (isset($_SESSION['user'])) {
-    $userLiked = hasUserLikedPost($postId, $_SESSION['user']['id']);
+if (!is_array($post->likes)) {
+    $post->likes = [];
 }
 
-// Handle like/unlike action
+$likeCount = count($post->likes);
+$userLiked = false;
+if (isset($_SESSION['user'])) {
+    $userLiked = in_array($_SESSION['user']['id'], $post->likes);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['like_action'])) {
     if (!isset($_SESSION['user'])) {
         $_SESSION['error'] = "Please log in to like posts.";
     } else {
         $userId = $_SESSION['user']['id'];
-        
         if ($_POST['like_action'] === 'like') {
-            if (likeBlogPost($postId, $userId)) {
-                $userLiked = true;
-                $likeCount = getLikeCount($postId);
-                $_SESSION['success'] = "Post liked!";
-            }
-        } elseif ($_POST['like_action'] === 'unlike') {
-            if (unlikeBlogPost($postId, $userId)) {
-                $userLiked = false;
-                $likeCount = getLikeCount($postId);
-                $_SESSION['success'] = "Post unliked!";
-            }
+            $post->like($userId);
+        } else {
+            $post->unlike($userId);
         }
-        
-        // Redirect to avoid form resubmission
+        $post->save();
         header("Location: /blog/" . $postId);
         exit;
     }
 }
 
-// Handle comment submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
     if (!isset($_SESSION['user'])) {
         $_SESSION['error'] = "Please log in to comment.";
     } else {
         $content = trim($_POST['comment_content']);
-        
-        if (empty($content)) {
-            $_SESSION['error'] = "Please enter a comment.";
+        if (!empty($content)) {
+            $db = Database::getConnection();
+            $stmt = $db->prepare("INSERT INTO blog_comments (post_id, user_id, user_name, content) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("iiss", $postId, $_SESSION['user']['id'], $_SESSION['user']['name'], $content);
+            $stmt->execute();
+            $_SESSION['success'] = "Comment added!";
         } else {
-            $commentData = [
-                'user_id' => $_SESSION['user']['id'],
-                'user_name' => $_SESSION['user']['name'],
-                'content' => $content
-            ];
-            
-            if (addComment($postId, $commentData)) {
-                $_SESSION['success'] = "Comment added successfully!";
-                // Refresh comments
-                $comments = getComments($postId);
-                // Clear form
-                unset($_POST['comment_content']);
-            } else {
-                $_SESSION['error'] = "Failed to add comment. Please try again.";
-            }
+            $_SESSION['error'] = "Please enter a comment.";
         }
+        header("Location: /blog/" . $postId);
+        exit;
     }
 }
 
+$db = Database::getConnection();
+$result = $db->prepare("SELECT * FROM blog_comments WHERE post_id = ? AND status = 'approved' ORDER BY created_at ASC");
+$result->bind_param("i", $postId);
+$result->execute();
+$comments = $result->get_result()->fetch_all(MYSQLI_ASSOC);
+
+
+$platformStats = getPlatformStats();
+
+$page_title = $post->title . " - CodeMastery Blog";
 require 'view/partial/nav.php';
 require 'view/blog-readmore.php';
 require 'view/partial/footer.php';
-?>

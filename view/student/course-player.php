@@ -1,5 +1,5 @@
 <?php
-$page_title = $currentLesson ? $currentLesson['title'] . " - " . $course['title'] : $course['title'];
+$page_title = $currentLesson ? $currentLesson['title'] . " - " . $courseArray['title'] : $courseArray['title'];
 require 'view/partial/nav.php';
 ?>
 
@@ -11,16 +11,16 @@ require 'view/partial/nav.php';
                 <div class="card-header bg-white border-0 py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="fw-bold mb-1"><?= htmlspecialchars($course['title']) ?></h5>
+                            <h5 class="fw-bold mb-1"><?= htmlspecialchars($courseArray['title']) ?></h5>
                             <h2 class="h4 mb-0"><?= $currentLesson ? htmlspecialchars($currentLesson['title']) : 'No Lesson Selected' ?></h2>
                         </div>
                         <div class="d-flex gap-2">
-                            <?php if ($enrollment && $currentLesson): ?>
+                            <?php if ($enrollmentArray && $currentLesson): ?>
                                 <form method="POST">
                                     <input type="hidden" name="mark_complete" value="1">
-                                    <button type="submit" class="btn btn-<?= in_array($lessonId, $enrollment['completed_lessons'] ?? []) ? 'success' : 'outline-success' ?>">
-                                        <i class="fas fa-<?= in_array($lessonId, $enrollment['completed_lessons'] ?? []) ? 'check' : 'check' ?> me-2"></i>
-                                        <?= in_array($lessonId, $enrollment['completed_lessons'] ?? []) ? 'Completed' : 'Mark Complete' ?>
+                                    <button type="submit" class="btn btn-<?= in_array($lessonId, $enrollmentArray['completed_lessons'] ?? []) ? 'success' : 'outline-success' ?>">
+                                        <i class="fas fa-check me-2"></i>
+                                        <?= in_array($lessonId, $enrollmentArray['completed_lessons'] ?? []) ? 'Completed' : 'Mark Complete' ?>
                                     </button>
                                 </form>
                             <?php endif; ?>
@@ -38,7 +38,6 @@ require 'view/partial/nav.php';
                                 $isYouTube = false;
                                 $youTubeId = '';
 
-                                // Check if it's a YouTube URL and extract ID
                                 if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $videoUrl, $matches)) {
                                     $isYouTube = true;
                                     $youTubeId = $matches[1];
@@ -49,7 +48,6 @@ require 'view/partial/nav.php';
                                 ?>
 
                                 <?php if ($isYouTube && $youTubeId): ?>
-                                    <!-- YouTube Player -->
                                     <div class="ratio ratio-16x9">
                                         <iframe
                                             src="https://www.youtube.com/embed/<?= $youTubeId ?>?rel=0&modestbranding=1"
@@ -60,7 +58,6 @@ require 'view/partial/nav.php';
                                         </iframe>
                                     </div>
                                 <?php elseif (strpos($videoUrl, 'vimeo.com') !== false): ?>
-                                    <!-- Vimeo Player -->
                                     <div class="ratio ratio-16x9">
                                         <iframe
                                             src="<?= htmlspecialchars($videoUrl) ?>"
@@ -71,12 +68,11 @@ require 'view/partial/nav.php';
                                         </iframe>
                                     </div>
                                 <?php else: ?>
-                                    <!-- Direct Video File -->
                                     <div class="ratio ratio-16x9">
                                         <video
                                             controls
                                             class="w-100 h-100"
-                                            poster="<?= htmlspecialchars($course['thumbnail'] ?? '') ?>">
+                                            poster="<?= htmlspecialchars($courseArray['thumbnail'] ?? '') ?>">
                                             <source src="<?= htmlspecialchars($videoUrl) ?>" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
@@ -84,14 +80,12 @@ require 'view/partial/nav.php';
                                 <?php endif; ?>
                             </div>
                         <?php elseif ($currentLesson['type'] === 'text'): ?>
-                            <!-- Text Content -->
                             <div class="p-4">
                                 <div class="lesson-content">
                                     <?= nl2br(htmlspecialchars($currentLesson['content'] ?? 'No content available.')) ?>
                                 </div>
                             </div>
                         <?php else: ?>
-                            <!-- Unsupported Content Type -->
                             <div class="p-4 text-center">
                                 <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">Content Not Available</h5>
@@ -99,7 +93,6 @@ require 'view/partial/nav.php';
                             </div>
                         <?php endif; ?>
                     <?php else: ?>
-                        <!-- No Lesson Selected -->
                         <div class="p-4 text-center">
                             <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">No Lesson Selected</h5>
@@ -108,7 +101,6 @@ require 'view/partial/nav.php';
                     <?php endif; ?>
                 </div>
 
-                <!-- Lesson Description -->
                 <?php if ($currentLesson && !empty($currentLesson['description'])): ?>
                     <div class="card-footer bg-light border-0">
                         <h6 class="fw-bold mb-2">About this lesson:</h6>
@@ -117,7 +109,6 @@ require 'view/partial/nav.php';
                 <?php endif; ?>
             </div>
 
-            <!-- Resources Section -->
             <?php if ($currentLesson && !empty($currentLesson['resources'])): ?>
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white border-0 py-3">
@@ -143,7 +134,6 @@ require 'view/partial/nav.php';
                 </div>
             <?php endif; ?>
 
-            <!-- Notes Section -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="fw-bold mb-0">
@@ -151,7 +141,6 @@ require 'view/partial/nav.php';
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Add New Note Form -->
                     <form method="POST">
                         <input type="hidden" name="save_note" value="1">
                         <input type="hidden" name="timestamp" value="00:00" id="noteTimestamp">
@@ -164,7 +153,6 @@ require 'view/partial/nav.php';
                         </button>
                     </form>
 
-                    <!-- Existing Notes -->
                     <?php if (!empty($notes)): ?>
                         <div class="mt-4">
                             <h6 class="fw-semibold mb-3">Your Notes</h6>
@@ -207,9 +195,9 @@ require 'view/partial/nav.php';
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="fw-bold mb-0">Course Content</h5>
                     <div class="progress mt-2" style="height: 6px;">
-                        <div class="progress-bar bg-success" style="width: <?= $enrollment['progress'] ?? 0 ?>%"></div>
+                        <div class="progress-bar bg-success" style="width: <?= $enrollmentArray['progress'] ?? 0 ?>%"></div>
                     </div>
-                    <small class="text-muted"><?= $enrollment['progress'] ?? 0 ?>% Complete</small>
+                    <small class="text-muted"><?= $enrollmentArray['progress'] ?? 0 ?>% Complete</small>
                 </div>
 
                 <div class="card-body p-0">
@@ -226,7 +214,7 @@ require 'view/partial/nav.php';
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="flex-grow-1">
                                             <div class="d-flex align-items-center mb-1">
-                                                <?php if (in_array($lesson['id'], $enrollment['completed_lessons'] ?? [])): ?>
+                                                <?php if (in_array($lesson['id'], $enrollmentArray['completed_lessons'] ?? [])): ?>
                                                     <i class="fas fa-check-circle text-success me-2"></i>
                                                 <?php else: ?>
                                                     <span class="text-muted me-2"><?= $index + 1 ?>.</span>
@@ -256,7 +244,6 @@ require 'view/partial/nav.php';
                     </div>
                 </div>
 
-                <!-- Navigation Buttons -->
                 <?php if ($currentLesson): ?>
                     <div class="card-footer bg-white border-0 py-3">
                         <div class="d-flex justify-content-between">
@@ -287,7 +274,6 @@ require 'view/partial/nav.php';
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add timestamp to notes when video is playing (for video lessons)
         const video = document.querySelector('video');
         if (video) {
             video.addEventListener('timeupdate', function() {
@@ -298,7 +284,6 @@ require 'view/partial/nav.php';
             });
         }
 
-        // Auto-resize textareas
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(textarea => {
             textarea.addEventListener('input', function() {
@@ -306,24 +291,5 @@ require 'view/partial/nav.php';
                 this.style.height = (this.scrollHeight) + 'px';
             });
         });
-
-        // Add confirmation for note deletion
-        const deleteForms = document.querySelectorAll('form[onsubmit]');
-        deleteForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                if (!confirm('Are you sure you want to delete this note?')) {
-                    e.preventDefault();
-                }
-            });
-        });
     });
-
-    // Helper function for file size formatting (if not in PHP)
-    function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
 </script>

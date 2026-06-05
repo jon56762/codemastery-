@@ -6,13 +6,15 @@ requireRole('instructor');
 $user = getCurrentUser();
 $instructorId = $user['id'];
 
+$userObj = getCurrentUserObject(); 
+
 $courses = Course::getByInstructor($instructorId);
 $totalStudents = 0;
 $totalRevenue = 0;
 $coursePerformance = [];
 
 foreach ($courses as $course) {
-    $enrollments = Enrollment::findByCourse($course->getId());
+    $enrollments = Enrollment::findByCourse($course->id);
     $totalStudents += count($enrollments);
     $totalRevenue  += count($enrollments) * $course->price * 0.7;
     $coursePerformance[] = [
@@ -29,19 +31,20 @@ foreach ($courses as $course) {
     ];
 
     $analyticsData = [
-        'total_revenue'      => $totalRevenue,
-        'revenue_change'     => 0,
-        'new_students'       => $totalStudents,
-        'student_change'     => 0,
-        'completion_rate'    => 0,
-        'avg_rating'         => 4.5,
-        'total_reviews'      => 0,
-        'active_students_rate'    => 0,
-        'lesson_completion_rate'  => 0,
+        'total_revenue'   => $totalRevenue,
+        'total_students'  => $totalStudents,
+        'completion_rate' => 0,
+        'avg_rating'      => 4.5,
+        'course_performance' => [],
+        'revenue_change' => 0,
+        'new_students' => $totalStudents,
+        'student_change' => 0,
+        'total_reviews' => 0,
+        'active_students_rate' => 0,
+        'lesson_completion_rate' => 0,
         'assignment_submission_rate' => 0,
-        'course_performance'       => $coursePerformance,
-        'top_courses'              => $coursePerformance,
-        'detailed_analytics'       => $coursePerformance
+        'top_courses' => [],
+        'detailed_analytics' => [],
     ];
 }
 

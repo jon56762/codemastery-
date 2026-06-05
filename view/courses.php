@@ -6,13 +6,13 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title fw-bold mb-4">Filters</h5>
-                    
+
                     <!-- Search -->
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Search</label>
                         <form method="GET" class="d-flex">
-                            <input type="text" name="search" class="form-control" placeholder="Search courses..." 
-                                   value="<?= htmlspecialchars($search) ?>">
+                            <input type="text" name="search" class="form-control" placeholder="Search courses..."
+                                value="<?= htmlspecialchars($search) ?>">
                             <button type="submit" class="btn btn-dark ms-2">
                                 <i class="fas fa-search"></i>
                             </button>
@@ -25,7 +25,7 @@
                         <select name="category" class="form-select" onchange="this.form.submit()" form="filter-form">
                             <option value="">All Categories</option>
                             <?php foreach ($categories as $cat): ?>
-                                <option value="<?= htmlspecialchars($cat) ?>" 
+                                <option value="<?= htmlspecialchars($cat) ?>"
                                     <?= $category === $cat ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($cat) ?>
                                 </option>
@@ -38,11 +38,9 @@
                         <label class="form-label fw-semibold">Level</label>
                         <select name="level" class="form-select" onchange="this.form.submit()" form="filter-form">
                             <option value="">All Levels</option>
-                            <?php foreach ($levels as $lvl): ?>
-                                <option value="<?= $lvl ?>" <?= $level === $lvl ? 'selected' : '' ?>>
-                                    <?= ucfirst($lvl) ?>
-                                </option>
-                            <?php endforeach; ?>
+                            <option value="beginner" <?= $level === 'beginner' ? 'selected' : '' ?>>Beginner</option>
+                            <option value="intermediate" <?= $level === 'intermediate' ? 'selected' : '' ?>>Intermediate</option>
+                            <option value="advanced" <?= $level === 'advanced' ? 'selected' : '' ?>>Advanced</option>
                         </select>
                     </div>
 
@@ -79,16 +77,16 @@
             </div>
 
             <!-- Featured Courses Sidebar -->
-            <?php if (!empty($featured_courses)): ?>
+            <?php if (!empty($featuredCourses)): ?>
                 <div class="card border-0 shadow-sm mt-4">
                     <div class="card-body">
                         <h6 class="card-title fw-bold mb-3">Featured Courses</h6>
-                        <?php foreach ($featured_courses as $featured): ?>
+                        <?php foreach ($featuredCourses as $featured): ?>
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex align-items-start">
-                                    <img src="<?= htmlspecialchars($featured['thumbnail']) ?>" 
-                                         alt="<?= htmlspecialchars($featured['title']) ?>" 
-                                         class="rounded me-3" width="60" height="60" style="object-fit: cover;">
+                                    <img src="<?= htmlspecialchars($featured['thumbnail']) ?>"
+                                        alt="<?= htmlspecialchars($featured['title']) ?>"
+                                        class="rounded me-3" width="60" height="60" style="object-fit: cover;">
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1 fw-semibold small">
                                             <a href="/course/<?= $featured['id'] ?>" class="text-dark text-decoration-none">
@@ -108,21 +106,17 @@
 
         <!-- Main Content -->
         <div class="col-lg-9 col-md-8">
-            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="h3 fw-bold mb-1">All Courses</h1>
                     <p class="text-muted mb-0">
-                        <?= count($filtered_courses) ?> course<?= count($filtered_courses) !== 1 ? 's' : '' ?> found
-                        <?php if ($search): ?>
-                            for "<?= htmlspecialchars($search) ?>"
-                        <?php endif; ?>
+                        <?= count($courses) ?> course<?= count($courses) !== 1 ? 's' : '' ?> found
                     </p>
                 </div>
             </div>
 
             <!-- Courses Grid -->
-            <?php if (empty($filtered_courses)): ?>
+            <?php if (empty($courses)): ?>
                 <div class="text-center py-5">
                     <i class="fas fa-search fa-3x text-muted mb-3"></i>
                     <h4 class="fw-bold">No courses found</h4>
@@ -131,14 +125,14 @@
                 </div>
             <?php else: ?>
                 <div class="row" id="courses-grid">
-                    <?php foreach ($filtered_courses as $course): ?>
+                    <?php foreach ($courses as $course): ?>
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
                             <div class="card course-card h-100 border-0 shadow-sm">
                                 <div class="position-relative">
-                                    <img src="<?= htmlspecialchars($course['thumbnail']) ?>" 
-                                         class="card-img-top" 
-                                         alt="<?= htmlspecialchars($course['title']) ?>"
-                                         style="height: 200px; object-fit: cover;">
+                                    <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>"
+                                        class="card-img-top"
+                                        alt="<?= htmlspecialchars($course['title']) ?>"
+                                        style="height: 200px; object-fit: cover;">
                                     <?php if ($course['featured']): ?>
                                         <span class="position-absolute top-0 start-0 m-2 badge bg-dark">
                                             <i class="fas fa-star me-1"></i>Featured
@@ -150,37 +144,41 @@
                                         </span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="card-body d-flex flex-column">
                                     <div class="mb-2">
                                         <span class="badge bg-light text-dark border">
                                             <?= htmlspecialchars($course['category']) ?>
                                         </span>
                                     </div>
-                                    
+
                                     <h5 class="card-title fw-bold">
                                         <a href="/course/<?= $course['id'] ?>" class="text-dark text-decoration-none">
                                             <?= htmlspecialchars($course['title']) ?>
                                         </a>
                                     </h5>
-                                    
+
                                     <p class="card-text text-muted small flex-grow-1">
                                         <?= htmlspecialchars($course['short_description'] ?? substr($course['description'], 0, 100) . '...') ?>
                                     </p>
-                                    
+
                                     <div class="d-flex align-items-center mb-2">
                                         <div class="text-warning small">
                                             <?= str_repeat('<i class="fas fa-star"></i>', floor($course['rating'] ?? 4)) ?>
-                                            <?= ($course['rating'] ?? 4) - floor($course['rating'] ?? 4) >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : '' ?>
+                                            <?= (($course['rating'] ?? 4) - floor($course['rating'] ?? 4) >= 0.5) ? '<i class="fas fa-star-half-alt"></i>' : '' ?>
                                             <span class="text-muted ms-1">(<?= $course['rating'] ?? '4.0' ?>)</span>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <div class="d-flex align-items-center">
-                                            <img src="https://via.placeholder.com/30x30/007bff/ffffff?text=<?= substr($course['instructor_name'], 0, 1) ?>" 
-                                                 alt="<?= htmlspecialchars($course['instructor_name']) ?>" 
-                                                 class="rounded-circle me-2" width="30" height="30">
+                                            <?php
+                                            $instructor = User::findById($course['instructor_id']);
+                                            $avatar = $instructor ? $instructor->avatar : '/assets/images/avatars/default.png';
+                                            ?>
+                                            <img src="<?= htmlspecialchars($avatar) ?>"
+                                                alt="<?= htmlspecialchars($course['instructor_name']) ?>"
+                                                class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
                                             <small class="text-muted"><?= htmlspecialchars($course['instructor_name']) ?></small>
                                         </div>
                                         <div class="text-end">
@@ -188,12 +186,12 @@
                                                 <?= $course['price'] > 0 ? '$' . $course['price'] : 'Free' ?>
                                             </div>
                                             <small class="text-muted">
-                                                <?= $course['lessons'] ?> lessons • <?= formatDuration($course['duration']) ?>
+                                                <?= count($course['curriculum'] ?? []) ?> lessons
                                             </small>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="card-footer bg-transparent border-0 pt-0">
                                     <a href="/course/<?= $course['id'] ?>" class="btn btn-dark w-100">
                                         <i class="fas fa-eye me-2"></i>View Course

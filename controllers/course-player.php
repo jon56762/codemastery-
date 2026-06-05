@@ -3,7 +3,7 @@ require_once 'includes/init.php';
 require_once 'includes/auth-functions.php';
 requireAuth();
 
-$user = getCurrentUserObject();   // returns User object
+$user = getCurrentUserObject();
 $courseId = $_GET['course_id'] ?? null;
 $lessonId = $_GET['lesson_id'] ?? null;
 
@@ -20,7 +20,6 @@ if (!$course) {
     exit;
 }
 
-// Check enrollment (or if instructor)
 $enrollment = Enrollment::findByUserAndCourse($user->getId(), $courseId);
 if (!$enrollment && $user->getId() != $course->instructorId) {
     $_SESSION['error'] = "You are not enrolled in this course.";
@@ -28,13 +27,18 @@ if (!$enrollment && $user->getId() != $course->instructorId) {
     exit;
 }
 
-$lessons = $course->curriculum;
+$enrollmentArray = $enrollment ? $enrollment->toArray() : null;
+if ($enrollmentArray) {
+    $enrollmentArray['completed_lessons'] = $enrollment->completedLessons;
+    $enrollmentArray['progress'] = $enrollment->progress;
+}
+
+$lessons = $course->curriculum; 
 $currentLesson = null;
 $currentLessonIndex = -1;
 $nextLesson = null;
 $prevLesson = null;
 
-// Find the requested lesson
 if ($lessonId) {
     foreach ($lessons as $index => $lesson) {
         if ($lesson['id'] == $lessonId) {
@@ -45,14 +49,12 @@ if ($lessonId) {
     }
 }
 
-// Default to first lesson
 if (!$currentLesson && !empty($lessons)) {
     $currentLesson = $lessons[0];
     $currentLessonIndex = 0;
     $lessonId = $currentLesson['id'];
 }
 
-// Previous / next lesson
 if ($currentLessonIndex >= 0) {
     if ($currentLessonIndex > 0) {
         $prevLesson = $lessons[$currentLessonIndex - 1];
@@ -62,17 +64,17 @@ if ($currentLessonIndex >= 0) {
     }
 }
 
-// Handle lesson completion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_complete'])) {
     if ($enrollment) {
         $enrollment->toggleLesson($lessonId, true);
         $_SESSION['success'] = "Lesson marked as complete!";
-        // Reload enrollment to reflect updated progress
         $enrollment = Enrollment::findByUserAndCourse($user->getId(), $courseId);
+        $enrollmentArray = $enrollment->toArray();
+        $enrollmentArray['completed_lessons'] = $enrollment->completedLessons;
+        $enrollmentArray['progress'] = $enrollment->progress;
     }
 }
 
-// Handle note saving (now using LessonNote class)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_note'])) {
     $noteContent = trim($_POST['note_content'] ?? '');
     $timestamp   = $_POST['timestamp'] ?? '00:00';
@@ -93,12 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_note'])) {
     }
 }
 
-// Handle note deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_note'])) {
     $noteId = $_POST['note_id'] ?? null;
     if ($noteId) {
         $note = LessonNote::findById($noteId);
-        // Only allow the owner to delete
         if ($note && $note->userId == $user->getId()) {
             $note->delete();
             $_SESSION['success'] = "Note deleted.";
@@ -108,11 +108,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_note'])) {
     }
 }
 
-// Get notes for this lesson (using new class)
 $notes = [];
 if ($lessonId) {
-    $notes = LessonNote::findByUserAndLesson($user->getId(), $courseId, $lessonId);
+    $noteObjects = LessonNote::findByUserAndLesson($user->getId(), $courseId, $lessonId);
+    $notes = array_map(fn($n) => $n->toArray(), $noteObjects);
 }
+
+$courseArray = $course->toArray();
 
 $page_title = $currentLesson ? $currentLesson['title'] . " - " . $course->title : $course->title;
 require 'view/partial/nav.php';

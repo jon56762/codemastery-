@@ -179,7 +179,7 @@
             </ul>
 
             <div class="mt-4">
-                <a href="/dashboard" class="btn btn-outline-light w-100 mb-2"><i class="fas fa-user me-1"></i>Back to Site</a>
+                <a href="/dashboard" class="btn btn-outline-dark w-100 mb-2"><i class="fas fa-user me-1"></i>Back to Site</a>
                 <a href="/logout" class="btn btn-outline-danger w-100"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
             </div>
         </div>

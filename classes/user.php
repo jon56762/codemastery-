@@ -197,6 +197,12 @@ class User
 
     public static function create($data)
     {
+        // Check if email already exists
+        $existing = self::findByEmail($data['email']);
+        if ($existing) {
+            return false; // Duplicate email
+        }
+
         $user = new self();
         $user->name     = $data['name'];
         $user->email    = $data['email'];

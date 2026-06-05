@@ -1,7 +1,6 @@
 <?php
-// Calculate statistics
-$completionRate = $totalCourses > 0 ? round(($completedCount / $totalCourses) * 100) : 0;
-$averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments, 'progress')) / $totalCourses) : 0;
+$completionRate = $completionRate ?? 0;
+$averageProgress = $averageProgress ?? 0;
 ?>
 
 <div class="container-fluid py-4">
@@ -15,10 +14,7 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
                             <h1 class="fw-bold mb-2">Welcome back, <?= htmlspecialchars($user['name']) ?>! 👋</h1>
                             <p class="mb-0 text-white-50">Continue your learning journey and track your progress.</p>
                         </div>
-                        <div class="col-md-4 text-center">
-                            <!-- <div class="display-6 fw-bold text-warning">Day </div> -->
-                            <!-- <small class="text-white-50">Learning streak</small> -->
-                        </div>
+                        <div class="col-md-4 text-center"></div>
                     </div>
                 </div>
             </div>
@@ -111,7 +107,7 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
                                             <small class="text-muted"><?= $enrollment['progress'] ?>% complete</small>
                                         </div>
                                         <div class="card-footer bg-transparent border-0 pt-0">
-                                            <a href="/course/<?= $course['id'] ?>/learn" class="btn btn-dark btn-sm w-100">
+                                            <a href="/course-player?course_id=<?= $course['id'] ?>&lesson_id=1" class="btn btn-dark btn-sm w-100">
                                                 <i class="fas fa-play-circle me-1"></i>Continue
                                             </a>
                                         </div>
@@ -166,14 +162,14 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
             </div>
 
             <!-- Recommended Courses -->
-            <?php if (!empty($recommendedCourses)): ?>
+            <?php if (!empty($recommendedCoursesArray)): ?>
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white border-0 py-3">
                         <h3 class="fw-bold mb-0">Recommended For You</h3>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <?php foreach (array_slice($recommendedCourses, 0, 3) as $course): ?>
+                            <?php foreach (array_slice($recommendedCoursesArray, 0, 3) as $course): ?>
                                 <div class="col-md-4 mb-3">
                                     <div class="card border-0 h-100">
                                         <img src="<?= getCourseImage($course) ?>"
@@ -188,12 +184,12 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
                                             </h6>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="fw-bold text-dark"><?= $course['price'] > 0 ? '$' . $course['price'] : 'Free' ?></span>
-                                                <span class="badge bg-light text-dark small"><?= $course['level'] ?></span>
+                                                <span class="badge bg-light text-dark small"><?= ucfirst($course['level']) ?></span>
                                             </div>
                                         </div>
                                         <div class="card-footer bg-transparent border-0 pt-0">
                                             <a href="/course-player?course_id=<?= $course['id'] ?>&lesson_id=1" class="btn btn-dark w-100">
-                                                <i class="fas fa-play-circle me-2"></i>Continue Learning
+                                                <i class="fas fa-play-circle me-2"></i>Start Learning
                                             </a>
                                         </div>
                                     </div>
@@ -250,7 +246,7 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
                             <small class="fw-semibold"><?= $totalCourses - $completedCount - $inProgressCount ?></small>
                         </div>
                         <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-light" style="width: <?= $totalCourses > 0 ? (($totalCourses - $completedCount - $inProgressCount) / $totalCourses) * 100 : 0 ?>%"></div>
+                            <div class="progress-bar bg-secondary" style="width: <?= $totalCourses > 0 ? (($totalCourses - $completedCount - $inProgressCount) / $totalCourses) * 100 : 0 ?>%"></div>
                         </div>
                     </div>
                 </div>
@@ -336,7 +332,6 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
         justify-content: center;
         position: relative;
     }
-
     .progress-circle::before {
         content: '';
         position: absolute;
@@ -345,49 +340,41 @@ $averageProgress = $totalCourses > 0 ? round(array_sum(array_column($enrollments
         border-radius: 50%;
         background: white;
     }
-
     .progress-value {
         position: relative;
         z-index: 1;
         font-size: 1.5rem;
     }
-
     .achievement-badge {
         background: linear-gradient(135deg, #ffc107, #fd7e14);
     }
-
     .card {
         border: 1px solid #e9ecef !important;
     }
-
     .card-header {
         border-bottom: 2px solid #000;
     }
-
     .progress {
         background-color: #f8f9fa;
     }
 </style>
 
 <script>
-    // Animate progress circles when they come into view
     document.addEventListener('DOMContentLoaded', function() {
         const progressCircle = document.querySelector('.progress-circle');
         if (progressCircle) {
             const progress = progressCircle.getAttribute('data-progress');
             progressCircle.style.background = `conic-gradient(#28a745 ${progress * 3.6}deg, #e9ecef 0deg)`;
         }
-    });
 
-    // Add some interactive elements
-    document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.transition = 'transform 0.2s ease';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.transition = 'transform 0.2s ease';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
         });
     });
 </script>

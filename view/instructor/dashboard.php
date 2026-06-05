@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -49,7 +49,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -66,7 +66,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -115,8 +115,8 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <img src="<?= getInstructorAvatar($enrollment['student_name'], 30) ?>" 
-                                                         class="rounded-circle me-2" alt="Student">
+                                                    <img src="<?= getInstructorAvatar($enrollment['student_name'], 30) ?>"
+                                                        class="rounded-circle me-2" alt="Student">
                                                     <span><?= htmlspecialchars($enrollment['student_name']) ?></span>
                                                 </div>
                                             </td>
@@ -170,24 +170,24 @@
                             <span class="fw-semibold text-success"><?= count($publishedCourses) ?></span>
                         </div>
                         <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-success" 
-                                 style="width: <?= count($courses) > 0 ? (count($publishedCourses) / count($courses)) * 100 : 0 ?>%">
+                            <div class="progress-bar bg-success"
+                                style="width: <?= count($courses) > 0 ? (count($publishedCourses) / count($courses)) * 100 : 0 ?>%">
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-1">
                             <span class="fw-semibold">Draft</span>
                             <span class="fw-semibold text-warning"><?= count($draftCourses) ?></span>
                         </div>
                         <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-warning" 
-                                 style="width: <?= count($courses) > 0 ? (count($draftCourses) / count($courses)) * 100 : 0 ?>%">
+                            <div class="progress-bar bg-warning"
+                                style="width: <?= count($courses) > 0 ? (count($draftCourses) / count($courses)) * 100 : 0 ?>%">
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-0">
                         <div class="d-flex justify-content-between mb-1">
                             <span class="fw-semibold">Total Courses</span>
@@ -225,9 +225,9 @@
                             <?php foreach (array_slice($courses, 0, 4) as $course): ?>
                                 <div class="col-lg-3 col-md-6 mb-4">
                                     <div class="card border-0 shadow-sm h-100 course-card">
-                                        <img src="<?= getCourseImage($course) ?>" 
-                                             class="card-img-top" alt="<?= htmlspecialchars($course['title']) ?>" 
-                                             style="height: 160px; object-fit: cover;">
+                                        <img src="<?= getCourseImage($course) ?>"
+                                            class="card-img-top" alt="<?= htmlspecialchars($course['title']) ?>"
+                                            style="height: 160px; object-fit: cover;">
                                         <div class="card-body">
                                             <span class="badge bg-<?= $course['status'] === 'published' ? 'success' : 'warning' ?> mb-2">
                                                 <?= ucfirst($course['status']) ?>
@@ -237,7 +237,11 @@
                                                 <?= substr($course['description'], 0, 80) ?>...
                                             </p>
                                             <div class="d-flex justify-content-between align-items-center">
-                                                <span class="h6 mb-0 text-dark">$<?= $course['price'] ?></span>
+                                                <?php if ($course['price'] == 0): ?>
+                                                    <span class="h6 mb-0 text-success">Free</span>
+                                                <?php else: ?>
+                                                    <span class="h6 mb-0 text-dark">$<?= $course['price'] ?></span>
+                                                <?php endif; ?>
                                                 <span class="badge bg-light text-dark">
                                                     <?= count($course['curriculum'] ?? []) ?> lessons
                                                 </span>
@@ -245,10 +249,10 @@
                                         </div>
                                         <div class="card-footer bg-white border-0 pt-0">
                                             <div class="btn-group w-100">
-                                                <a href="/course-builder?course_id=<?= $course['id'] ?>" 
-                                                   class="btn btn-sm btn-outline-dark">Edit</a>
-                                                <a href="/course/<?= $course['id'] ?>" 
-                                                   class="btn btn-sm btn-outline-dark">View</a>
+                                                <a href="/course-builder?course_id=<?= $course['id'] ?>"
+                                                    class="btn btn-sm btn-outline-dark">Edit</a>
+                                                <a href="/course/<?= $course['id'] ?>"
+                                                    class="btn btn-sm btn-outline-dark">View</a>
                                             </div>
                                         </div>
                                     </div>
@@ -265,20 +269,20 @@
 <script src="/assets/js/bootstrap.bundle.js"></script>
 
 <style>
-.instructor-content {
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 56px);
-}
+    .instructor-content {
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 56px);
+    }
 
-.course-card {
-    transition: transform 0.2s;
-}
+    .course-card {
+        transition: transform 0.2s;
+    }
 
-.course-card:hover {
-    transform: translateY(-2px);
-}
+    .course-card:hover {
+        transform: translateY(-2px);
+    }
 
-.progress {
-    background-color: #e9ecef;
-}
+    .progress {
+        background-color: #e9ecef;
+    }
 </style>

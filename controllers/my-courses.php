@@ -4,54 +4,50 @@ require_once 'includes/auth-functions.php';
 requireAuth();
 
 $user = getCurrentUserObject();
-if (!$user || $user->role !== 'student') {
-    $_SESSION['error'] = "You don't have permission to access this page.";
-    header('Location: /');
-    exit;
-}
-
 $userId = $user->getId();
 
-$enrollmentObjects = Enrollment::findByUser($userId);
+$enrollments = Enrollment::findByUser($userId);
 
 $enrolledCourses = [];
-foreach ($enrollmentObjects as $enrollment) {
+foreach ($enrollments as $enrollment) {
     $course = Course::findById($enrollment->courseId);
-    if ($course) {
+    if ($course && $course->status === 'published') {
         $enrolledCourses[] = [
-            'course'     => $course->toArray(),
+            'course' => $course->toArray(),
             'enrollment' => $enrollment->toArray()
         ];
     }
 }
 
+$search = $_GET['search'] ?? '';
 $filter = $_GET['filter'] ?? 'all';
-$sort   = $_GET['sort']   ?? 'recent';
+$sort = $_GET['sort'] ?? 'recent';
 
-$filteredCourses = $enrolledCourses;
-if ($filter === 'completed') {
-    $filteredCourses = array_filter($filteredCourses, fn($item) => $item['enrollment']['progress'] >= 100);
-} elseif ($filter === 'in-progress') {
-    $filteredCourses = array_filter($filteredCourses, fn($item) => $item['enrollment']['progress'] > 0 && $item['enrollment']['progress'] < 100);
-} elseif ($filter === 'not-started') {
-    $filteredCourses = array_filter($filteredCourses, fn($item) => $item['enrollment']['progress'] == 0);
-}
-
-usort($filteredCourses, function($a, $b) use ($sort) {
-    switch ($sort) {
-        case 'progress': return $b['enrollment']['progress'] <=> $a['enrollment']['progress'];
-        case 'title':    return $a['course']['title'] <=> $b['course']['title'];
-        default:         return strtotime($b['enrollment']['enrolled_at']) <=> strtotime($a['enrollment']['enrolled_at']);
-    }
+$filteredCourses = array_filter($enrolledCourses, function($item) use ($filter) {
+    $progress = $item['enrollment']['progress'] ?? 0;
+    if ($filter === 'completed') return $progress >= 100;
+    if ($filter === 'in-progress') return $progress > 0 && $progress < 100;
+    if ($filter === 'not-started') return $progress == 0;
+    return true;
 });
 
-$search = $_GET['search'] ?? '';
 if ($search) {
-    $filteredCourses = array_filter($filteredCourses, fn($item) =>
-        stripos($item['course']['title'], $search) !== false ||
-        stripos($item['course']['description'], $search) !== false
-    );
+    $filteredCourses = array_filter($filteredCourses, function($item) use ($search) {
+        return stripos($item['course']['title'], $search) !== false ||
+               stripos($item['course']['description'], $search) !== false;
+    });
 }
+
+
+usort($filteredCourses, function($a, $b) use ($sort) {
+    if ($sort === 'progress') {
+        return ($b['enrollment']['progress'] ?? 0) <=> ($a['enrollment']['progress'] ?? 0);
+    }
+    if ($sort === 'title') {
+        return strcmp($a['course']['title'], $b['course']['title']);
+    }
+    return strtotime($b['enrollment']['enrolled_at'] ?? 'now') <=> strtotime($a['enrollment']['enrolled_at'] ?? 'now');
+});
 
 $wishlist = []; 
 

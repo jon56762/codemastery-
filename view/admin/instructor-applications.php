@@ -140,7 +140,6 @@
                             </td>
                             <td>
                                 <?php
-                                // Inline status badge colors (replaces getStatusBadgeColor)
                                 $statusColors = [
                                     'pending'  => 'warning',
                                     'approved' => 'success',
@@ -158,9 +157,10 @@
                                 </small>
                             </td>
                             <td>
-                                <div class="dropdown">
+                                <!-- Fixed Bootstrap Dropdown -->
+                                <div class="btn-group">
                                     <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" 
-                                            data-bs-toggle="dropdown">
+                                            data-bs-toggle="dropdown" aria-expanded="false">
                                         Actions
                                     </button>
                                     <ul class="dropdown-menu">
@@ -172,7 +172,7 @@
                                         </li>
                                         <?php if ($application['status'] === 'pending'): ?>
                                             <li>
-                                                <form method="POST" class="d-inline">
+                                                <form method="POST" class="dropdown-item p-0">
                                                     <input type="hidden" name="application_id" value="<?= $application['id'] ?>">
                                                     <button type="submit" name="approve_application" class="dropdown-item text-success">
                                                         <i class="fas fa-check me-2"></i>Approve
@@ -319,3 +319,13 @@
     </div>
 </div>
 <?php endif; ?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Reinitialize all dropdowns to be sure (Bootstrap 5)
+        var dropdownElements = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElements.forEach(function(dropdownToggle) {
+            new bootstrap.Dropdown(dropdownToggle);
+        });
+    });
+</script>

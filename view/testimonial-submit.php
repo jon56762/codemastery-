@@ -7,7 +7,6 @@
                 <p class="text-muted">Help others discover CodeMastery by sharing your learning journey</p>
             </div>
 
-            <!-- Success/Error Messages -->
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <?= $_SESSION['success'] ?>
@@ -29,12 +28,14 @@
                 <div class="card-body p-4">
                     <!-- User Info -->
                     <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
-                        <img src="<?= htmlspecialchars($user['avatar'] ?? '/assets/images/avatars/default.jpg') ?>" 
-                             alt="<?= htmlspecialchars($user['name']) ?>" 
+                        <img src="<?= htmlspecialchars($userArray['avatar'] ?? '/assets/images/avatars/default.png') ?>" 
+                             alt="<?= htmlspecialchars($userArray['name']) ?>" 
                              class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
                         <div>
-                            <h5 class="fw-bold mb-1"><?= htmlspecialchars($user['name']) ?></h5>
-                            <p class="text-muted mb-0"><?= ucfirst($user['role']) ?> • Member since <?= date('F Y', strtotime($user['created_at'] ?? 'now')) ?></p>
+                            <h5 class="fw-bold mb-1"><?= htmlspecialchars($userArray['name']) ?></h5>
+                            <p class="text-muted mb-0">
+                                <?= ucfirst($userArray['role']) ?> • Member since <?= date('F Y', strtotime($userArray['created_at'] ?? 'now')) ?>
+                            </p>
                         </div>
                     </div>
 
@@ -71,7 +72,7 @@
                             <label for="testimonial_text" class="form-label fw-semibold">Your Experience *</label>
                             <textarea class="form-control" id="testimonial_text" name="testimonial_text" 
                                       rows="6" placeholder="Share your learning journey, how CodeMastery helped you, what you achieved..." 
-                                      required><?= htmlspecialchars($_POST['testimonial_text'] ?? '') ?></textarea>
+                                      maxlength="500" required><?= htmlspecialchars($_POST['testimonial_text'] ?? '') ?></textarea>
                             <div class="form-text">
                                 <span id="char_count">0</span>/500 characters
                             </div>
@@ -109,21 +110,15 @@
                     <h5 class="fw-bold mb-3">Your Learning Journey</h5>
                     <div class="row text-center">
                         <div class="col-4">
-                            <div class="h4 fw-bold text-primary mb-1">
-                                <?= count(getStudentEnrollments($user['id'])) ?>
-                            </div>
+                            <div class="h4 fw-bold text-primary mb-1"><?= $enrolledCount ?></div>
                             <small class="text-muted">Courses Enrolled</small>
                         </div>
                         <div class="col-4">
-                            <div class="h4 fw-bold text-success mb-1">
-                                <?= count(array_filter(getStudentEnrollments($user['id']), function($e) { return $e['progress'] >= 100; })) ?>
-                            </div>
+                            <div class="h4 fw-bold text-success mb-1"><?= $completedCount ?></div>
                             <small class="text-muted">Courses Completed</small>
                         </div>
                         <div class="col-4">
-                            <div class="h4 fw-bold text-warning mb-1">
-                                <?= count(getStudentAchievements($user['id'])) ?>
-                            </div>
+                            <div class="h4 fw-bold text-warning mb-1"><?= $achievementsCount ?></div>
                             <small class="text-muted">Achievements</small>
                         </div>
                     </div>
@@ -138,29 +133,24 @@
     display: flex;
     gap: 5px;
 }
-
 .star-label {
     font-size: 2rem;
     color: #ddd;
     cursor: pointer;
     transition: color 0.2s;
 }
-
 .star-label:hover,
 .rating-stars input:checked ~ .star-label {
     color: #ffc107;
 }
-
 .rating-stars input:checked + .star-label {
     color: #ffc107;
 }
-
 .rating-labels {
     display: flex;
     justify-content: space-between;
     margin-top: 5px;
 }
-
 .card {
     border-radius: 12px;
 }
@@ -172,44 +162,42 @@ document.addEventListener('DOMContentLoaded', function() {
     const textarea = document.getElementById('testimonial_text');
     const charCount = document.getElementById('char_count');
     
-    textarea.addEventListener('input', function() {
-        const count = this.value.length;
+    function updateCharCount() {
+        const count = textarea.value.length;
         charCount.textContent = count;
-        
         if (count > 500) {
             charCount.classList.add('text-danger');
         } else {
             charCount.classList.remove('text-danger');
         }
-    });
+    }
     
-    // Initialize character count
-    charCount.textContent = textarea.value.length;
+    textarea.addEventListener('input', updateCharCount);
+    updateCharCount();
     
     // Star rating interaction
     const stars = document.querySelectorAll('.star-label');
-    stars.forEach((star, index) => {
-        star.addEventListener('click', function() {
-            // Update all stars up to the clicked one
-            stars.forEach((s, i) => {
-                if (i <= index) {
-                    s.innerHTML = '<i class="fas fa-star"></i>';
-                } else {
-                    s.innerHTML = '<i class="far fa-star"></i>';
-                }
-            });
-        });
-    });
+    const radios = document.querySelectorAll('input[name="rating"]');
     
-    // Initialize stars based on checked radio
-    const checkedStar = document.querySelector('input[name="rating"]:checked');
-    if (checkedStar) {
-        const index = parseInt(checkedStar.value) - 1;
+    function updateStars() {
+        let selectedValue = null;
+        radios.forEach(radio => {
+            if (radio.checked) selectedValue = radio.value;
+        });
+        if (!selectedValue) return;
+        const index = parseInt(selectedValue) - 1;
         stars.forEach((s, i) => {
             if (i <= index) {
                 s.innerHTML = '<i class="fas fa-star"></i>';
+            } else {
+                s.innerHTML = '<i class="far fa-star"></i>';
             }
         });
     }
+    
+    radios.forEach(radio => {
+        radio.addEventListener('change', updateStars);
+    });
+    updateStars();
 });
 </script>

@@ -1,5 +1,4 @@
 <div class="container-fluid py-4 mt-5">
-    <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -14,7 +13,6 @@
         </div>
     </div>
 
-    <!-- Courses Table -->
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
@@ -47,7 +45,6 @@
                                 </thead>
                                 <tbody>
                                     <?php foreach ($courses as $course): 
-                                        $enrollments = getCourseEnrollments($course['id']);
                                         $rating = $course['rating'] ?? 0;
                                     ?>
                                         <tr>
@@ -75,10 +72,14 @@
                                                 </form>
                                             </td>
                                             <td>
-                                                <span class="fw-bold text-dark">$<?= $course['price'] ?></span>
+                                                <?php if ($course['price'] == 0): ?>
+                                                    <span class="badge bg-success">Free</span>
+                                                <?php else: ?>
+                                                    <span class="fw-bold text-dark">$<?= $course['price'] ?></span>
+                                                <?php endif; ?>
                                             </td>
                                             <td>
-                                                <span class="fw-semibold"><?= count($enrollments) ?></span>
+                                                <span class="fw-semibold"><?= $course['course_count'] ?? 0 ?></span>
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center">
@@ -122,7 +123,6 @@
         </div>
     </div>
 
-    <!-- Quick Stats -->
     <div class="row mt-4">
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card border-0 bg-primary text-white shadow-sm">
@@ -133,7 +133,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card border-0 bg-success text-white shadow-sm">
                 <div class="card-body text-center py-4">
@@ -143,7 +142,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card border-0 bg-warning text-white shadow-sm">
                 <div class="card-body text-center py-4">
@@ -153,15 +151,12 @@
                 </div>
             </div>
         </div>
-        
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card border-0 bg-info text-white shadow-sm">
                 <div class="card-body text-center py-4">
                     <i class="fas fa-users fa-2x mb-3"></i>
                     <h3 class="fw-bold mb-1">
-                        <?= array_sum(array_map(function($course) { 
-                            return count(getCourseEnrollments($course['id'])); 
-                        }, $courses)) ?>
+                        <?= array_sum(array_column($courses, 'course_count')) ?>
                     </h3>
                     <p class="mb-0">Total Students</p>
                 </div>
@@ -171,10 +166,8 @@
 </div>
 
 <script src="/assets/js/bootstrap.bundle.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add confirmation for status changes to published
     const statusSelects = document.querySelectorAll('select[name="status"]');
     statusSelects.forEach(select => {
         select.addEventListener('change', function(e) {

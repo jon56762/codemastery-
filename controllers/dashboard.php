@@ -14,7 +14,8 @@ $userId = $user['id'];
 $enrollmentObjects = Enrollment::findByUser($userId);
 
 $enrolledCourses = [];
-$enrollmentsArray = [];   
+$enrollmentsArray = [];
+
 foreach ($enrollmentObjects as $enrollment) {
     $course = Course::findById($enrollment->courseId);
     if ($course) {
@@ -39,7 +40,6 @@ $completedCourses = array_filter($enrolledCourses, function($item) {
 });
 $completedCount  = count($completedCourses);
 $inProgressCount = count($continueLearning);
-
 $averageProgress = 0;
 if ($totalCourses > 0) {
     $sum = array_sum(array_column($enrollmentsArray, 'progress'));
@@ -51,9 +51,7 @@ $completionRate = $totalCourses > 0 ? round(($completedCount / $totalCourses) * 
 $recommendedCourses = Course::getFeatured(6);
 $recommendedCoursesArray = array_map(fn($c) => $c->toArray(), $recommendedCourses);
 
-
 $achievements = [];
-
 if ($completedCount >= 1) {
     $achievements[] = [
         'id'          => 1,
@@ -82,7 +80,6 @@ if ($totalCourses >= 5) {
     ];
 }
 
-// ========== Upcoming deadlines (simulated) ==========
 $upcomingDeadlines = [];
 foreach (array_slice($continueLearning, 0, 3) as $item) {
     $upcomingDeadlines[] = [
@@ -93,7 +90,6 @@ foreach (array_slice($continueLearning, 0, 3) as $item) {
     ];
 }
 
-// The view now has all the variables it needs
 $page_title   = "Dashboard - CodeMastery";
 $current_page = 'dashboard';
 

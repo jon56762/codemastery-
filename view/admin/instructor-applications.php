@@ -319,7 +319,7 @@
     </div>
 </div>
 <?php endif; ?>
-
+<script src="/view/partial/js/bootstrap.bundle.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Reinitialize all dropdowns to be sure (Bootstrap 5)

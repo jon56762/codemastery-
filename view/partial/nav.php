@@ -46,7 +46,7 @@
                 <?php endif; ?>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                    <span class="navbar-toggler-icon"></span>
+                    <i class="fas fa-bars    "></i>
                 </button>
             </div>
 
@@ -63,11 +63,11 @@
                             <i class="fas fa-book me-1"></i>Courses
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= ($current_page === 'pricing') ? 'active' : '' ?>" href="/pricing">
+                    <!-- <li class="nav-item">
+                        <a class="nav-link = ($current_page === 'pricing') ? 'active' : '' ?>" href="/pricing">
                             <i class="fas fa-tag me-1"></i>Pricing
                         </a>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_page === 'testimonials') ? 'active' : '' ?>" href="/testimonials">
                             <i class="fas fa-comments me-1"></i>Testimonials
@@ -223,11 +223,11 @@
                         <i class="fas fa-book me-2"></i>Courses
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= ($current_page === 'pricing') ? 'active' : '' ?>" href="/pricing">
+                <!-- <li class="nav-item">
+                    <a class="nav-link < ($current_page === 'pricing') ? 'active' : '' ?>" href="/pricing">
                         <i class="fas fa-tag me-2"></i>Pricing
                     </a>
-                </li>
+                </li> -->
                 <li class="nav-item">
                     <a class="nav-link <?= ($current_page === 'testimonials') ? 'active' : '' ?>" href="/testimonials">
                         <i class="fas fa-comments me-2"></i>Testimonials
@@ -332,7 +332,4 @@
     <?php endif; ?>
 
     <div class="content-wrapper" style="padding-top: 80px;">
-
-
-
-        <script src="/assets/js/bootstrap.bundle.js"></script>
+<script src="../partial/js/bootstrap.bundle.js"></script>

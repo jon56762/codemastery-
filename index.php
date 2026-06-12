@@ -14,6 +14,8 @@ route('/courses', MainController::class, 'courses');
 
 route('/course', MainController::class, 'course');
 
+route('/email-auth', MainController::class, 'email');
+
 route('/blog-creation', MainController::class,'blogCreation');
 
 route('/about', MainController::class,'about');

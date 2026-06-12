@@ -24,6 +24,11 @@ class MainController
         view('course');
     }
 
+    public function email()
+    {
+        view('email-auth');
+    }
+
     public function blogCreation()
     {
         view('blog-creation');

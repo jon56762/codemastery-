@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../database/db.php';
-
+require_once __DIR__ . '/email-functions.php';
 require_once __DIR__ . '/autoload.php';
 
 spl_autoload_register(function ($class) {

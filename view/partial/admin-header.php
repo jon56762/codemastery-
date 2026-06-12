@@ -187,4 +187,4 @@
 
     <!-- Main content area -->
     <div class="container-fluid" style="padding-top: 70px;">
-        <script src="/assets/js/bootstrap.bundle.js"></script>
+    <script src="../partial/js/bootstrap.bundle.js"></script>

@@ -129,7 +129,7 @@
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
                             <div class="card course-card h-100 border-0 shadow-sm">
                                 <div class="position-relative">
-                                    <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/default-course.jpg') ?>"
+                                    <img src="<?= htmlspecialchars($course['thumbnail'] ?? '/assets/images/dafault.jpg') ?>"
                                         class="card-img-top"
                                         alt="<?= htmlspecialchars($course['title']) ?>"
                                         style="height: 200px; object-fit: cover;">

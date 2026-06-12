@@ -14,7 +14,7 @@ $platformStats = getPlatformStats();
 
             <div class="row">
                 <!-- Contact Form -->
-                <div class="col-lg-8">
+                <div class="col-lg-7">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
                             <form method="POST">
@@ -59,7 +59,7 @@ $platformStats = getPlatformStats();
                 </div>
 
                 <!-- Contact Info -->
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-4">Get in Touch</h5>
@@ -70,7 +70,7 @@ $platformStats = getPlatformStats();
                                 </div>
                                 <div>
                                     <h6 class="fw-semibold mb-1">Email</h6>
-                                    <p class="text-muted mb-0">support@codemastery.com</p>
+                                    <p class="text-muted mb-0">successjonathan567@gmail.com</p>
                                 </div>
                             </div>
                             
@@ -80,7 +80,7 @@ $platformStats = getPlatformStats();
                                 </div>
                                 <div>
                                     <h6 class="fw-semibold mb-1">Phone</h6>
-                                    <p class="text-muted mb-0">+1 (555) 123-4567</p>
+                                    <p class="text-muted mb-0">+234 911 490 6106</p>
                                 </div>
                             </div>
                             
@@ -100,7 +100,7 @@ $platformStats = getPlatformStats();
                                 </div>
                                 <div>
                                     <h6 class="fw-semibold mb-1">Location</h6>
-                                    <p class="text-muted mb-0">San Francisco, CA</p>
+                                    <p class="text-muted mb-0">Delta state, Nigeria.</p>
                                 </div>
                             </div>
                         </div>
